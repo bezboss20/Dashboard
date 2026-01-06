@@ -18,7 +18,7 @@ export function Sidebar({ currentPage, isOpen, onPageChange, onClose }: SidebarP
         { icon: Bell, label: '알림 기록', id: 'alerts', translationKey: 'sidebar.alertHistory' },
         { icon: Moon, label: '수면 관리', id: 'sleep', translationKey: 'sidebar.sleepManagement' },
         { icon: UserPlus, label: '환자 등록', id: 'registration', translationKey: 'sidebar.registration' },
-        { icon: MapPin, label: '군사 GPS', id: 'gps', translationKey: 'sidebar.militaryGps' },
+        { icon: MapPin, label: 'GPS 위치 추적', id: 'gps', translationKey: 'sidebar.militaryGps' },
         { icon: Settings, label: '설정', id: 'settings', translationKey: 'sidebar.settings' },
     ];
 

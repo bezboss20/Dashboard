@@ -8,10 +8,10 @@ import { SleepManagementPage } from './pages/SleepManagementPage';
 import { RegistrationPage } from './pages/RegistrationPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { PatientDetailMonitoringPage } from './pages/PatientDetailMonitoringPage';
-import { MilitaryGPSPage } from './pages/MilitaryGPSPage';
+import { GPSTrackingPage } from './pages/GPSTrackingPage';
 import { LanguageProvider } from './context/LanguageContext';
 
-export type MenuItem = '통합 대시보드' | '환자 목록' | '알림 기록' | '수면 관리' | '환자 등록' | '군사 GPS' | '설정';
+export type MenuItem = '통합 대시보드' | '환자 목록' | '알림 기록' | '수면 관리' | '환자 등록' | 'GPS 위치 추적' | '설정';
 
 export default function App() {
     const [currentPage, setCurrentPage] = useState<MenuItem>('통합 대시보드');
@@ -79,7 +79,7 @@ export default function App() {
                                 {currentPage === '알림 기록' && <NotificationCenterPage onViewPatientDetails={handleViewPatientDetails} />}
                                 {currentPage === '수면 관리' && <SleepManagementPage />}
                                 {currentPage === '환자 등록' && <RegistrationPage />}
-                                {currentPage === '군사 GPS' && <MilitaryGPSPage />}
+                                {currentPage === 'GPS 위치 추적' && <GPSTrackingPage />}
                                 {currentPage === '설정' && <SettingsPage />}
                             </>
                         )}
