@@ -97,12 +97,12 @@ export function SleepManagementPage() {
             appendNotificationLog({
                 id: `SLEEP-ANALYSIS-${selectedPatientId}-${Date.now()}`,
                 timestamp: formatTimestamp(new Date()),
-                system: "Sleep Management",
+                system: "수면 관리",
                 patientId: selectedPatientId,
                 category: "수면 관리/품질 분석",
-                type: "SLEEP_QUALITY_ANALYSIS",
+                type: "수면_품질_분석",
                 status: "성공",
-                details: "Sleep quality analysis completed"
+                details: "수면 품질 분석 완료"
             });
         }
     }, [selectedPatientId]);

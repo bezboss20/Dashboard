@@ -455,7 +455,7 @@ export function PatientDetailMonitoringPage({ patientId, onBack }: { patientId: 
 
     return (
         <div className="min-h-screen bg-transparent pb-12 font-sans">
-            <div className="w-full px-4 md:px-8 lg:px-10">
+            <div className="w-full px-0 xs:px-2 lg:px-10">
 
                 {/* Top Header */}
                 <header className="py-6 relative flex items-center justify-center">

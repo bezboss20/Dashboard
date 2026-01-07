@@ -137,12 +137,12 @@ export function RegistrationPage() {
         appendNotificationLog({
             id: `REG-${autoPatientId}-${Date.now()}`,
             timestamp: formatTimestamp(new Date()),
-            system: "Patient Registration",
+            system: "환자 등록",
             patientId: autoPatientId,
             category: "환자 등록/정보 생성",
-            type: "PATIENT_REGISTERED",
+            type: "환자_등록",
             status: "성공",
-            details: "New patient registered successfully"
+            details: "새 환자가 성공적으로 등록되었습니다"
         });
 
         alert(`${t('registration.success')}\nPatient ID: ${autoPatientId}`);

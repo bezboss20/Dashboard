@@ -42,18 +42,18 @@ export function createLogFromAlert(alert: Alert, action: "created" | "acknowledg
 
     if (alert.type === '심박 위급') {
         categoryBase = "심박수 모니터링";
-        type = alert.severity === 'critical' ? "CRITICAL_HEART_RATE" :
-            alert.severity === 'warning' ? "WARNING_HEART_RATE" : "CAUTION_HEART_RATE";
+        type = alert.severity === 'critical' ? "위급_심박수" :
+            alert.severity === 'warning' ? "경고_심박수" : "주의_심박수";
     } else if (alert.type === '호흡 위급') {
         categoryBase = "호흡 모니터링";
-        type = alert.severity === 'critical' ? "CRITICAL_BREATHING_RATE" :
-            alert.severity === 'warning' ? "WARNING_BREATHING_RATE" : "CAUTION_BREATHING_RATE";
+        type = alert.severity === 'critical' ? "위급_호흡수" :
+            alert.severity === 'warning' ? "경고_호흡수" : "주의_호흡수";
     } else if (alert.type === '낙상 감지') {
         categoryBase = "낙상 감지";
-        type = "FALL_DETECTED";
+        type = "낙상_감지";
     } else {
         categoryBase = "모니터링";
-        type = "ALERT_EVENT";
+        type = "알림_이벤트";
     }
 
     const categorySuffix = alert.severity === 'caution' ? "경고" : "긴급 알림";
@@ -61,18 +61,19 @@ export function createLogFromAlert(alert: Alert, action: "created" | "acknowledg
 
     let details = "";
     if (action === 'created') {
-        if (alert.type === '심박 위급') details = "Heart rate exceeded critical threshold";
-        else if (alert.type === '호흡 위급') details = "Breathing rate below safe threshold";
-        else if (alert.type === '낙상 감지') details = "Fall detected, emergency protocol initiated";
+        if (alert.type === '심박 위급') details = "심박수가 위험 기준치를 초과했습니다";
+        else if (alert.type === '호흡 위급') details = "호흡수가 안전 기준치 이하입니다";
+        else if (alert.type === '낙상 감지') details = "낙상 감지됨, 응급 프로토콜 시작";
         else details = alert.value || alert.type;
     } else {
-        details = `Alert ${action}: ${alert.type} (${alert.id})`;
+        const actionText = action === 'acknowledged' ? "확인됨" : "해결됨";
+        details = `알림 ${actionText}: ${alert.type} (${alert.id})`;
     }
 
     return {
         id: `${alert.id}-${action}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         timestamp: formatTimestamp(new Date()),
-        system: "Radar Monitoring System",
+        system: "레이더 모니터링 시스템",
         patientId: alert.patientId || "N/A",
         category: `${categoryBase}/${categorySuffix}${actionLabel}`,
         type: type,
@@ -99,23 +100,24 @@ const initialLogs: NotificationLog[] = [
     {
         id: "SYS-001",
         timestamp: formatTimestamp(new Date(Date.now() - 3600000)),
-        system: "System Health Check",
+        system: "시스템 상태 점검",
         patientId: "N/A",
         category: "시스템 관리/상태 확인",
-        type: "SYSTEM_HEALTH_CHECK",
+        type: "시스템_상태_점검",
         status: "성공",
-        details: "All systems operational"
+        details: "모든 시스템 정상 작동 중"
     },
     {
         id: "SYS-002",
         timestamp: formatTimestamp(new Date(Date.now() - 7200000)),
-        system: "Data Backup Service",
+        system: "데이터 백업 서비스",
         patientId: "N/A",
         category: "시스템 관리/백업",
-        type: "DATA_BACKUP",
+        type: "데이터_백업",
         status: "실패",
-        details: "Backup failed - connection timeout"
+        details: "백업 실패 - 연결 시간 초과"
     }
 ];
 
 notificationLogs = initialLogs.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+

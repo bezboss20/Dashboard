@@ -17,8 +17,21 @@ export function NotificationCenterPage({
     const [logs, setLogs] = useState<NotificationLog[]>(getNotificationLogs());
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [dateFrom, setDateFrom] = useState("2024-12-01");
-    const [dateTo, setDateTo] = useState("2024-12-31");
+
+    // Use dynamic date range based on current date (90 days to match data retention settings)
+    const today = new Date();
+    const ninetyDaysAgo = new Date(today);
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+
+    const formatDate = (date: Date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    };
+
+    const [dateFrom, setDateFrom] = useState(formatDate(ninetyDaysAgo));
+    const [dateTo, setDateTo] = useState(formatDate(today));
     const itemsPerPage = 10;
 
     useEffect(() => {
