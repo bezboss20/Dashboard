@@ -1,20 +1,28 @@
-import { Heart, Wind, Moon, Clock, CheckCircle, AlertTriangle, Eye, Wifi, WifiOff, AlertCircle, Wrench, Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Patient } from '../data/mockData';
-import { useState } from 'react';
+import { Heart, Wind, Moon, Clock, CheckCircle, AlertTriangle, User, Wifi, WifiOff, AlertCircle, Wrench, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Patient } from '../../data/mockData';
+import { useState, useEffect } from 'react';
 import { Sparkline } from './Sparkline';
-import { useLanguage } from '../context/LanguageContext';
-import { deriveHealthStatus, getHealthStatusLabel, getHealthStatusClasses } from '../utils/statusLabels';
+import { useLanguage } from '../../context/LanguageContext';
+import { deriveHealthStatus, getHealthStatusLabel, getHealthStatusClasses } from '../../utils/statusLabels';
 
 interface PatientOverviewTableProps {
     patients: Patient[];
     selectedPatientId: string;
     onSelectPatient: (patientId: string) => void;
     onViewPatientDetails?: (patientId: string) => void;
+    onViewSleepPage?: (patientId: string) => void;
+    searchQuery?: string;
 }
 
-export function PatientOverviewTable({ patients, selectedPatientId, onSelectPatient, onViewPatientDetails }: PatientOverviewTableProps) {
+export function PatientOverviewTable({
+    patients,
+    selectedPatientId,
+    onSelectPatient,
+    onViewPatientDetails,
+    onViewSleepPage,
+    searchQuery = ''
+}: PatientOverviewTableProps) {
     const { t, language } = useLanguage();
-    const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
@@ -31,11 +39,10 @@ export function PatientOverviewTable({ patients, selectedPatientId, onSelectPati
     const endIndex = startIndex + itemsPerPage;
     const currentPatients = filteredPatients.slice(startIndex, endIndex);
 
-    // Reset to page 1 when search query changes
-    const handleSearchChange = (value: string) => {
-        setSearchQuery(value);
+    // Reset to page 1 when search query or patients change
+    useEffect(() => {
         setCurrentPage(1);
-    };
+    }, [searchQuery, patients]);
 
     const getAlertIcon = (status: string) => {
         switch (status) {
@@ -112,17 +119,6 @@ export function PatientOverviewTable({ patients, selectedPatientId, onSelectPati
                         <h2 className="text-gray-900 font-bold">{t('table.overview')}</h2>
                         <p className="text-xs lg:text-sm text-gray-500">{t('table.realTime')}</p>
                     </div>
-                    {/* Search Bar */}
-                    <div className="relative w-full sm:w-auto">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 lg:w-5 lg:h-5 text-gray-400" />
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => handleSearchChange(e.target.value)}
-                            placeholder={t('table.searchPlaceholder')}
-                            className="pl-10 pr-4 py-2 w-full sm:w-64 lg:w-80 bg-gray-50 text-gray-900 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                    </div>
                 </div>
             </div>
 
@@ -145,9 +141,18 @@ export function PatientOverviewTable({ patients, selectedPatientId, onSelectPati
                             <th className="px-6 py-3 text-left text-xs uppercase tracking-wider text-gray-600">
                                 <div className="flex items-center gap-2"> <Clock className="w-4 h-4" /> {t('table.lastUpdated')} </div>
                             </th>
-                            {onViewPatientDetails && (
-                                <th className="px-6 py-3 text-left text-xs uppercase tracking-wider text-gray-600"> {t('table.actions')} </th>
-                            )}
+                            <th className="px-6 py-3 text-left text-xs uppercase tracking-wider text-gray-600">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-1">
+                                        <Moon className="w-3.5 h-3.5 text-indigo-500" />
+                                        <span>{t('table.sleep')}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <User className="w-3.5 h-3.5 text-blue-500" />
+                                        <span>{t('table.viewDetails')}</span>
+                                    </div>
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
@@ -218,16 +223,32 @@ export function PatientOverviewTable({ patients, selectedPatientId, onSelectPati
                                         </div>
                                     </td>
                                     <td className="px-6 py-4"> <span className="text-sm text-gray-500"> {formatTimeAgo(patient.lastUpdated)} </span> </td>
-                                    {onViewPatientDetails && (
-                                        <td className="px-6 py-4">
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); onViewPatientDetails(patient.id); }}
-                                                className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                                            >
-                                                <Eye className="w-4 h-4" /> {t('table.viewDetails')}
-                                            </button>
-                                        </td>
-                                    )}
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="flex items-center gap-2">
+                                            {/* Sleep Page Button */}
+                                            {onViewSleepPage && (
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); onViewSleepPage(patient.id); }}
+                                                    className="p-2 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 transition-colors"
+                                                    aria-label={t('table.openSleepPage')}
+                                                    title={t('table.openSleepPage')}
+                                                >
+                                                    <Moon className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                            {/* Patient Details Button */}
+                                            {onViewPatientDetails && (
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); onViewPatientDetails(patient.id); }}
+                                                    className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                                                    aria-label={t('table.viewPatientDetails')}
+                                                    title={t('table.viewPatientDetails')}
+                                                >
+                                                    <User className="w-4 h-4" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </td>
                                 </tr>
                             );
                         })}

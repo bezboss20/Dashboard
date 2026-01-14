@@ -8,6 +8,8 @@ export interface SleepHistoryRecord {
     notes?: string;
 }
 
+export type PatientStatus = 'ACTIVE' | 'DISCHARGED' | 'TRANSFERRED';
+
 export interface Alert {
     id: string;
     patientId: string;
@@ -42,6 +44,7 @@ export interface Patient {
     radarDetection: boolean;
     deviceStatus: string;
     deviceId: string;
+    patientStatus: PatientStatus;
     lastUpdated: Date;
     heartRateHistory: {
         oneMin: Array<{ value: number; time?: string | Date }>;
@@ -793,6 +796,7 @@ const generatePatients = () => {
             radarDetection: Math.random() > 0.03,
             deviceStatus: Math.random() > 0.1 ? 'online' : 'offline',
             deviceId: `D${20240000 + i}`,
+            patientStatus: i < 80 ? 'ACTIVE' : (i < 92 ? 'DISCHARGED' : 'TRANSFERRED'),
             lastUpdated: new Date(Date.now() - Math.random() * 300000),
             heartRateHistory: generateHeartRateHistoryAll(vitals.heartRate),
             breathingRateHistory: generateBreathingRateHistoryAll(vitals.breathingRate),
@@ -865,4 +869,31 @@ export const mockPatients: Patient[] = generatePatients();
 
 export const registerNewPatient = (patient: Patient) => {
     mockPatients.push(patient);
+};
+
+/**
+ * Update a patient's status in the mock database.
+ * Structured for easy replacement with a real API call.
+ * @param patientId - The ID of the patient to update
+ * @param newStatus - The new status to set
+ * @returns Promise<boolean> - true if update successful, false otherwise
+ */
+export const updatePatientStatus = async (
+    patientId: string,
+    newStatus: PatientStatus
+): Promise<{ success: boolean; error?: string }> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    const patientIndex = mockPatients.findIndex(p => p.id === patientId);
+
+    if (patientIndex === -1) {
+        return { success: false, error: 'Patient not found' };
+    }
+
+    // Update the patient status
+    mockPatients[patientIndex].patientStatus = newStatus;
+    mockPatients[patientIndex].lastUpdated = new Date();
+
+    return { success: true };
 };
