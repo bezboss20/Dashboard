@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Bell, Moon, UserPlus, MapPin, Settings, X } from 'lucide-react';
+import { LayoutDashboard, Users, Bell, UserPlus, MapPin, Settings, X } from 'lucide-react';
 import { MenuItem } from '../App';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -16,7 +16,6 @@ export function Sidebar({ currentPage, isOpen, onPageChange, onClose }: SidebarP
         { icon: LayoutDashboard, label: '통합 대시보드', id: 'dashboard', translationKey: 'sidebar.dashboard' },
         { icon: Users, label: '환자 목록', id: 'patients', translationKey: 'sidebar.patientList' },
         { icon: Bell, label: '알림 기록', id: 'alerts', translationKey: 'sidebar.alertHistory' },
-        { icon: Moon, label: '수면 관리', id: 'sleep', translationKey: 'sidebar.sleepManagement' },
         { icon: UserPlus, label: '환자 등록', id: 'registration', translationKey: 'sidebar.registration' },
         { icon: MapPin, label: 'GPS 위치 추적', id: 'gps', translationKey: 'sidebar.militaryGps' },
         { icon: Settings, label: '설정', id: 'settings', translationKey: 'sidebar.settings' },
