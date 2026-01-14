@@ -120,4 +120,3 @@ const initialLogs: NotificationLog[] = [
 ];
 
 notificationLogs = initialLogs.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
-

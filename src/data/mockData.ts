@@ -399,7 +399,7 @@ export const getAggregatedSleepTrend = (patientId: string, view: 'Day' | 'Weekly
     return [];
 };
 const koreanFirstNames = ['민준', '서연', '지우', '하은', '도윤', '서준', '예은', '시우', '지훈', '수아', '정우', '유나', '현우', '지아', '준서', '윤서', '건우', '채원', '지호', '다은', '태양', '소율', '승현', '수빈', '민재', '하린', '재윤', '수현', '예준', '지민', '우진', '서아', '현준', '서우', '선우', '아인', '재원', '지유', '이준', '하율', '성민', '지안', '동현', '서현', '주원', '은서', '시윤', '가은', '은우', '채은'];
-const englishFirstNames = ['Min-jun', 'Seo-yeon', 'Ji-woo', 'Ha-eun', 'Do-yun', 'Seo-jun', 'Ye-eun', 'Si-woo', 'Ji-hoon', 'Su-ah', 'Jung-woo', 'Yu-na', 'Hyun-woo', 'Ji-ah', 'Jun-seo', 'Yun-seo', 'Geon-woo', 'Chae-won', 'Ji-ho', 'Da-eun', 'Tae-yang', 'So-yul', 'Seung-hyun', 'Su-bin', 'Min-jae', 'Ha-rin', 'Jae-yun', 'Su-hyeon', 'Ye-jun', 'Ji-min', 'Woo-jin', 'Seo-ah', 'Hyun-jun', 'Seo-woo', 'Sun-woo', 'Ah-in', 'Jae-won', 'Ji-yu', 'Lee-jun', 'Ha-yul', 'Seung-min', 'Ji-an', 'Dong-hyun', 'Seo-hyun', 'Ju-won', 'Eun-seo', 'Si-yun', 'Ga-eun', 'Eun-woo', 'Chae-eun'];
+const englishFirstNames = ['Min-jun', 'Seo-yeon', 'Ji-woo', 'Ha-en', 'Do-yun', 'Seo-jun', 'Ye-en', 'Si-woo', 'Ji-hoon', 'Su-ah', 'Jung-woo', 'Yu-na', 'Hyun-woo', 'Ji-ah', 'Jun-seo', 'Yun-seo', 'Geon-woo', 'Chae-won', 'Ji-ho', 'Da-en', 'Tae-yang', 'So-yul', 'Seung-hyun', 'Su-bin', 'Min-jae', 'Ha-rin', 'Jae-yun', 'Su-hyeon', 'Ye-jun', 'Ji-min', 'Woo-jin', 'Seo-ah', 'Hyun-jun', 'Seo-woo', 'Sun-woo', 'Ah-in', 'Jae-won', 'Ji-yu', 'Lee-jun', 'Ha-yul', 'Seung-min', 'Ji-an', 'Dong-hyun', 'Seo-hyun', 'Ju-won', 'Eun-seo', 'Si-yun', 'Ga-en', 'Eun-woo', 'Chae-en'];
 const koreanLastNames = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '한', '오', '서', '신', '권', '황', '안', '송', '전', '홍'];
 const englishLastNames = ['Kim', 'Lee', 'Park', 'Choi', 'Jung', 'Kang', 'Cho', 'Yoon', 'Jang', 'Lim', 'Han', 'Oh', 'Seo', 'Shin', 'Kwon', 'Hwang', 'An', 'Song', 'Jeon', 'Hong'];
 
@@ -512,7 +512,7 @@ export const mockAlerts: Alert[] = [
         id: 'A004',
         patientId: 'P20241208-1075',
         patientName: '최하은',
-        patientNameEnglish: 'Choi Ha-eun',
+        patientNameEnglish: 'Choi Ha-en',
         type: '낙상 감지',
         severity: 'critical',
         timestamp: new Date(Date.now() - 6 * 60 * 1000),
@@ -545,7 +545,7 @@ export const mockAlerts: Alert[] = [
         id: 'A007',
         patientId: 'P20241208-1078',
         patientName: '조예은',
-        patientNameEnglish: 'Cho Ye-eun',
+        patientNameEnglish: 'Cho Ye-en',
         type: '호흡 위급',
         severity: 'warning',
         timestamp: new Date(Date.now() - 12 * 60 * 1000),
@@ -710,7 +710,7 @@ export const mockAlerts: Alert[] = [
         id: 'A020',
         patientId: 'P20241210-1091',
         patientName: '홍다은',
-        patientNameEnglish: 'Hong Da-eun',
+        patientNameEnglish: 'Hong Da-en',
         type: '호흡 위급',
         severity: 'warning',
         timestamp: new Date(Date.now() - 90 * 60 * 1000),
