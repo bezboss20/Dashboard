@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { mockPatients, mockAlerts } from '../../data/mockData';
 import { useLanguage } from '../../context/LanguageContext';
+import { useDispatch } from 'react-redux';
+import { updatePatientStatusLocal } from '../../store/slices/monitoringSlice';
+import type { AppDispatch } from '../../store/store';
 import {
     deriveHealthStatus,
     DeviceHealthStatus
@@ -42,7 +44,9 @@ interface MonitoringPoint {
 }
 
 interface PatientDetail {
+    mongoId: string;
     id: string;
+    patientCode: string;
     name: string;
     englishName: string;
     age: number;
@@ -90,31 +94,7 @@ const formatTime = (date: Date) => {
     });
 };
 
-const generateMonitoringData = (range: TimeRange, patientId?: string): MonitoringPoint[] => {
-    const mockPatient = patientId ? mockPatients.find(p => p.id === patientId) : null;
-
-    if (mockPatient) {
-        const rangeMap: Record<string, string> = {
-            '5분': 'fiveMin',
-            '15분': 'fifteenMin',
-            '30분': 'thirtyMin',
-            '1시간': 'oneHour',
-            '6시간': 'sixHours',
-            '24시간': 'twentyFourHours'
-        };
-
-        const rangeKey = rangeMap[range] as keyof typeof mockPatient.heartRateHistory;
-        const hrHistory = mockPatient.heartRateHistory[rangeKey] || [];
-        const rrHistory = mockPatient.breathingRateHistory[rangeKey] || [];
-
-        return hrHistory.map((h: { time?: string | Date; value: number }, i: number) => ({
-            time: String(h.time || ''),
-            timestamp: Date.now(),
-            hr: h.value,
-            rr: rrHistory[i]?.value || 16
-        }));
-    }
-
+const generateMonitoringData = (range: TimeRange, _patientId?: string): MonitoringPoint[] => {
     const points: MonitoringPoint[] = [];
     const now = new Date();
     let intervalMs = 0;
@@ -149,124 +129,156 @@ const generateMonitoringData = (range: TimeRange, patientId?: string): Monitorin
 };
 
 const getPatientDetail = async (patientId: string): Promise<PatientDetail> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
+    const response = await fetch(
+        `https://kaleidoscopically-prorailroad-kris.ngrok-free.dev/getPatient/${patientId}`,
+        {
+            headers: {
+                'ngrok-skip-browser-warning': 'true'
+            }
+        }
+    );
 
-    const mockPatient = mockPatients.find(p => p.id === patientId);
-    if (!mockPatient) throw new Error('Patient not found');
+    if (!response.ok) {
+        throw new Error('API request failed');
+    }
 
-    const patientAlerts = mockAlerts.filter(a => a.patientId === patientId);
+    const json = await response.json();
+
+    if (!json.success || !json.data) {
+        throw new Error('Invalid API response');
+    }
+
+    const apiData = json.data;
+    const patient = apiData.patient;
+    const currentVitals = apiData.currentVitals;
+    const sleepRecord = apiData.sleepRecord;
+    const recentAlerts = apiData.recentAlerts || [];
+    const deviceStatus = apiData.deviceStatus;
+
+    // Determine status from vitals
+    let status: 'STABLE' | 'WARNING' | 'CRITICAL' = 'STABLE';
+    if (currentVitals.heartRate?.status?.includes('CRITICAL') || currentVitals.respiratory?.status?.includes('CRITICAL')) {
+        status = 'CRITICAL';
+    } else if (currentVitals.heartRate?.status?.includes('WARNING') || currentVitals.respiratory?.status?.includes('WARNING')) {
+        status = 'WARNING';
+    }
+
+    // Map alert severity
+    const mapSeverity = (severity: string): 'high' | 'medium' | 'low' => {
+        if (severity === 'CRITICAL' || severity === 'HIGH') return 'high';
+        if (severity === 'MEDIUM' || severity === 'WARNING') return 'medium';
+        return 'low';
+    };
+
+    // Map vital status to translation key
+    const mapVitalStatus = (apiStatus: string): string => {
+        if (apiStatus?.includes('CRITICAL')) return 'status.critical';
+        if (apiStatus?.includes('WARNING')) return 'status.warning';
+        if (apiStatus?.includes('CAUTION')) return 'status.caution';
+        return 'status.normal';
+    };
+
+    // Calculate admission day
+    const admissionDate = new Date(); // API doesn't provide this, default to today
+    const admissionDay = 1;
 
     return {
-        id: mockPatient.id,
-        name: mockPatient.nameKorean,
-        englishName: mockPatient.nameEnglish,
-        age: mockPatient.personalInfo.age,
-        gender: mockPatient.personalInfo.gender,
-        room: mockPatient.personalInfo.roomNumber,
-        status: mockPatient.alertStatus.toUpperCase() as 'STABLE' | 'WARNING' | 'CRITICAL',
-        statusLabel: mockPatient.alertStatus,
+        mongoId: patient._id || patient.id,
+        id: patient._id || patient.id,
+        patientCode: patient.patientCode || 'N/A',
+        name: patient.fullName?.ko || patient.patientCode,
+        englishName: patient.fullName?.en || patient.patientCode,
+        age: patient.age || 0,
+        gender: patient.gender === 'FEMALE' ? '여' : '남',
+        room: `${patient.ward?.roomNumber || 0}호`,
+        status,
+        statusLabel: status.toLowerCase(),
         lastUpdated: 'time.justNow',
-        bloodType: `${mockPatient.personalInfo.bloodType}`,
-        deviceId: mockPatient.deviceId,
-        doctor: mockPatient.personalInfo.doctorName,
-        doctorEnglish: mockPatient.personalInfo.doctorNameEnglish,
-        nurse: mockPatient.personalInfo.nurseName,
-        nurseEnglish: mockPatient.personalInfo.nurseNameEnglish,
-        admissionDate: mockPatient.personalInfo.admissionDate.replace(/-/g, '.'),
-        admissionDay:
-            Math.floor(
-                (new Date().getTime() - new Date(mockPatient.personalInfo.admissionDate).getTime()) /
-                (1000 * 60 * 60 * 24)
-            ) + 1,
-        diagnosis: mockPatient.medicalHistory.diagnoses[0] || 'detail.observe',
-        patientStatus: mockPatient.patientStatus,
+        bloodType: 'A+', // API doesn't provide blood type
+        deviceId: deviceStatus?.deviceCode || 'N/A',
+        doctor: '김의사', // API doesn't provide doctor info
+        doctorEnglish: 'Dr. Kim',
+        nurse: '이간호사',
+        nurseEnglish: 'Nurse Lee',
+        admissionDate: admissionDate.toISOString().split('T')[0].replace(/-/g, '.'),
+        admissionDay,
+        diagnosis: 'detail.observe',
+        patientStatus: patient.status === 'ACTIVE' ? 'ACTIVE' : 'DISCHARGED',
         vitals: {
             hr: {
-                value: mockPatient.heartRate,
-                status:
-                    mockPatient.heartRate > 100 || mockPatient.heartRate < 50
-                        ? 'status.critical'
-                        : mockPatient.heartRate > 90 || mockPatient.heartRate < 60
-                            ? 'status.warning'
-                            : mockPatient.heartRate > 85 || mockPatient.heartRate < 65
-                                ? 'status.caution'
-                                : 'status.normal',
-                isNormal: mockPatient.heartRate <= 85 && mockPatient.heartRate >= 65
+                value: currentVitals.heartRate?.value || 0,
+                status: mapVitalStatus(currentVitals.heartRate?.status),
+                isNormal: currentVitals.heartRate?.status === 'NORMAL'
             },
             stressIndex: {
-                value: mockPatient.stressIndex,
-                status:
-                    mockPatient.stressIndex > 80
-                        ? 'status.critical'
-                        : mockPatient.stressIndex > 65
-                            ? 'status.warning'
-                            : mockPatient.stressIndex > 50
-                                ? 'status.caution'
-                                : 'status.normal',
-                isNormal: mockPatient.stressIndex <= 50
+                value: currentVitals.stressIndex?.value || 0,
+                status: 'status.normal',
+                isNormal: true
             },
             rr: {
-                value: mockPatient.breathingRate,
-                status:
-                    mockPatient.breathingRate > 25 || mockPatient.breathingRate < 10
-                        ? 'status.critical'
-                        : mockPatient.breathingRate > 22 || mockPatient.breathingRate < 12
-                            ? 'status.warning'
-                            : mockPatient.breathingRate > 20 || mockPatient.breathingRate < 14
-                                ? 'status.caution'
-                                : 'status.normal',
-                isNormal: mockPatient.breathingRate <= 20 && mockPatient.breathingRate >= 14
+                value: currentVitals.respiratory?.value || 0,
+                status: mapVitalStatus(currentVitals.respiratory?.status),
+                isNormal: currentVitals.respiratory?.status === 'NORMAL'
             },
             sleepIndex: {
-                value: mockPatient.sleepScore,
-                status:
-                    mockPatient.sleepScore < 50
-                        ? 'status.critical'
-                        : mockPatient.sleepScore < 65
-                            ? 'status.warning'
-                            : mockPatient.sleepScore < 80
-                                ? 'status.caution'
-                                : 'status.normal',
-                isNormal: mockPatient.sleepScore >= 80
+                value: sleepRecord?.score || 0,
+                status: sleepRecord?.score < 50 ? 'status.critical' : sleepRecord?.score < 70 ? 'status.warning' : 'status.normal',
+                isNormal: (sleepRecord?.score || 0) >= 70
             },
             connection: {
-                value: mockPatient.deviceStatus === 'online' ? 'header.systemOnline' : 'header.systemOffline',
-                status: mockPatient.sensorConnected ? 'status.normal' : 'status.warning',
-                isNormal: mockPatient.deviceStatus === 'online',
+                value: deviceStatus?.isConnected ? 'header.systemOnline' : 'header.systemOffline',
+                status: deviceStatus?.isConnected ? 'status.normal' : 'status.warning',
+                isNormal: deviceStatus?.isConnected || false,
                 healthStatus: deriveHealthStatus({
-                    connectionStatus: mockPatient.deviceStatus as 'online' | 'offline',
-                    deviceStatus: mockPatient.sensorConnected ? 'normal' : 'error'
+                    connectionStatus: deviceStatus?.isConnected ? 'online' : 'offline',
+                    deviceStatus: deviceStatus?.isConnected ? 'normal' : 'error'
                 })
             }
         },
-        alerts: patientAlerts.map(a => ({
-            id: a.id,
-            type: a.type,
-            message: `${a.type} (${a.value})`,
-            time: a.timestamp.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
-            severity: a.severity === 'critical' ? 'high' : a.severity === 'warning' ? 'medium' : 'low'
-        })),
+        alerts: recentAlerts.slice(0, 5).map((a: any) => {
+            // Map Korean messages to translation keys
+            const rawMsg = a.message?.ko || a.message?.en || a.message || '';
+            let messageKey = rawMsg;
+            if (rawMsg.includes('심박수가 임계치를 초과') || rawMsg.includes('Heart rate exceeded')) {
+                messageKey = 'alerts.msg.hrExceeded';
+            } else if (rawMsg.includes('호흡수가 정상 범위를 벗어') || rawMsg.includes('Respiratory rate out of normal')) {
+                messageKey = 'alerts.msg.rrOutOfRange';
+            } else if (rawMsg.includes('낙상') || rawMsg.includes('fall') || rawMsg.includes('Fall')) {
+                messageKey = 'alerts.msg.fallDetected';
+            } else if (rawMsg.includes('심박수가 위험 기준치 이하') || rawMsg.includes('Heart rate below')) {
+                messageKey = 'alerts.msg.hrLow';
+            } else if (rawMsg.includes('호흡수가 위험 기준치를 초과') || rawMsg.includes('Respiratory rate exceeded')) {
+                messageKey = 'alerts.msg.rrHigh';
+            }
+            return {
+                id: a.id,
+                type: a.type || 'ALERT',
+                message: messageKey,
+                time: new Date(a.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+                severity: mapSeverity(a.severity)
+            };
+        }),
         sleepRecord: {
-            totalDuration: `${Math.floor(mockPatient.sleepData.duration)}h ${Math.round((mockPatient.sleepData.duration % 1) * 60)}m`,
+            totalDuration: sleepRecord?.totalSleep?.formatted || '0h 0m',
             deep: {
                 label: 'detail.deepSleep',
-                duration: `${Math.floor(mockPatient.sleepData.stages.find(s => s.stage === 'Deep Sleep')?.duration || 0)}h ${Math.round((((mockPatient.sleepData.stages.find(s => s.stage === 'Deep Sleep')?.duration || 0) % 1) * 60))}m`,
-                pct: mockPatient.sleepData.stages.find(s => s.stage === 'Deep Sleep')?.percentage || 0
+                duration: `${Math.floor((sleepRecord?.deepSleep?.duration || 0) / 60)}h ${(sleepRecord?.deepSleep?.duration || 0) % 60}m`,
+                pct: Math.round(((sleepRecord?.deepSleep?.duration || 0) / (sleepRecord?.totalSleep?.duration || 1)) * 100)
             },
             light: {
                 label: 'detail.lightSleep',
-                duration: `${Math.floor(mockPatient.sleepData.stages.find(s => s.stage === 'Light Sleep')?.duration || 0)}h ${Math.round((((mockPatient.sleepData.stages.find(s => s.stage === 'Light Sleep')?.duration || 0) % 1) * 60))}m`,
-                pct: mockPatient.sleepData.stages.find(s => s.stage === 'Light Sleep')?.percentage || 0
+                duration: `${Math.floor((sleepRecord?.lightSleep?.duration || 0) / 60)}h ${(sleepRecord?.lightSleep?.duration || 0) % 60}m`,
+                pct: Math.round(((sleepRecord?.lightSleep?.duration || 0) / (sleepRecord?.totalSleep?.duration || 1)) * 100)
             },
             rem: {
                 label: 'detail.remSleep',
-                duration: `${Math.floor(mockPatient.sleepData.stages.find(s => s.stage === 'REM')?.duration || 0)}h ${Math.round((((mockPatient.sleepData.stages.find(s => s.stage === 'REM')?.duration || 0) % 1) * 60))}m`,
-                pct: mockPatient.sleepData.stages.find(s => s.stage === 'REM')?.percentage || 0
+                duration: `${Math.floor((sleepRecord?.remSleep?.duration || 0) / 60)}h ${(sleepRecord?.remSleep?.duration || 0) % 60}m`,
+                pct: Math.round(((sleepRecord?.remSleep?.duration || 0) / (sleepRecord?.totalSleep?.duration || 1)) * 100)
             },
             awake: {
                 label: 'detail.awake',
-                duration: `${Math.floor(mockPatient.sleepData.stages.find(s => s.stage === 'Awake')?.duration || 0)}h ${Math.round((((mockPatient.sleepData.stages.find(s => s.stage === 'Awake')?.duration || 0) % 1) * 60))}m`,
-                pct: mockPatient.sleepData.stages.find(s => s.stage === 'Awake')?.percentage || 0
+                duration: `${Math.floor((sleepRecord?.awake?.duration || 0) / 60)}h ${(sleepRecord?.awake?.duration || 0) % 60}m`,
+                pct: Math.round(((sleepRecord?.awake?.duration || 0) / (sleepRecord?.totalSleep?.duration || 1)) * 100)
             }
         }
     };
@@ -280,6 +292,7 @@ const getPatientDetail = async (patientId: string): Promise<PatientDetail> => {
 
 export function PatientDetailMonitoringPage({ patientId, onBack }: { patientId: string; onBack: () => void }) {
     const { t, language } = useLanguage();
+    const dispatch = useDispatch<AppDispatch>();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<PatientDetail | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -339,7 +352,7 @@ export function PatientDetailMonitoringPage({ patientId, onBack }: { patientId: 
 
     return (
         <div className="min-h-screen bg-transparent pb-10 sm:pb-12 font-sans">
-            <div className="mx-auto w-full max-w-[1440px] px-0.5 sm:px-4 lg:px-6 xl:px-8">
+            <div className="mx-auto w-full max-w-[1440px] min-[2500px]:max-w-none px-0.5 sm:px-4 lg:px-6 xl:px-8">
                 {/* Top Header */}
                 <header className="py-3 sm:py-6 relative flex items-center justify-center">
                     <button
@@ -363,20 +376,50 @@ export function PatientDetailMonitoringPage({ patientId, onBack }: { patientId: 
           "
                 >
                     {/* LEFT */}
-                    <div className="space-y-4 sm:space-y-6">
+                    <div className="space-y-4 sm:space-y-6 min-w-0">
                         <PatientInfoCard
                             data={data}
                             language={language}
                             t={t}
-                            onStatusChange={(newStatus) => {
-                                setData(prev => prev ? { ...prev, patientStatus: newStatus } : null);
+                            onStatusChange={async (newStatus) => {
+                                try {
+                                    const response = await fetch(
+                                        `https://kaleidoscopically-prorailroad-kris.ngrok-free.dev/update-patient`,
+                                        {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'ngrok-skip-browser-warning': 'true'
+                                            },
+                                            body: JSON.stringify({
+                                                _id: data.mongoId,
+                                                status: newStatus
+                                            })
+                                        }
+                                    );
+
+                                    if (!response.ok) {
+                                        throw new Error('Failed to update status');
+                                    }
+
+                                    // Update local monitoring state in Redux
+                                    dispatch(updatePatientStatusLocal({ id: data.id, status: newStatus }));
+
+                                    setData(prev => prev ? { ...prev, patientStatus: newStatus } : null);
+
+                                    // Optional: show a success message? Language Context has 'patientStatus.updateSuccess'
+                                    alert(t('patientStatus.updateSuccess'));
+                                } catch (err) {
+                                    console.error('Error updating patient status:', err);
+                                    alert(t('status.error'));
+                                }
                             }}
                         />
                         <AlertsSection alerts={data.alerts} t={t} />
                     </div>
 
                     {/* RIGHT */}
-                    <div className="space-y-4 sm:space-y-6">
+                    <div className="space-y-4 sm:space-y-6 min-w-0">
                         <VitalMetrics vitals={data.vitals} deviceId={data.deviceId} t={t} />
 
                         {/* HR */}

@@ -93,8 +93,8 @@ export function VitalMetrics({ vitals, deviceId, t }: VitalMetricsProps) {
                 unit="bpm"
                 status={t(vitals.hr.status)}
                 statusKey={vitals.hr.status}
-                colorClass="bg-red-500"
-                progressColor="bg-red-500"
+                colorClass="bg-red-300"
+                progressColor="bg-red-300"
             />
             <MetricCard
                 icon={Activity}
@@ -102,8 +102,8 @@ export function VitalMetrics({ vitals, deviceId, t }: VitalMetricsProps) {
                 value={vitals.stressIndex.value}
                 status={t(vitals.stressIndex.status)}
                 statusKey={vitals.stressIndex.status}
-                colorClass="bg-blue-500"
-                progressColor="bg-blue-600"
+                colorClass="bg-blue-300"
+                progressColor="bg-blue-300"
             />
             <MetricCard
                 icon={Wind}
@@ -112,8 +112,8 @@ export function VitalMetrics({ vitals, deviceId, t }: VitalMetricsProps) {
                 unit="rpm"
                 status={t(vitals.rr.status)}
                 statusKey={vitals.rr.status}
-                colorClass="bg-teal-500"
-                progressColor="bg-teal-500"
+                colorClass="bg-teal-300"
+                progressColor="bg-teal-300"
             />
             <MetricCard
                 icon={Moon}
@@ -121,15 +121,15 @@ export function VitalMetrics({ vitals, deviceId, t }: VitalMetricsProps) {
                 value={vitals.sleepIndex.value}
                 status={t(vitals.sleepIndex.status)}
                 statusKey={vitals.sleepIndex.status}
-                colorClass="bg-orange-500"
-                progressColor="bg-orange-500"
+                colorClass="bg-orange-300"
+                progressColor="bg-orange-300"
             />
 
             {/* Connection card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-1.5 sm:p-4 flex flex-col justify-between">
+            {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-1.5 sm:p-4 flex flex-col justify-between">
                 <div className="min-w-0">
                     <div className="flex justify-between items-center gap-1.5 mb-1 sm:mb-2 min-w-0">
-                        <div className="p-1.5 sm:p-2.5 rounded-lg bg-green-500 bg-opacity-10 flex-shrink-0">
+                        <div className="p-1.5 sm:p-2.5 rounded-lg bg-blue-200 bg-opacity-10 flex-shrink-0">
                             <Link2 className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
                         </div>
                         <span
@@ -162,7 +162,7 @@ export function VitalMetrics({ vitals, deviceId, t }: VitalMetricsProps) {
                         {t(vitals.connection.isNormal ? 'status.online' : 'status.offline')}
                     </span>
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 }

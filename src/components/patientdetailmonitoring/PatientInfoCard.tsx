@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User, ChevronDown } from 'lucide-react';
-import { PatientStatus, updatePatientStatus } from '../../data/mockData';
+import { PatientStatus } from '../../store/slices/monitoringSlice';
 
 interface PatientInfoCardProps {
     data: {
         id: string;
+        patientCode: string;
         name: string;
         englishName: string;
         age: number;
@@ -91,13 +92,9 @@ export function PatientInfoCard({ data, language, t, onStatusChange }: PatientIn
         setIsDropdownOpen(false);
 
         try {
-            // Call mock API to update status
-            const result = await updatePatientStatus(data.id, newStatus);
-
-            if (result.success) {
-                setCurrentStatus(newStatus);
-                onStatusChange?.(newStatus);
-                // Could show toast notification here if available
+            setCurrentStatus(newStatus);
+            if (onStatusChange) {
+                await onStatusChange(newStatus);
             }
         } catch (error) {
             console.error('Failed to update patient status:', error);
@@ -118,7 +115,7 @@ export function PatientInfoCard({ data, language, t, onStatusChange }: PatientIn
 
             <div className="text-center mb-3 sm:mb-8">
                 <p className="text-[9px] sm:text-[10px] text-gray-400 mb-2 sm:mb-4 leading-snug">
-                    {t('alerts.patient')} ID: {data.id} | {t('table.lastUpdated')}: {t(data.lastUpdated)}
+                    {t('alerts.patient')} ID: {data.patientCode} | {t('table.lastUpdated')}: {t(data.lastUpdated)}
                 </p>
 
                 <div className="w-[64px] h-[64px] sm:w-[100px] sm:h-[100px] bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4 border border-teal-100 shadow-sm">

@@ -1,0 +1,453 @@
+{
+    "languages": [
+        "ko",
+        "en",
+        "ja",
+        "ch",
+        "es"
+    ],
+    "defaultLanguage": "ko",
+    "status": {
+        "critical": {
+            "ko": "위급",
+            "en": "Critical",
+            "ja": "危篤",
+            "ch": "危重",
+            "es": "Crítico"
+        },
+        "warning": {
+            "ko": "경고",
+            "en": "Warning",
+            "ja": "警告",
+            "ch": "警告",
+            "es": "Advertencia"
+        },
+        "caution": {
+            "ko": "주의",
+            "en": "Caution",
+            "ja": "注意",
+            "ch": "注意",
+            "es": "Precaución"
+        },
+        "normal": {
+            "ko": "정상",
+            "en": "Normal",
+            "ja": "正常",
+            "ch": "正常",
+            "es": "Normal"
+        },
+        "stable": {
+            "ko": "안정",
+            "en": "Stable",
+            "ja": "安定",
+            "ch": "稳定",
+            "es": "Estable"
+        },
+        "online": {
+            "ko": "온라인",
+            "en": "Online",
+            "ja": "オンライン",
+            "ch": "在线",
+            "es": "En línea"
+        },
+        "offline": {
+            "ko": "오프라인",
+            "en": "Offline",
+            "ja": "オフライン",
+            "ch": "离线",
+            "es": "Desconectado"
+        },
+        "error": {
+            "ko": "오류",
+            "en": "Error",
+            "ja": "エラー",
+            "ch": "错误",
+            "es": "Error"
+        },
+        "maintenance": {
+            "ko": "점검 중",
+            "en": "Maintenance",
+            "ja": "メンテナンス中",
+            "ch": "维护中",
+            "es": "Mantenimiento"
+        },
+        "connected": {
+            "ko": "연결됨",
+            "en": "Connected",
+            "ja": "接続済み",
+            "ch": "已连接",
+            "es": "Conectado"
+        },
+        "disconnected": {
+            "ko": "연결 끊김",
+            "en": "Disconnected",
+            "ja": "切断",
+            "ch": "已断开",
+            "es": "Desconectado"
+        },
+        "abnormal": {
+            "ko": "비정상",
+            "en": "Abnormal",
+            "ja": "異常",
+            "ch": "异常",
+            "es": "Anormal"
+        }
+    },
+    "alertTypes": {
+        "heartEmergency": {
+            "ko": "심박 위급",
+            "en": "Heart Emergency",
+            "ja": "心拍緊急",
+            "ch": "心率紧急",
+            "es": "Emergencia Cardíaca"
+        },
+        "breathingEmergency": {
+            "ko": "호흡 위급",
+            "en": "Breathing Emergency",
+            "ja": "呼吸緊急",
+            "ch": "呼吸紧急",
+            "es": "Emergencia Respiratoria"
+        },
+        "fallDetected": {
+            "ko": "낙상 감지",
+            "en": "Fall Detected",
+            "ja": "転倒検知",
+            "ch": "跌倒检测",
+            "es": "Caída Detectada"
+        }
+    },
+    "alertMessages": {
+        "hrHigh": {
+            "ko": "심박수가 위험 기준치를 초과했습니다",
+            "en": "Heart rate exceeded danger threshold",
+            "ja": "心拍数が危険基準値を超えました",
+            "ch": "心率超过危险临界值",
+            "es": "La frecuencia cardíaca superó el umbral de peligro"
+        },
+        "hrExceeded": {
+            "ko": "심박수가 임계치를 초과했습니다",
+            "en": "Heart rate exceeded critical threshold",
+            "ja": "心拍数が臨界値を超えました",
+            "ch": "心率超过临界阈值",
+            "es": "La frecuencia cardíaca superó el umbral crítico"
+        },
+        "rrOutOfRange": {
+            "ko": "호흡수가 정상 범위를 벗어났습니다",
+            "en": "Respiratory rate out of normal range",
+            "ja": "呼吸数が正常範囲を超えています",
+            "ch": "呼吸频率超出正常范围",
+            "es": "La frecuencia respiratoria está fuera del rango normal"
+        },
+        "rrLow": {
+            "ko": "호흡수가 안전 기준치 이하입니다",
+            "en": "Breathing rate below safety threshold",
+            "ja": "呼吸数が安全基準値を下回っています",
+            "ch": "呼吸率低于安全临界值",
+            "es": "La frecuencia respiratoria está por debajo del umbral de seguridad"
+        },
+        "fallEmergency": {
+            "ko": "낙상 감지됨, 응급 프로토콜 시작",
+            "en": "Fall detected, starting emergency protocol",
+            "ja": "転倒が検知されました。緊急プロトコルを開始します",
+            "ch": "检测到跌倒，启动应急预案",
+            "es": "Caída detectada, iniciando protocolo de emergencia"
+        }
+    },
+    "patientStatus": {
+        "ACTIVE": {
+            "ko": "입원중",
+            "en": "Admitted",
+            "ja": "入院中",
+            "ch": "住院中",
+            "es": "Hospitalizado"
+        },
+        "DISCHARGED": {
+            "ko": "퇴원",
+            "en": "Discharged",
+            "ja": "退院",
+            "ch": "出院",
+            "es": "Dado de Alta"
+        },
+        "TRANSFERRED": {
+            "ko": "전원",
+            "en": "Transferred",
+            "ja": "転員",
+            "ch": "转院",
+            "es": "Transferido"
+        }
+    },
+    "gender": {
+        "MALE": {
+            "ko": "남",
+            "en": "Male",
+            "ja": "男性",
+            "ch": "男性",
+            "es": "Masculino"
+        },
+        "FEMALE": {
+            "ko": "여",
+            "en": "Female",
+            "ja": "女性",
+            "ch": "女性",
+            "es": "Femenino"
+        }
+    },
+    "relationship": {
+        "spouse": {
+            "ko": "배우자",
+            "en": "Spouse",
+            "ja": "配偶者",
+            "ch": "配偶",
+            "es": "Cónyuge"
+        },
+        "child": {
+            "ko": "자녀",
+            "en": "Child",
+            "ja": "子供",
+            "ch": "子女",
+            "es": "Hijo/a"
+        },
+        "parent": {
+            "ko": "부모",
+            "en": "Parent",
+            "ja": "親",
+            "ch": "父母",
+            "es": "Padre/Madre"
+        },
+        "guardian": {
+            "ko": "보호자",
+            "en": "Guardian",
+            "ja": "保護者",
+            "ch": "监护人",
+            "es": "Tutor/Guardián"
+        }
+    },
+    "notificationTypes": {
+        "hrCritical": {
+            "ko": "위급_심박수",
+            "en": "HR_CRITICAL",
+            "ja": "緊急_心拍数",
+            "ch": "危急_心率",
+            "es": "FC_CRÍTICA"
+        },
+        "hrWarning": {
+            "ko": "경고_심박수",
+            "en": "HR_WARNING",
+            "ja": "警告_心拍数",
+            "ch": "警告_心率",
+            "es": "FC_ADVERTENCIA"
+        },
+        "hrCaution": {
+            "ko": "주의_심박수",
+            "en": "HR_CAUTION",
+            "ja": "注意_心拍数",
+            "ch": "注意_心率",
+            "es": "FC_PRECAUCIÓN"
+        },
+        "rrCritical": {
+            "ko": "위급_호흡수",
+            "en": "RR_CRITICAL",
+            "ja": "緊急_呼吸数",
+            "ch": "危急_呼吸",
+            "es": "FR_CRÍTICA"
+        },
+        "rrWarning": {
+            "ko": "경고_호흡수",
+            "en": "RR_WARNING",
+            "ja": "警告_呼吸数",
+            "ch": "警告_呼吸",
+            "es": "FR_ADVERTENCIA"
+        },
+        "rrCaution": {
+            "ko": "주의_호흡수",
+            "en": "RR_CAUTION",
+            "ja": "注意_呼吸数",
+            "ch": "注意_呼吸",
+            "es": "FR_PRECAUCIÓN"
+        },
+        "fallDetected": {
+            "ko": "낙상_감지",
+            "en": "FALL_DETECTED",
+            "ja": "転倒_検知",
+            "ch": "跌倒_检测",
+            "es": "CAÍDA_DETECTADA"
+        }
+    },
+    "notificationCategories": {
+        "heartRate": {
+            "ko": "심박수 모니터링",
+            "en": "Heart Rate Monitoring",
+            "ja": "心拍数モニタリング",
+            "ch": "心率监控",
+            "es": "Monitoreo de Frecuencia Cardíaca"
+        },
+        "respiratory": {
+            "ko": "호흡 모니터링",
+            "en": "Breathing Monitoring",
+            "ja": "呼吸数モニタリング",
+            "ch": "呼吸监控",
+            "es": "Monitoreo de Respiración"
+        },
+        "fall": {
+            "ko": "낙상 감지",
+            "en": "Fall Detection",
+            "ja": "転倒検知",
+            "ch": "跌倒检测",
+            "es": "Detección de Caídas"
+        },
+        "emergency": {
+            "ko": "긴급 알림",
+            "en": "Emergency Alert",
+            "ja": "緊急通知",
+            "ch": "紧急通知",
+            "es": "Alerta de Emergencia"
+        },
+        "warning": {
+            "ko": "경고",
+            "en": "Warning",
+            "ja": "警告",
+            "ch": "警告",
+            "es": "Advertencia"
+        }
+    },
+    "sleepStages": {
+        "deepSleep": {
+            "ko": "깊은 수면",
+            "en": "Deep Sleep",
+            "ja": "深い睡眠",
+            "ch": "深度睡眠",
+            "es": "Sueño Profundo"
+        },
+        "lightSleep": {
+            "ko": "얕은 수면",
+            "en": "Light Sleep",
+            "ja": "浅い睡眠",
+            "ch": "浅度睡眠",
+            "es": "Sueño Ligero"
+        },
+        "remSleep": {
+            "ko": "REM 수면",
+            "en": "REM Sleep",
+            "ja": "レム睡眠",
+            "ch": "快动眼睡眠",
+            "es": "Sueño REM"
+        },
+        "awake": {
+            "ko": "깨어남",
+            "en": "Awake",
+            "ja": "覚醒",
+            "ch": "醒来",
+            "es": "Despierto"
+        }
+    },
+    "vitalLabels": {
+        "heartRate": {
+            "ko": "심박수",
+            "en": "Heart Rate",
+            "ja": "心拍数",
+            "ch": "心率",
+            "es": "Frecuencia Cardíaca"
+        },
+        "breathingRate": {
+            "ko": "호흡수",
+            "en": "Breathing Rate",
+            "ja": "呼吸数",
+            "ch": "呼吸率",
+            "es": "Frecuencia Respiratoria"
+        },
+        "stressIndex": {
+            "ko": "스트레스",
+            "en": "Stress Index",
+            "ja": "ストレス",
+            "ch": "压力指数",
+            "es": "Índice de Estrés"
+        },
+        "sleepEfficiency": {
+            "ko": "수면 효율",
+            "en": "Sleep Efficiency",
+            "ja": "睡眠効率",
+            "ch": "睡眠效率",
+            "es": "Eficiencia del Sueño"
+        }
+    },
+    "units": {
+        "bpm": {
+            "ko": "BPM",
+            "en": "BPM",
+            "ja": "BPM",
+            "ch": "BPM",
+            "es": "BPM"
+        },
+        "rpm": {
+            "ko": "RPM",
+            "en": "RPM",
+            "ja": "RPM",
+            "ch": "RPM",
+            "es": "RPM"
+        },
+        "yearsOld": {
+            "ko": "세",
+            "en": "yo",
+            "ja": "歳",
+            "ch": "岁",
+            "es": "años"
+        },
+        "days": {
+            "ko": "일",
+            "en": "days",
+            "ja": "日",
+            "ch": "天",
+            "es": "días"
+        },
+        "roomNumber": {
+            "ko": "호",
+            "en": "",
+            "ja": "号",
+            "ch": "号",
+            "es": ""
+        }
+    },
+    "hospital": {
+        "ko": "국민간호병원",
+        "en": "National Nursing Hospital",
+        "ja": "国民看護病院",
+        "ch": "国民看护医院",
+        "es": "Hospital Nacional de Enfermería"
+    },
+    "severityMapping": {
+        "CRITICAL": "critical",
+        "HIGH": "critical",
+        "MEDIUM": "warning",
+        "WARNING": "warning",
+        "LOW": "caution",
+        "CAUTION": "caution",
+        "NORMAL": "normal"
+    },
+    "apiResponseFormat": {
+        "example": {
+            "alert": {
+                "id": "123",
+                "patientCode": "PAT-00018",
+                "patientName": "조순희",
+                "severity": "MEDIUM",
+                "message": {
+                    "ko": "호흡수가 정상 범위를 벗어났습니다",
+                    "en": "Respiratory rate out of normal range",
+                    "ja": "呼吸数が正常範囲を超えています",
+                    "ch": "呼吸频率超出正常范围",
+                    "es": "La frecuencia respiratoria está fuera del rango normal"
+                },
+                "createdAt": "2026-01-12T08:25:22.685Z"
+            },
+            "patient": {
+                "fullName": {
+                    "ko": "이경희",
+                    "en": "Mary Jo",
+                    "ja": "李京希",
+                    "ch": "李京熙",
+                    "es": "Mary Jo"
+                }
+            }
+        }
+    }
+}

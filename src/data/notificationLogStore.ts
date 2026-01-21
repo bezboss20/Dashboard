@@ -1,8 +1,20 @@
-import { mockAlerts, Alert } from './mockData';
+import { ReactNode } from "react";
+
+// Minimal alert interface for log generation
+interface Alert {
+    id: string;
+    type: string;
+    severity: 'critical' | 'warning' | 'caution' | 'normal';
+    timestamp: Date;
+    patientId?: string;
+    value?: string;
+}
 
 export type NotificationLogStatus = "성공" | "실패";
 
 export interface NotificationLog {
+    patientName?: string;
+    fullName: any;
     id: string;
     timestamp: string; // YYYY-MM-DD HH:mm
     system: string;
@@ -36,7 +48,7 @@ export function formatTimestamp(date: Date): string {
     return `${y}-${m}-${d} ${hh}:${mm}`;
 }
 
-export function createLogFromAlert(alert: Alert, action: "created" | "acknowledged" | "resolved"): NotificationLog {
+export function createLogFromAlert(alert: Alert, action: "created" | "acknowledged" | "resolved"): any {
     let type = "";
     let categoryBase = "";
 
@@ -91,12 +103,8 @@ export function getNotificationLogs(): NotificationLog[] {
     return [...notificationLogs];
 }
 
-// Seed the logs
+// Seed the logs with system logs only
 const initialLogs: NotificationLog[] = [
-    ...mockAlerts.map(alert => ({
-        ...createLogFromAlert(alert, "created"),
-        timestamp: formatTimestamp(alert.timestamp)
-    })),
     {
         id: "SYS-001",
         timestamp: formatTimestamp(new Date(Date.now() - 3600000)),
@@ -105,7 +113,9 @@ const initialLogs: NotificationLog[] = [
         category: "시스템 관리/상태 확인",
         type: "시스템_상태_점검",
         status: "성공",
-        details: "모든 시스템 정상 작동 중"
+        details: "모든 시스템 정상 작동 중",
+        patientName: "",
+        fullName: undefined
     },
     {
         id: "SYS-002",
@@ -115,7 +125,9 @@ const initialLogs: NotificationLog[] = [
         category: "시스템 관리/백업",
         type: "데이터_백업",
         status: "실패",
-        details: "백업 실패 - 연결 시간 초과"
+        details: "백업 실패 - 연결 시간 초과",
+        patientName: "",
+        fullName: undefined
     }
 ];
 

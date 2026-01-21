@@ -13,14 +13,14 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { Patient } from '../../data/mockData';
+import { MappedPatient } from '../../store/slices/monitoringSlice';
 import { useState, useEffect } from 'react';
 import { Sparkline } from './Sparkline';
 import { useLanguage } from '../../context/LanguageContext';
 import { deriveHealthStatus, getHealthStatusLabel, getHealthStatusClasses } from '../../utils/statusLabels';
 
 interface PatientOverviewTableProps {
-  patients: Patient[];
+  patients: MappedPatient[];
   selectedPatientId: string;
   onSelectPatient: (patientId: string) => void;
   onViewPatientDetails?: (patientId: string) => void;
@@ -36,16 +36,18 @@ export function PatientOverviewTable({
   onViewSleepPage,
   searchQuery = ''
 }: PatientOverviewTableProps) {
-  const { t, language } = useLanguage();
+  const { t, language, getLocalizedText } = useLanguage();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   // Filter patients based on search query
   const filteredPatients = patients.filter(
     (patient) =>
-      patient.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.nameKorean.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.nameEnglish.toLowerCase().includes(searchQuery.toLowerCase())
+      patient.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.patientCode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.nameKorean?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.nameEnglish?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Calculate pagination
@@ -86,26 +88,50 @@ export function PatientOverviewTable({
   };
 
   const getDeviceStatusInfo = (patient: any) => {
-    const healthStatus = deriveHealthStatus({
-      connectionStatus: patient.deviceStatus,
-      deviceStatus: patient.sensorConnected ? 'normal' : 'error'
-    });
+    // Directly use the device status from API (already lowercase from mapping)
+    const status = patient.deviceStatus?.toLowerCase() || 'offline';
 
-    const label = getHealthStatusLabel(healthStatus);
-    const classes = getHealthStatusClasses(healthStatus);
-    const [color, bg] = classes.split(' ');
-
-    switch (patient.deviceStatus) {
+    switch (status) {
       case 'online':
-        return { icon: Wifi, text: label, color, bg, iconColor: color };
+        return {
+          icon: Wifi,
+          text: t('status.online'),
+          color: 'text-green-600',
+          bg: 'bg-green-50',
+          iconColor: 'text-green-600'
+        };
       case 'offline':
-        return { icon: WifiOff, text: label, color, bg, iconColor: color };
+        return {
+          icon: WifiOff,
+          text: t('status.offline'),
+          color: 'text-gray-500',
+          bg: 'bg-gray-100',
+          iconColor: 'text-gray-500'
+        };
       case 'error':
-        return { icon: AlertCircle, text: label, color, bg, iconColor: color };
+        return {
+          icon: AlertCircle,
+          text: t('status.error'),
+          color: 'text-red-600',
+          bg: 'bg-red-50',
+          iconColor: 'text-red-600'
+        };
       case 'maintenance':
-        return { icon: Wrench, text: label, color, bg, iconColor: color };
+        return {
+          icon: Wrench,
+          text: t('status.maintenance'),
+          color: 'text-orange-600',
+          bg: 'bg-orange-50',
+          iconColor: 'text-orange-600'
+        };
       default:
-        return { icon: WifiOff, text: label, color, bg, iconColor: color };
+        return {
+          icon: WifiOff,
+          text: t('status.offline'),
+          color: 'text-gray-500',
+          bg: 'bg-gray-100',
+          iconColor: 'text-gray-500'
+        };
     }
   };
 
@@ -130,13 +156,47 @@ export function PatientOverviewTable({
   };
 
   const getSleepStateText = (state: string) => {
+    // Map API sleep stage keys to translation keys
     const mapping: Record<string, string> = {
+      'AWAKE': t('detail.awake'),
+      'REM': t('detail.remSleep'),
+      'LIGHT': t('detail.lightSleep'),
+      'DEEP': t('detail.deepSleep'),
+      // Legacy Korean keys for backward compatibility
       '정상 수면': t('status.normal'),
       'REM 수면': t('detail.remSleep'),
       '얕은 수면': t('detail.lightSleep'),
       '깊은 수면': t('detail.deepSleep')
     };
-    return mapping[state] || state;
+    return mapping[state] || t('common.unknown');
+  };
+
+  // Format date from ISO string to readable format
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return '-';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString;
+
+      // Format based on language
+      const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      };
+
+      const localeMap: Record<string, string> = {
+        'ko': 'ko-KR',
+        'en': 'en-US',
+        'ja': 'ja-JP',
+        'ch': 'zh-CN',
+        'es': 'es-ES'
+      };
+
+      return date.toLocaleDateString(localeMap[language] || 'en-US', options);
+    } catch {
+      return dateString;
+    }
   };
 
   return (
@@ -163,17 +223,16 @@ export function PatientOverviewTable({
               <button
                 key={patient.id}
                 onClick={() => onSelectPatient(patient.id)}
-                className={`w-full text-left border rounded-xl shadow-sm overflow-hidden transition-colors ${
-                  isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white hover:bg-gray-50 border-gray-200'
-                }`}
+                className={`w-full text-left border rounded-xl shadow-sm overflow-hidden transition-colors ${isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white hover:bg-gray-50 border-gray-200'
+                  }`}
               >
                 {/* Header */}
                 <div className="px-4 py-3 bg-gray-50 border-b flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="text-sm font-bold text-gray-900 truncate">
-                      {language === 'ko' ? patient.nameKorean : patient.nameEnglish}
+                    <div className="text-sm font-bold text-gray-900 truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible">
+                      {getLocalizedText({ ko: patient.nameKorean, en: patient.nameEnglish }, patient.nameKorean)}
                     </div>
-                    <div className="text-xs text-gray-500 truncate">{patient.id}</div>
+                    <div className="text-xs text-gray-500 truncate">{patient.patientCode}</div>
                   </div>
 
                   <div className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full ${alertStatus.bg}`}>
@@ -185,7 +244,7 @@ export function PatientOverviewTable({
                 {/* Body rows */}
                 <div className="px-4 py-3 space-y-2">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400">
+                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400">
                       <Heart className="w-4 h-4 text-red-500" />
                       <span>{t('table.heartRate')}</span>
                     </div>
@@ -200,8 +259,8 @@ export function PatientOverviewTable({
                             patient.heartRate < 60 || patient.heartRate > 100
                               ? '#dc2626'
                               : patient.heartRate < 65 || patient.heartRate > 95
-                              ? '#f97316'
-                              : '#9ca3af'
+                                ? '#f97316'
+                                : '#9ca3af'
                           }
                           width={60}
                           height={18}
@@ -211,7 +270,7 @@ export function PatientOverviewTable({
                   </div>
 
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400">
+                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400">
                       <Wind className="w-4 h-4 text-blue-500" />
                       <span>{t('table.breathingRate')}</span>
                     </div>
@@ -226,8 +285,8 @@ export function PatientOverviewTable({
                             patient.breathingRate < 12 || patient.breathingRate > 20
                               ? '#dc2626'
                               : patient.breathingRate < 14 || patient.breathingRate > 18
-                              ? '#f97316'
-                              : '#9ca3af'
+                                ? '#f97316'
+                                : '#9ca3af'
                           }
                           width={60}
                           height={18}
@@ -237,31 +296,32 @@ export function PatientOverviewTable({
                   </div>
 
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400">
+                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400">
                       <Moon className="w-4 h-4 text-indigo-500" />
                       <span>{t('table.sleepState')}</span>
                     </div>
-                    <span className="text-sm text-gray-700 truncate max-w-[65%] text-right">
+                    <span className="text-sm max-[374px]:text-xs text-gray-700 truncate max-w-[65%] max-[374px]:max-w-none max-[374px]:whitespace-normal text-right">
                       {getSleepStateText(patient.sleepState)}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400">
+                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400">
                       <DeviceIcon className={`w-4 h-4 ${deviceStatus.iconColor}`} />
                       <span>{t('table.deviceStatus')}</span>
                     </div>
-                    <span className={`text-[12px] font-semibold ${deviceStatus.color} truncate max-w-[65%] text-right`}>
+                    <span className={`text-[12px] max-[374px]:text-[11px] font-semibold ${deviceStatus.color} truncate max-w-[65%] max-[374px]:max-w-none max-[374px]:whitespace-normal text-right`}>
                       {deviceStatus.text}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400">
+                  <div className="flex items-center justify-between gap-3 max-[374px]:gap-1">
+                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400">
                       <Clock className="w-4 h-4 text-gray-400" />
-                      <span>{t('table.lastUpdated')}</span>
+                      <span className="max-[374px]:hidden">{t('table.registrationDate')}</span>
+                      <span className="hidden max-[374px]:hidden">{t('notifications.table.date')}</span>
                     </div>
-                    <span className="text-[12px] text-gray-600">{formatTimeAgo(patient.lastUpdated)}</span>
+                    <span className="text-[12px] max-[374px]:text-[11px] text-gray-600 font-medium whitespace-nowrap">{formatDate(patient.personalInfo.admissionDate)}</span>
                   </div>
                 </div>
 
@@ -333,7 +393,7 @@ export function PatientOverviewTable({
                 </th>
                 <th className="px-6 py-3 text-left text-xs uppercase tracking-wider text-gray-600">
                   <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" /> {t('table.lastUpdated')}
+                    <Clock className="w-4 h-4" /> {t('table.registrationDate')}
                   </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs uppercase tracking-wider text-gray-600">
@@ -357,6 +417,7 @@ export function PatientOverviewTable({
                 const deviceStatus = getDeviceStatusInfo(patient);
                 const isSelected = patient.id === selectedPatientId;
                 const DeviceIcon = deviceStatus.icon;
+                console.log("patientdata", patient);
 
                 return (
                   <tr
@@ -369,9 +430,9 @@ export function PatientOverviewTable({
                         <div className={`w-1 h-8 rounded ${isSelected ? 'bg-blue-600' : 'bg-transparent'}`}></div>
                         <div className="flex flex-col">
                           <span className="text-gray-900 font-medium">
-                            {language === 'ko' ? patient.nameKorean : patient.nameEnglish}
+                            {getLocalizedText({ ko: patient.nameKorean, en: patient.nameEnglish }, patient.nameKorean)}
                           </span>
-                          <span className="text-sm text-gray-500">{patient.id}</span>
+                          <span className="text-sm text-gray-500">{patient.patientCode}</span>
                         </div>
                       </div>
                     </td>
@@ -389,8 +450,8 @@ export function PatientOverviewTable({
                               patient.heartRate < 60 || patient.heartRate > 100
                                 ? '#dc2626'
                                 : patient.heartRate < 65 || patient.heartRate > 95
-                                ? '#f97316'
-                                : '#9ca3af'
+                                  ? '#f97316'
+                                  : '#9ca3af'
                             }
                             width={60}
                             height={20}
@@ -414,8 +475,8 @@ export function PatientOverviewTable({
                               patient.breathingRate < 12 || patient.breathingRate > 20
                                 ? '#dc2626'
                                 : patient.breathingRate < 14 || patient.breathingRate > 18
-                                ? '#f97316'
-                                : '#9ca3af'
+                                  ? '#f97316'
+                                  : '#9ca3af'
                             }
                             width={60}
                             height={20}
@@ -443,7 +504,7 @@ export function PatientOverviewTable({
                     </td>
 
                     <td className="px-6 py-4">
-                      <span className="text-sm text-gray-500">{formatTimeAgo(patient.lastUpdated)}</span>
+                      <span className="text-sm text-gray-900 font-medium">{formatDate(patient.personalInfo.admissionDate)}</span>
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -485,58 +546,56 @@ export function PatientOverviewTable({
       </div>
 
       {/* ================= Pagination Controls (MOBILE-FRIENDLY) ================= */}
-    <div className="px-4 sm:px-6 py-4 border-t border-gray-200">
+      <div className="px-4 sm:px-6 py-4 border-t border-gray-200">
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
 
-            {/* Centered info text */}
-            <div className="text-[11px] sm:text-sm text-gray-600 text-center leading-snug">
+          {/* Centered info text */}
+          <div className="text-[11px] sm:text-sm text-gray-600 text-center leading-snug">
             {t('table.showing')}{' '}
             <span className="font-medium">{startIndex + 1}</span> {t('table.to')}{' '}
             <span className="font-medium">{Math.min(endIndex, filteredPatients.length)}</span> {t('table.of')}{' '}
             <span className="font-medium">{filteredPatients.length}</span> {t('table.patients')}
             {searchQuery && (
-                <span className="ml-1">
+              <span className="ml-1">
                 ({t('table.filteredFrom')} {patients.length} {t('table.total')})
-                </span>
+              </span>
             )}
-            </div>
+          </div>
 
-            {/* Compact controls */}
-            <div className="flex items-center gap-1.5">
+          {/* Compact controls */}
+          <div className="flex items-center gap-1.5">
             {/* Previous */}
             <button
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className={`flex items-center justify-center w-8 h-8 rounded-md transition-colors ${
-                currentPage === 1
-                    ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`flex items-center justify-center w-8 h-8 rounded-md transition-colors ${currentPage === 1
+                ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
             >
-                <ChevronLeft className="w-3.5 h-3.5" />
+              <ChevronLeft className="w-3.5 h-3.5" />
             </button>
 
             {/* Page indicator */}
             <div className="px-2.5 h-8 flex items-center bg-gray-100 rounded-md text-[11px] text-gray-700 whitespace-nowrap">
-                {t('table.page')} <span className="font-medium ml-1">{currentPage}</span> {t('table.of')}{' '}
-                <span className="font-medium">{totalPages}</span>
+              {t('table.page')} <span className="font-medium ml-1">{currentPage}</span> {t('table.of')}{' '}
+              <span className="font-medium">{totalPages}</span>
             </div>
 
             {/* Next */}
             <button
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className={`flex items-center justify-center w-8 h-8 rounded-md transition-colors ${
-                currentPage === totalPages
-                    ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`flex items-center justify-center w-8 h-8 rounded-md transition-colors ${currentPage === totalPages
+                ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
                 }`}
             >
-                <ChevronRight className="w-3.5 h-3.5" />
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
-            </div>
+          </div>
         </div>
-    </div>
+      </div>
     </section>
   );
 }

@@ -34,6 +34,8 @@ export interface Patient {
     name: string;
     nameKorean: string;
     nameEnglish: string;
+    /** Multilingual name data from API: { ko, en, ja, ch, es } */
+    fullNameData?: Record<string, string>;
     heartRate: number;
     breathingRate: number;
     sleepState: string;
@@ -44,6 +46,7 @@ export interface Patient {
     radarDetection: boolean;
     deviceStatus: string;
     deviceId: string;
+    patientCode?: string;
     patientStatus: PatientStatus;
     lastUpdated: Date;
     heartRateHistory: {
@@ -97,6 +100,7 @@ export interface Patient {
         bloodType: string;
         height: number;
         weight: number;
+        wardId?: string;
         roomNumber: string;
         bedNumber: string;
         admissionDate: string;

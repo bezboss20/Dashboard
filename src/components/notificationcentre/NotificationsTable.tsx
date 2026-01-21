@@ -53,36 +53,36 @@ export function NotificationsTable({ logs, onViewPatientDetails, t }: Notificati
                     </div>
                   </td>
 
-                  {/* ================= System (SMALL) ================= */}
+                  {/* ================= System (SMALL) - WRAP ON 320px ================= */}
                   <td className="block px-2 py-3 border-b">
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-[11px] font-bold text-gray-400 shrink-0">
+                    <div className="flex items-start gap-2">
+                      <span className="text-[11px] font-bold text-gray-400 shrink-0 w-16 max-[374px]:w-14 pt-0.5">
                         {t('notifications.table.system')}
                       </span>
-                      <span className="text-[12px] text-gray-700 text-right truncate max-w-[75%]">
+                      <span className="text-[12px] text-gray-700 flex-1 min-w-0 whitespace-normal break-words text-right">
                         {log.system}
                       </span>
                     </div>
                   </td>
 
-                  {/* ================= Patient (SMALL) ================= */}
+                  {/* ================= Patient (SMALL) - KEEP ON ONE LINE ================= */}
                   <td className="block px-2 py-3 border-b">
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-[11px] font-bold text-gray-400 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold text-gray-400 shrink-0 w-16 max-[374px]:w-14">
                         {t('notifications.table.patientId')}
                       </span>
 
-                      <div className="text-right max-w-[75%] truncate">
+                      <div className="flex-1 min-w-0 text-right">
                         {log.patientId !== 'N/A' && onViewPatientDetails ? (
                           <button
                             onClick={() => onViewPatientDetails(log.patientId)}
-                            className="text-[12px] text-blue-600 font-bold hover:underline truncate"
-                            title={log.patientId}
+                            className="text-[11px] max-[374px]:text-[10px] text-blue-600 font-bold hover:underline whitespace-nowrap overflow-hidden text-ellipsis block w-full text-right"
+                            title={log.patientName}
                           >
-                            {log.patientId}
+                            {log.patientName}
                           </button>
                         ) : (
-                          <span className="text-[12px] text-gray-900 truncate">
+                          <span className="text-[11px] max-[374px]:text-[10px] text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis block">
                             {log.patientId}
                           </span>
                         )}
@@ -90,36 +90,36 @@ export function NotificationsTable({ logs, onViewPatientDetails, t }: Notificati
                     </div>
                   </td>
 
-                  {/* ================= Category (SMALL) ================= */}
+                  {/* ================= Category (SMALL) - WRAP ON 320px ================= */}
                   <td className="block px-2 py-3 border-b">
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-[11px] font-bold text-gray-400 shrink-0">
+                    <div className="flex items-start gap-2">
+                      <span className="text-[11px] font-bold text-gray-400 shrink-0 w-16 max-[374px]:w-14 pt-0.5">
                         {t('notifications.table.category')}
                       </span>
-                      <span className="text-[1px] text-gray-700 truncate max-w-[75%] text-right">
+                      <span className="text-[12px] text-gray-700 flex-1 min-w-0 whitespace-normal break-words text-right">
                         {log.category}
                       </span>
                     </div>
                   </td>
 
-                  {/* ================= Type (SMALL) ================= */}
-                  <td className="block px-4 py-3 border-b">
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-[11px] font-bold text-gray-400 shrink-0">
+                  {/* ================= Type (SMALL) - WRAP ON 320px ================= */}
+                  <td className="block px-2 py-3 border-b">
+                    <div className="flex items-start gap-2">
+                      <span className="text-[11px] font-bold text-gray-400 shrink-0 w-16 max-[374px]:w-14 pt-0.5">
                         {t('notifications.table.type')}
                       </span>
-                      <span className="text-[12px] font-mono text-gray-700 truncate max-w-[75%] text-right">
+                      <span className="text-[12px] text-gray-700 flex-1 min-w-0 whitespace-normal break-words text-right">
                         {log.type}
                       </span>
                     </div>
                   </td>
 
                   {/* ================= Details (SMALL) ================= */}
-                  <td className="block py-3 px-4">
+                  <td className="block py-3 px-3">
                     <span className="text-[11px] font-bold text-gray-400 block mb-1">
                       {t('notifications.table.details')}
                     </span>
-                    <div className="text-[12px] text-gray-600 leading-relaxed bg-gray-50 p-3 rounded break-words">
+                    <div className="text-[11px] max-[374px]:text-[10px] text-gray-600 leading-relaxed bg-gray-50 p-2 rounded break-words">
                       {log.details}
                     </div>
                   </td>
@@ -177,7 +177,7 @@ export function NotificationsTable({ logs, onViewPatientDetails, t }: Notificati
                           onClick={() => onViewPatientDetails(log.patientId)}
                           className="text-blue-600 font-medium hover:text-blue-800 hover:underline transition-colors"
                         >
-                          {log.patientId}
+                          {log.patientName}
                         </button>
                       ) : (
                         <span className="text-gray-900">{log.patientId}</span>

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { mockPatients, getAggregatedSleepTrend, Patient } from '../../data/mockData';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '../../context/LanguageContext';
 import { appendNotificationLog, formatTimestamp } from '../../data/notificationLogStore';
 import { SessionSummary } from '../../components/sleepmanagement/SessionSummary';
@@ -7,6 +7,9 @@ import { Hypnogram } from '../../components/sleepmanagement/Hypnogram';
 import { SleepTimeInfo } from '../../components/sleepmanagement/SleepTimeInfo';
 import { WeeklyTrend } from '../../components/sleepmanagement/WeeklyTrend';
 import { VitalsCorrelation } from '../../components/sleepmanagement/VitalsCorrelation';
+import { fetchSleepAnalyticsAsync } from '../../store/slices/sleepSlice';
+import { fetchPatientsAsync } from '../../store/slices/monitoringSlice';
+import type { RootState, AppDispatch } from '../../store/store';
 
 interface SleepManagementPageProps {
   initialPatientId?: string | null;
@@ -15,15 +18,37 @@ interface SleepManagementPageProps {
 
 export function SleepManagementPage({ initialPatientId, onBack }: SleepManagementPageProps) {
   const { t } = useLanguage();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const [selectedPatientId, setSelectedPatientId] = useState(initialPatientId || mockPatients[0]?.id || '');
+  const [selectedPatientId, setSelectedPatientId] = useState(initialPatientId || '');
   const [trendView, setTrendView] = useState<'Day' | 'Weekly' | 'Monthly'>('Weekly');
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
+  // Redux state
+  const { analytics, loading, error } = useSelector((state: RootState) => state.sleep);
+  const { patients: allPatients } = useSelector((state: RootState) => state.monitoring);
+
+  // Initial fetch of patients if we don't have them
   useEffect(() => {
-    if (initialPatientId) setSelectedPatientId(initialPatientId);
-  }, [initialPatientId]);
+    if (allPatients.length === 0) {
+      dispatch(fetchPatientsAsync({}));
+    }
+  }, [dispatch, allPatients.length]);
+
+  // Set initial patient from patients list if not provided
+  useEffect(() => {
+    if (!selectedPatientId && allPatients.length > 0) {
+      setSelectedPatientId(allPatients[0].id);
+    }
+  }, [allPatients, selectedPatientId]);
+
+  // Fetch sleep analytics when patient changes
+  useEffect(() => {
+    if (selectedPatientId) {
+      dispatch(fetchSleepAnalyticsAsync(selectedPatientId));
+    }
+  }, [dispatch, selectedPatientId]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -52,48 +77,33 @@ export function SleepManagementPage({ initialPatientId, onBack }: SleepManagemen
     return !isSmallScreen && viewportWidth >= 1440 && viewportWidth < 2560;
   }, [isSmallScreen, viewportWidth]);
 
-  const currentPatient: Patient = useMemo(
-    () => mockPatients.find((p) => p.id === selectedPatientId) || mockPatients[0],
-    [selectedPatientId]
-  );
-
+  // Map API stageGraph to component format
   const hypnogramData = useMemo(() => {
-    const data: { time: string; stage: number }[] = [];
-    const startTime = new Date();
-    startTime.setHours(22, 0, 0, 0);
+    if (!analytics?.stageGraph) return [];
 
-    const seed = currentPatient.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const random = (i: number) => {
-      const x = Math.sin(seed + i) * 10000;
-      return x - Math.floor(x);
-    };
+    return analytics.stageGraph.map(point => {
+      // Map stage bits to numbers 1-4
+      let stage = 2; // Default light
+      if (point.awake === 1) stage = 4;
+      else if (point.rem === 1) stage = 3;
+      else if (point.light === 1) stage = 2;
+      else if (point.deep === 1) stage = 1;
 
-    for (let i = 0; i <= 48; i++) {
-      const time = new Date(startTime.getTime() + i * 10 * 60 * 1000);
+      return {
+        time: point.time,
+        stage: stage
+      };
+    });
+  }, [analytics]);
 
-      let currentStage = 2;
-      const cyclePos = i % 9;
-
-      if (cyclePos === 0) currentStage = 4;
-      else if (cyclePos < 2) currentStage = 2;
-      else if (cyclePos < 5) currentStage = 1;
-      else if (cyclePos < 7) currentStage = 2;
-      else currentStage = 3;
-
-      if (random(i) > 0.8) {
-        currentStage = Math.max(1, Math.min(4, currentStage + (random(i) > 0.5 ? 1 : -1)));
-      }
-
-      data.push({
-        time: time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-        stage: currentStage
-      });
-    }
-
-    return data;
-  }, [currentPatient.id]);
-
-  const trendData = useMemo(() => getAggregatedSleepTrend(currentPatient.id, trendView), [currentPatient.id, trendView]);
+  // Map weekly trend data
+  const trendData = useMemo(() => {
+    if (!analytics?.weeklyTrend) return [];
+    return analytics.weeklyTrend.map(item => ({
+      label: item.day,
+      hours: item.duration
+    }));
+  }, [analytics]);
 
   const trendMinWidth = useMemo(() => {
     const count = trendData?.length ?? 0;
@@ -103,7 +113,7 @@ export function SleepManagementPage({ initialPatientId, onBack }: SleepManagemen
   }, [trendData, trendView, isSmallScreen]);
 
   useEffect(() => {
-    if (selectedPatientId) {
+    if (selectedPatientId && analytics) {
       appendNotificationLog({
         id: `SLEEP-ANALYSIS-${selectedPatientId}-${Date.now()}`,
         timestamp: formatTimestamp(new Date()),
@@ -115,13 +125,48 @@ export function SleepManagementPage({ initialPatientId, onBack }: SleepManagemen
         details: '수면 품질 분석 완료'
       });
     }
-  }, [selectedPatientId]);
+  }, [selectedPatientId, analytics]);
+
+  if (loading && !analytics) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-blue-600 border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-[400px] flex flex-col items-center justify-center gap-4">
+        <p className="text-red-500 font-bold">{t('error.loadingData')}</p>
+        <p className="text-xs text-gray-500">{error}</p>
+        <div className="flex gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200"
+            >
+              {t('detail.back')}
+            </button>
+          )}
+          <button
+            onClick={() => selectedPatientId && dispatch(fetchSleepAnalyticsAsync(selectedPatientId))}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+          >
+            {t('common.reset')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!analytics) return null;
 
   return (
     <div className="space-y-4 lg:space-y-6">
-      {/* ✅ Back button is rendered INSIDE SessionSummary now */}
       <SessionSummary
-        currentPatient={currentPatient}
+        summary={analytics.summary}
+        stagePercentages={analytics.stagePercentages}
         isSmallScreen={isSmallScreen}
         useScaledDesktopLayout={useScaledDesktopLayout}
         t={t}
@@ -136,7 +181,7 @@ export function SleepManagementPage({ initialPatientId, onBack }: SleepManagemen
         }
       >
         <Hypnogram data={hypnogramData} isSmallScreen={isSmallScreen} useScaledDesktopLayout={useScaledDesktopLayout} t={t} />
-        <SleepTimeInfo currentPatient={currentPatient} isSmallScreen={isSmallScreen} useScaledDesktopLayout={useScaledDesktopLayout} t={t} />
+        <SleepTimeInfo timeInfo={analytics.timeInfo} isSmallScreen={isSmallScreen} useScaledDesktopLayout={useScaledDesktopLayout} t={t} />
       </div>
 
       <div
@@ -155,7 +200,7 @@ export function SleepManagementPage({ initialPatientId, onBack }: SleepManagemen
           onTrendViewChange={setTrendView}
           t={t}
         />
-        <VitalsCorrelation currentPatient={currentPatient} isSmallScreen={isSmallScreen} useScaledDesktopLayout={useScaledDesktopLayout} t={t} />
+        <VitalsCorrelation vitalCorrelations={analytics.vitalCorrelations} isSmallScreen={isSmallScreen} useScaledDesktopLayout={useScaledDesktopLayout} t={t} />
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ const languageOptions: { value: Language; label: string; flag: string }[] = [
     { value: 'ko', label: '한국어 (Korean)', flag: '🇰🇷' },
     { value: 'en', label: 'English', flag: '🇺🇸' },
     { value: 'ja', label: '日本語 (Japanese)', flag: '🇯🇵' },
-    { value: 'zh', label: '中文 (Chinese)', flag: '🇨🇳' },
+    { value: 'ch', label: '中文 (Chinese)', flag: '🇨🇳' },
     { value: 'es', label: 'Español (Spanish)', flag: '🇪🇸' },
 ];
 
@@ -29,7 +29,7 @@ export function LanguageSettings({ language, setLanguage, t }: LanguageSettingsP
                 <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value as Language)}
-                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none max-[374px]:text-xs max-[374px]:px-2"
                 >
                     {languageOptions.map((opt) => (
                         <option key={opt.value} value={opt.value}>

@@ -11,6 +11,7 @@ import { PatientDetailMonitoringPage } from './pages/patientdetailmonitoring/Pat
 import { GPSTrackingPage } from './pages/gpstracking/GPSTrackingPage';
 import { LanguageProvider } from './context/LanguageContext';
 import { ResponsiveScaleShell } from './components/layout/ResponsiveScaleShell';
+import { EmergencyAlertToastProvider } from './providers/EmergencyAlertToastProvider';
 
 export type MenuItem =
   | '통합 대시보드'
@@ -49,74 +50,76 @@ export default function App() {
   return (
     <LanguageProvider>
       <ResponsiveScaleShell>
-        <div className="min-h-screen bg-gray-50 flex relative lg:static">
-          {/* Mobile Sidebar Overlay */}
-          {isSidebarOpen && (
-            <div
-              className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-              onClick={closeSidebar}
-            />
-          )}
+        <EmergencyAlertToastProvider>
+          <div className="min-h-screen bg-gray-50 flex relative lg:static">
+            {/* Mobile Sidebar Overlay */}
+            {isSidebarOpen && (
+              <div
+                className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+                onClick={closeSidebar}
+              />
+            )}
 
-          <Sidebar
-            currentPage={currentPage}
-            isOpen={isSidebarOpen}
-            onPageChange={(page) => {
-              setCurrentPage(page);
-              setSelectedPatientId(null);
-              setSleepPatientId(null);
-              closeSidebar();
-            }}
-          />
-
-          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-            <Header
-              systemOnline={systemOnline}
-              onToggleSystem={() => setSystemOnline(!systemOnline)}
-              onToggleSidebar={toggleSidebar}
+            <Sidebar
+              currentPage={currentPage}
+              isOpen={isSidebarOpen}
+              onPageChange={(page) => {
+                setCurrentPage(page);
+                setSelectedPatientId(null);
+                setSleepPatientId(null);
+                closeSidebar();
+              }}
             />
 
-            <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 lg:p-6">
-              {selectedPatientId ? (
-                <PatientDetailMonitoringPage
-                  patientId={selectedPatientId}
-                  onBack={handleBackFromPatientDetails}
-                />
-              ) : (
-                <>
-                  {currentPage === '통합 대시보드' && (
-                    <DashboardPage
-                      systemOnline={systemOnline}
-                      onViewPatientDetails={handleViewPatientDetails}
-                    />
-                  )}
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+              <Header
+                systemOnline={systemOnline}
+                onToggleSystem={() => setSystemOnline(!systemOnline)}
+                onToggleSidebar={toggleSidebar}
+              />
 
-                  {currentPage === '환자 목록' && (
-                    <MonitoringPage
-                      onViewPatientDetails={handleViewPatientDetails}
-                      onViewSleepPage={handleViewSleepPage}
-                    />
-                  )}
+              <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 lg:p-6">
+                {selectedPatientId ? (
+                  <PatientDetailMonitoringPage
+                    patientId={selectedPatientId}
+                    onBack={handleBackFromPatientDetails}
+                  />
+                ) : (
+                  <>
+                    {currentPage === '통합 대시보드' && (
+                      <DashboardPage
+                        systemOnline={systemOnline}
+                        onViewPatientDetails={handleViewPatientDetails}
+                      />
+                    )}
 
-                  {currentPage === '알림 기록' && (
-                    <NotificationCenterPage onViewPatientDetails={handleViewPatientDetails} />
-                  )}
+                    {currentPage === '환자 목록' && (
+                      <MonitoringPage
+                        onViewPatientDetails={handleViewPatientDetails}
+                        onViewSleepPage={handleViewSleepPage}
+                      />
+                    )}
 
-                  {currentPage === '수면 관리' && (
-                    <SleepManagementPage
-                      initialPatientId={sleepPatientId}
-                      onBack={() => setCurrentPage('환자 목록')}
-                    />
-                  )}
+                    {currentPage === '알림 기록' && (
+                      <NotificationCenterPage onViewPatientDetails={handleViewPatientDetails} />
+                    )}
 
-                  {currentPage === '환자 등록' && <RegistrationPage />}
-                  {currentPage === 'GPS 위치 추적' && <GPSTrackingPage />}
-                  {currentPage === '설정' && <SettingsPage />}
-                </>
-              )}
-            </main>
+                    {currentPage === '수면 관리' && (
+                      <SleepManagementPage
+                        initialPatientId={sleepPatientId}
+                        onBack={() => setCurrentPage('환자 목록')}
+                      />
+                    )}
+
+                    {currentPage === '환자 등록' && <RegistrationPage />}
+                    {currentPage === 'GPS 위치 추적' && <GPSTrackingPage />}
+                    {currentPage === '설정' && <SettingsPage />}
+                  </>
+                )}
+              </main>
+            </div>
           </div>
-        </div>
+        </EmergencyAlertToastProvider>
       </ResponsiveScaleShell>
     </LanguageProvider>
   );

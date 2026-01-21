@@ -34,7 +34,7 @@ export function Header({ systemOnline, onToggleSystem, onToggleSidebar }: Header
                 >
                     <Menu className="w-5 h-5 lg:w-6 lg:h-6" />
                 </button>
-                <div className="truncate">
+                <div className="truncate hidden sm:block">
                     <h2 className="text-sm lg:text-lg font-bold text-gray-900 truncate">
                         {t('dashboard.headerTitle')}
                     </h2>
@@ -55,23 +55,23 @@ export function Header({ systemOnline, onToggleSystem, onToggleSidebar }: Header
                 </div>
 
                 {/* Mobile visible time */}
-                <div className="lg:hidden flex items-center gap-1.5 text-[10px] lg:text-xs text-gray-500 font-medium bg-gray-50 px-2 py-1 rounded-lg">
-                    <Clock className="w-3 h-3" />
+                <div className="lg:hidden flex items-center gap-1.5 max-[374px]:gap-1 text-[10px] max-[374px]:text-[8px] lg:text-xs text-gray-500 font-medium bg-gray-50 px-2 max-[374px]:px-1 py-1 rounded-lg">
+                    <Clock className="w-3 h-3 max-[374px]:w-2.5 max-[374px]:h-2.5" />
                     <span>{formattedTime.split(':').slice(0, 2).join(':')}</span>
                 </div>
 
                 <div className="flex items-center gap-1.5 lg:gap-3">
-                    <div className="flex items-center gap-1 lg:gap-2 bg-gray-50 rounded-full px-1.5 lg:px-3 py-0.5 lg:py-1 text-xs border border-gray-100">
-                        <Globe className="w-3 h-3 text-gray-400" />
+                    <div className="flex items-center gap-1 lg:gap-2 bg-gray-50 rounded-full px-1.5 max-[374px]:px-1 lg:px-3 py-0.5 lg:py-1 text-xs border border-gray-100">
+                        <Globe className="w-3 h-3 max-[374px]:w-2.5 max-[374px]:h-2.5 text-gray-400" />
                         <select
                             value={language}
                             onChange={(e) => setLanguage(e.target.value as any)}
-                            className="bg-transparent border-none focus:ring-0 cursor-pointer text-[10px] lg:text-xs p-0 pr-3 lg:pr-4"
+                            className="bg-transparent border-none focus:ring-0 cursor-pointer text-[10px] max-[374px]:text-[9px] lg:text-xs p-0 pr-3 max-[374px]:pr-2 lg:pr-4"
                         >
                             <option value="ko">KO</option>
                             <option value="en">EN</option>
                             <option value="ja">JA</option>
-                            <option value="zh">ZH</option>
+                            <option value="ch">CH</option>
                             <option value="es">ES</option>
                         </select>
                     </div>

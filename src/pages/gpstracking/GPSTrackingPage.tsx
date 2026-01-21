@@ -121,7 +121,7 @@ export function GPSTrackingPage() {
 
     const handleGetLocation = useCallback(() => {
         if (!navigator.geolocation) {
-            setLocError('브라우저가 위치 정보를 지원하지 않습니다.');
+            setLocError(t('gps.errorSupport'));
             return;
         }
 
@@ -142,25 +142,25 @@ export function GPSTrackingPage() {
                 setLocError(null);
             },
             (error) => {
-                let msg = '위치 정보를 가져올 수 없습니다.';
+                let msg = t('gps.errorFetch');
                 if (error.code === error.PERMISSION_DENIED) {
-                    msg = '위치 정보 접근 권한이 거부되었습니다. 브라우저 설정에서 허용해주세요.';
+                    msg = t('gps.errorPermission');
                 } else if (error.code === error.POSITION_UNAVAILABLE) {
-                    msg = '위치 정보를 사용할 수 없습니다.';
+                    msg = t('gps.errorUnavailable');
                 } else if (error.code === error.TIMEOUT) {
-                    msg = '위치 정보 요청 시간이 초과되었습니다.';
+                    msg = t('gps.errorTimeout');
                 }
                 setLocError(msg);
                 setTimeout(() => setLocError(null), 5000);
             },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
-    }, []);
+    }, [t]);
 
     useEffect(() => {
         if (isAutoTracking) {
             if (!navigator.geolocation) {
-                setLocError('브라우저가 위치 정보를 지원하지 않습니다.');
+                setLocError(t('gps.errorSupport'));
                 setIsAutoTracking(false);
                 return;
             }
@@ -178,7 +178,7 @@ export function GPSTrackingPage() {
                     setLocError(null);
                 },
                 (error) => {
-                    setLocError('실시간 추적 중 오류가 발생했습니다.');
+                    setLocError(t('gps.errorTracking'));
                     setIsAutoTracking(false);
                 },
                 { enableHighAccuracy: true }
@@ -241,8 +241,8 @@ export function GPSTrackingPage() {
                             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="환자명 / 환자ID / 장비ID 검색..."
-                                className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
+                                placeholder={t('gps.searchPlaceholder')}
+                                className="w-full pl-9 pr-4 max-[374px]:pl-8 max-[374px]:pr-2 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm max-[374px]:text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onFocus={() => setIsSearchFocused(true)}
@@ -282,7 +282,7 @@ export function GPSTrackingPage() {
                         )}
                         {isSearchFocused && searchQuery && filteredResults.length === 0 && (
                             <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-[1000] p-4 text-center">
-                                <p className="text-xs text-gray-400 font-bold uppercase">검색 결과가 없습니다</p>
+                                <p className="text-xs text-gray-400 font-bold uppercase">{t('common.noResults') || 'No results found'}</p>
                             </div>
                         )}
                         {isSearchFocused && (
@@ -293,7 +293,7 @@ export function GPSTrackingPage() {
                         )}
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 min-[319px]:gap-2 min-[319px]:justify-center min-[319px]:w-full">
                         {/* Error Message */}
                         {locError && (
                             <div className="bg-red-50 text-red-600 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-red-100 animate-in slide-in-from-right-2">
@@ -302,7 +302,7 @@ export function GPSTrackingPage() {
                         )}
 
                         {/* Auto Track Toggle */}
-                        <label className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                        <label className="flex items-center justify-center gap-2 px-2 py-1.5 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors group">
                             <input
                                 type="checkbox"
                                 className="hidden"
@@ -311,25 +311,25 @@ export function GPSTrackingPage() {
                                     setIsAutoTracking(e.target.checked);
                                 }}
                             />
+                            <Target className={`w-4 h-4 transition-colors ${isAutoTracking ? 'text-blue-600' : 'text-gray-400'}`} />
                             <div className={`w-8 h-4 rounded-full relative transition-colors ${isAutoTracking ? 'bg-blue-600' : 'bg-gray-300'}`}>
                                 <div className={`absolute top-1 w-2 h-2 bg-white rounded-full transition-all ${isAutoTracking ? 'right-1' : 'left-1'}`} />
                             </div>
-                            <span className="text-xs font-black text-gray-600 uppercase tracking-tighter shrink-0">자동 추적</span>
                         </label>
 
                         {/* My Location Button */}
                         <button
                             onClick={handleGetLocation}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-black text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                            className="flex items-center justify-center gap-1.5 px-2 py-1.5 bg-white border border-gray-200 rounded-xl text-xs font-black text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
                         >
                             <Navigation className="w-3.5 h-3.5 text-blue-600" />
-                            <span className="uppercase tracking-tighter">내 위치 표시</span>
+                            <span className="tracking-tight">{t('gps.myLocation.mobile')}</span>
                         </button>
                     </div>
                 </div>
 
                 {/* Map Wrapper */}
-                <div className="h-[500px] lg:h-[600px] 3xl:h-[720px] w-full relative">
+                <div className="h-[500px] max-[375px]:h-[320px] lg:h-[600px] 3xl:h-[720px] w-full relative">
                     <MapContainer
                         center={initialCenter}
                         zoom={14}
@@ -354,7 +354,7 @@ export function GPSTrackingPage() {
                             <Marker position={userLocation} icon={userLocationIcon}>
                                 <Popup className="custom-popup">
                                     <div className="p-1">
-                                        <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest leading-none mb-1">내 위치</p>
+                                        <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest leading-none mb-1">{t('gps.userLocation')}</p>
                                         <div className="space-y-1">
                                             <p className="text-[11px] font-bold text-gray-700">Lat: {userLocMeta?.lat.toFixed(6)}</p>
                                             <p className="text-[11px] font-bold text-gray-700">Lng: {userLocMeta?.lng.toFixed(6)}</p>
@@ -376,7 +376,7 @@ export function GPSTrackingPage() {
                                 }}
                             >
                                 <Popup className="custom-popup">
-                                    <div className="p-1 min-w-[140px]">
+                                    <div className="p-0 max-w-[200px]">
                                         <div className="flex justify-between items-start mb-2">
                                             <div>
                                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Device ID</p>
@@ -389,7 +389,7 @@ export function GPSTrackingPage() {
 
                                         {device.patientName && (
                                             <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-100">
-                                                <p className="text-[9px] font-bold text-gray-400 uppercase mb-0.5">Assigned Patient</p>
+                                                <p className="text-[9px] font-bold text-gray-400 uppercase mb-0.5">{t('gps.assignedPatient')}</p>
                                                 <p className="text-[11px] font-black text-gray-900">{device.patientName} ({device.patientId})</p>
                                             </div>
                                         )}
@@ -407,7 +407,7 @@ export function GPSTrackingPage() {
                                                 className="flex items-center gap-1.5 px-2 py-1 bg-blue-600 text-white rounded-lg text-[10px] font-black hover:bg-blue-700 transition-colors uppercase"
                                             >
                                                 <Crosshair className="w-3 h-3" />
-                                                이 위치 고정
+                                                {t('gps.fixLocation')}
                                             </button>
                                         </div>
                                     </div>
@@ -423,6 +423,7 @@ export function GPSTrackingPage() {
                 totalDevices={mockDevices.length}
                 onlineDevices={mockDevices.filter(d => d.status === 'online').length}
                 offlineDevices={mockDevices.filter(d => d.status === 'offline').length}
+                t={t}
             />
 
             <style>{`

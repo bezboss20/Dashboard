@@ -41,3 +41,134 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #D1D5DB;
 }
+
+/* ===== 320px BREAKPOINT-SPECIFIC FIXES ===== */
+/* These styles only apply at widths 319px-374px to fix overflow and clipping issues */
+@media (max-width: 374px) {
+
+  /* Header: Reduce time display and language selector sizes */
+  .header-320-compact .time-display {
+    font-size: 9px !important;
+    padding: 2px 6px !important;
+  }
+
+  /* Sidebar: Reduce width for 320px */
+  .sidebar-320 {
+    width: 220px !important;
+  }
+
+  /* GPS Page: Auto-tracking label text */
+  .gps-auto-tracking-label {
+    font-size: 8px !important;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* GPS Page: Reduce button sizes */
+  .gps-control-btn-320 {
+    padding: 4px 8px !important;
+    font-size: 9px !important;
+  }
+
+  /* Status Cards: Smaller text and tighter spacing */
+  .status-card-320 .status-label {
+    font-size: 8px !important;
+    line-height: 1.1 !important;
+  }
+
+  .status-card-320 .status-sub {
+    font-size: 8px !important;
+  }
+
+  /* Patient Filter Bar: Status cards grid tighter */
+  .filter-status-cards-320 {
+    gap: 4px !important;
+  }
+
+  .filter-status-card-320 {
+    padding: 4px !important;
+  }
+
+  .filter-status-card-320 .label-text {
+    font-size: 7px !important;
+    letter-spacing: 0 !important;
+  }
+
+  /* Notification Log: Pagination text smaller */
+  .pagination-text-320 {
+    font-size: 10px !important;
+  }
+
+  /* Settings: Buttons fit in card */
+  .settings-btn-row-320 button {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+
+  /* Patient Overview Table: Fit content better */
+  .patient-card-320 .date-row {
+    white-space: nowrap;
+    font-size: 11px !important;
+  }
+
+  /* Sleep Page: Session summary title */
+  .session-title-320 {
+    font-size: 14px !important;
+  }
+
+  /* Sleep Page: Back button positioning */
+  .sleep-back-btn-320 {
+    left: 8px !important;
+    top: 8px !important;
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+
+/* Emergency Alert Toast Animations */
+@keyframes custom-enter {
+  0% {
+    transform: translateX(110%) scale(0.9);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes custom-leave {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(20px) scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes progress-shrink {
+  0% {
+    width: 100%;
+  }
+
+  100% {
+    width: 0%;
+  }
+}
+
+.animate-custom-enter {
+  animation: custom-enter 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-custom-leave {
+  animation: custom-leave 0.3s ease-in forwards;
+}
+
+.animate-progress-shrink {
+  animation: progress-shrink 4.5s linear forwards;
+}

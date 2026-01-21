@@ -1,28 +1,13 @@
-import { useState } from 'react';
 import { Settings } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { LanguageSettings } from '../../components/settings/LanguageSettings';
-import { DataManagement } from '../../components/settings/DataManagement';
 import { SaveButtonRow } from '../../components/settings/SaveButtonRow';
 
 export function SettingsPage() {
     const { language, setLanguage, t } = useLanguage();
 
-    const [settings, setSettings] = useState({
-        dataRetentionDays: 90,
-        autoBackup: true
-    });
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
-        setSettings({
-            ...settings,
-            [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-        });
-    };
-
     const handleSave = () => {
-        console.log('Settings saved:', settings);
+        console.log('Settings saved');
         alert(t('common.save') + ' ' + t('settings.subtitle'));
     };
 
@@ -49,13 +34,6 @@ export function SettingsPage() {
                     <LanguageSettings
                         language={language}
                         setLanguage={setLanguage}
-                        t={t}
-                    />
-
-                    {/* Data Management */}
-                    <DataManagement
-                        settings={settings}
-                        onInputChange={handleInputChange}
                         t={t}
                     />
 

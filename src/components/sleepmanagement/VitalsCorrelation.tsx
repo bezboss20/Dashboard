@@ -1,56 +1,58 @@
+import { VitalCorrelation } from '../../store/slices/sleepSlice';
 import { Heart, Wind, Activity as SpO2Icon } from 'lucide-react';
 import {
     LineChart,
     Line,
     ResponsiveContainer
 } from 'recharts';
-import { Patient } from '../../data/mockData';
 
 interface VitalsCorrelationProps {
-    currentPatient: Patient;
+    vitalCorrelations: VitalCorrelation[];
     isSmallScreen: boolean;
     useScaledDesktopLayout: boolean;
     t: (key: string) => string;
 }
 
 export function VitalsCorrelation({
-    currentPatient,
+    vitalCorrelations,
     isSmallScreen,
     useScaledDesktopLayout,
     t
 }: VitalsCorrelationProps) {
-    const vitalsData = [
-        {
-            label: t('sleep.avgHr'),
-            value: currentPatient.heartRate,
-            unit: 'bpm',
-            icon: Heart,
-            color: 'text-red-500',
-            stroke: '#ef4444',
-            tint: 'bg-red-50/60 border-red-100',
-            spark: [65, 68, 72, 70, 68, 69, 72, 75, 74, 72, 70]
-        },
-        {
-            label: t('sleep.avgResp'),
-            value: currentPatient.breathingRate,
-            unit: 'brm',
-            icon: Wind,
-            color: 'text-blue-400',
-            stroke: '#60a5fa',
-            tint: 'bg-blue-50/60 border-blue-100',
-            spark: [14, 15, 14, 13, 13, 14, 15, 14, 14, 13, 13]
-        },
-        {
-            label: t('sleep.avgSpO2'),
-            value: currentPatient.sleepSession?.avgSpO2 || 99,
-            unit: '%',
-            icon: SpO2Icon,
-            color: 'text-teal-500',
-            stroke: '#14b8a6',
-            tint: 'bg-teal-50/60 border-teal-100',
-            spark: [98, 99, 99, 98, 99, 99, 98, 99, 99, 99, 99]
-        }
-    ];
+    const getIcon = (type: string) => {
+        if (type.includes('심박') || type.includes('Heart')) return Heart;
+        if (type.includes('호흡') || type.includes('Breathing')) return Wind;
+        return SpO2Icon;
+    };
+
+    const getColor = (type: string) => {
+        if (type.includes('심박') || type.includes('Heart')) return 'text-red-500';
+        if (type.includes('호흡') || type.includes('Breathing')) return 'text-blue-400';
+        return 'text-teal-500';
+    };
+
+    const getStroke = (type: string) => {
+        if (type.includes('심박수변동')) return '#14b8a6';
+        if (type.includes('심박')) return '#ef4444';
+        return '#60a5fa';
+    };
+
+    const getTint = (type: string) => {
+        if (type.includes('심박수변동')) return 'bg-teal-50/60 border-teal-100';
+        if (type.includes('심박')) return 'bg-red-50/60 border-red-100';
+        return 'bg-blue-50/60 border-blue-100';
+    };
+
+    const vitalsData = (vitalCorrelations || []).map(v => ({
+        label: v.type,
+        value: v.value,
+        unit: v.unit,
+        icon: getIcon(v.type),
+        color: getColor(v.type),
+        stroke: getStroke(v.type),
+        tint: getTint(v.type),
+        spark: [v.value, v.value + 2, v.value - 1, v.value, v.value + 3, v.value - 2, v.value] // Simplified generator
+    }));
 
     return (
         <div
@@ -98,8 +100,8 @@ export function VitalsCorrelation({
                             </div>
                         </div>
 
-                        <div className={isSmallScreen ? 'mt-1 h-4 w-full' : 'mt-2 h-7 w-full'}>
-                            <ResponsiveContainer width="100%" height="100%">
+                        <div className={isSmallScreen ? 'mt-1 h-4 w-full min-w-0' : 'mt-2 h-7 w-full min-w-0'}>
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <LineChart data={v.spark.map((val, i) => ({ val, i }))} margin={{ top: 1, right: 2, bottom: 1, left: 2 }}>
                                     <Line type="monotone" dataKey="val" stroke={v.stroke} strokeWidth={2} dot={false} isAnimationActive={false} />
                                 </LineChart>

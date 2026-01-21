@@ -59,12 +59,12 @@ export function WeeklyTrend({
 
             <div className="flex-1 w-full overflow-x-auto">
                 <div
-                    className="h-[220px] sm:h-[250px]"
+                    className="h-[220px] sm:h-[250px] min-w-0"
                     style={{
                         minWidth: trendView === 'Monthly' ? `${trendMinWidth}px` : isSmallScreen ? '420px' : '520px'
                     }}
                 >
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                         <BarChart
                             data={trendData}
                             margin={{

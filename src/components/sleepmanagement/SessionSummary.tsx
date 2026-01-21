@@ -1,16 +1,18 @@
 import { Moon, Clock, AlertCircle, Activity } from 'lucide-react';
-import { Patient } from '../../data/mockData';
+import { SleepSummary, StagePercentages } from '../../store/slices/sleepSlice';
 
 interface SessionSummaryProps {
-  currentPatient: Patient;
+  summary: SleepSummary;
+  stagePercentages: StagePercentages;
   isSmallScreen: boolean;
   useScaledDesktopLayout: boolean;
   t: (key: string) => string;
-  onBack?: () => void; // ✅ NEW: allow back button inside this card
+  onBack?: () => void;
 }
 
 export function SessionSummary({
-  currentPatient,
+  summary,
+  stagePercentages,
   isSmallScreen,
   useScaledDesktopLayout,
   t,
@@ -19,47 +21,43 @@ export function SessionSummary({
   const summaryCards = [
     {
       label: t('sleep.totalSleep'),
-      value: `${Math.floor(currentPatient.sleepData.duration)}${t('time.hour')} ${Math.round(
-        (currentPatient.sleepData.duration % 1) * 60
-      )}${t('time.minute')}`,
+      value: summary.totalDuration || '0h 0m',
       sub: `${t('sleep.goal')}: 8${t('time.hour')} 00${t('time.minute')}`,
       icon: Moon,
       color: 'bg-blue-50 text-blue-600'
     },
     {
       label: t('sleep.efficiency'),
-      value: `${currentPatient.sleepSession?.efficiency || 90}%`,
+      value: `${summary.efficiency || 0}%`,
       sub: t('sleep.normalRange'),
       icon: Activity,
       color: 'bg-purple-50 text-purple-600'
     },
     {
       label: t('sleep.interruptions'),
-      value: currentPatient.sleepSession?.interruptions || 2,
+      value: summary.interruptions || 0,
       sub: t('sleep.timesWokenUp'),
       icon: AlertCircle,
       color: 'bg-orange-50 text-orange-600'
     },
     {
       label: t('sleep.latency'),
-      value: `${currentPatient.sleepSession?.latency || 25}${t('time.minute')}`,
+      value: `${summary.latency || 0}${t('time.minute')}`,
       sub: t('sleep.timeToFallAsleep'),
       icon: Clock,
       color: 'bg-teal-50 text-teal-600'
     }
   ];
 
-  const stageLabels: Record<string, string> = {
-    Awake: t('detail.awake'),
-    REM: t('detail.remSleep'),
-    'Light Sleep': t('detail.lightSleep'),
-    'Deep Sleep': t('detail.deepSleep')
-  };
-
-  const stageColors = ['bg-orange-400', 'bg-purple-500', 'bg-blue-400', 'bg-blue-600'];
+  const stages = [
+    { key: 'awake', label: t('detail.awake'), percentage: stagePercentages.awake, color: 'bg-orange-400' },
+    { key: 'rem', label: t('detail.remSleep'), percentage: stagePercentages.rem, color: 'bg-purple-500' },
+    { key: 'light', label: t('detail.lightSleep'), percentage: stagePercentages.light, color: 'bg-blue-400' },
+    { key: 'deep', label: t('detail.deepSleep'), percentage: stagePercentages.deep, color: 'bg-blue-600' }
+  ];
 
   // ✅ Space reserved so title never overlaps the back button
-  const titleLeftPad = onBack ? (isSmallScreen ? 'pl-12' : 'pl-14') : '';
+  const titleLeftPad = onBack ? (isSmallScreen ? 'pl-10 max-[374px]:pl-10' : 'pl-14') : '';
 
   return (
     <div
@@ -81,7 +79,7 @@ export function SessionSummary({
             onClick={onBack}
             className={[
               'absolute z-20 top-3 left-3',
-              'w-9 h-9',
+              'w-9 h-9 max-[374px]:w-6 max-[374px]:h-6',
               'flex items-center justify-center',
               'bg-white/95 backdrop-blur rounded-lg border border-gray-200',
               'text-gray-600 hover:text-gray-900 hover:bg-gray-50',
@@ -117,7 +115,7 @@ export function SessionSummary({
               <h3
                 className={[
                   isSmallScreen
-                    ? 'text-base font-bold text-gray-900 whitespace-nowrap leading-tight'
+                    ? 'text-base max-[374px]:text-sm font-bold text-gray-900 whitespace-nowrap leading-tight'
                     : 'text-lg font-bold text-gray-900',
                   titleLeftPad
                 ].join(' ')}
@@ -126,11 +124,13 @@ export function SessionSummary({
               </h3>
 
               <p
-                className={
+                className={[
                   isSmallScreen
                     ? 'text-[10px] text-gray-400 font-medium leading-none'
-                    : 'text-xs text-gray-400 font-medium whitespace-nowrap'
-                }
+                    : 'text-xs text-gray-400 font-medium whitespace-nowrap',
+                  // ✅ Apply padding to subtitle too so it clears the button
+                  isSmallScreen ? titleLeftPad : ''
+                ].join(' ')}
               >
                 {t('sleep.lastNight')} • Oct 12 - Oct 13
               </p>
@@ -142,8 +142,8 @@ export function SessionSummary({
               isSmallScreen
                 ? 'grid grid-cols-2 max-[360px]:grid-cols-1 gap-2 mb-4'
                 : useScaledDesktopLayout
-                ? 'grid grid-cols-4 gap-6 mb-8'
-                : 'grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-6 mb-8'
+                  ? 'grid grid-cols-4 gap-6 mb-8'
+                  : 'grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-6 mb-8'
             }
           >
             {summaryCards.map((card, idx) => (
@@ -184,9 +184,9 @@ export function SessionSummary({
         <div className={isSmallScreen ? 'space-y-2 pt-3 border-t border-gray-100' : 'space-y-3 pt-6 border-t border-gray-100'}>
           <div className={isSmallScreen ? 'flex flex-col gap-2' : 'flex justify-between items-end'}>
             <div className={isSmallScreen ? 'flex flex-wrap gap-x-4 gap-y-2' : 'flex gap-4'}>
-              {currentPatient.sleepData.stages.map((s, idx) => (
+              {stages.map((s, idx) => (
                 <div key={idx} className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${stageColors[idx]}`} />
+                  <div className={`w-2 h-2 rounded-full ${s.color}`} />
                   <span
                     className={
                       isSmallScreen
@@ -194,20 +194,20 @@ export function SessionSummary({
                         : 'text-[10px] font-bold text-gray-500'
                     }
                   >
-                    {stageLabels[s.stage] || s.stage} ({s.percentage}%)
+                    {s.label} ({s.percentage}%)
                   </span>
                 </div>
               ))}
             </div>
 
             <p className={isSmallScreen ? 'text-[10px] text-gray-400 font-bold whitespace-nowrap' : 'text-[10px] text-gray-400 font-bold'}>
-              {t('sleep.totalTimeInBed')}: 8{t('time.hour')} 6{t('time.minute')}
+              {t('sleep.totalTimeInBed')}: {summary.totalDuration}
             </p>
           </div>
 
           <div className={isSmallScreen ? 'h-3 w-full flex rounded-full overflow-hidden shadow-inner' : 'h-4 w-full flex rounded-full overflow-hidden shadow-inner'}>
-            {currentPatient.sleepData.stages.map((s, idx) => (
-              <div key={idx} style={{ width: `${s.percentage}%` }} className={stageColors[idx]} />
+            {stages.map((s, idx) => (
+              <div key={idx} style={{ width: `${s.percentage}%` }} className={s.color} />
             ))}
           </div>
         </div>

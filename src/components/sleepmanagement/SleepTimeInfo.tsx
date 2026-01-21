@@ -1,24 +1,24 @@
 import { Bed, Moon, Sun, LogOut } from 'lucide-react';
-import { Patient } from '../../data/mockData';
+import { SleepTimeInfo as SleepTimeInfoType } from '../../store/slices/sleepSlice';
 
 interface SleepTimeInfoProps {
-    currentPatient: Patient;
+    timeInfo: SleepTimeInfoType;
     isSmallScreen: boolean;
     useScaledDesktopLayout: boolean;
     t: (key: string) => string;
 }
 
 export function SleepTimeInfo({
-    currentPatient,
+    timeInfo,
     isSmallScreen,
     useScaledDesktopLayout,
     t
 }: SleepTimeInfoProps) {
     const timeItems = [
-        { label: t('sleep.bedIn'), time: currentPatient.sleepSession?.bedInTime || '22:25', icon: Bed, color: 'text-blue-500' },
-        { label: t('sleep.sleep'), time: currentPatient.sleepSession?.sleepTime || '22:55', icon: Moon, color: 'text-purple-500' },
-        { label: t('sleep.wakeUp'), time: currentPatient.sleepSession?.wakeUpTime || '06:13', icon: Sun, color: 'text-orange-500' },
-        { label: t('sleep.bedOut'), time: currentPatient.sleepSession?.bedOutTime || '06:31', icon: LogOut, color: 'text-teal-500' }
+        { label: t('sleep.bedIn'), time: timeInfo.bedIn || '--:--', icon: Bed, color: 'text-blue-500' },
+        { label: t('sleep.sleep'), time: timeInfo.sleepStart || '--:--', icon: Moon, color: 'text-purple-500' },
+        { label: t('sleep.wakeUp'), time: timeInfo.wakeUp || '--:--', icon: Sun, color: 'text-orange-500' },
+        { label: t('sleep.bedOut'), time: timeInfo.bedOut || '--:--', icon: LogOut, color: 'text-teal-500' }
     ];
 
     return (

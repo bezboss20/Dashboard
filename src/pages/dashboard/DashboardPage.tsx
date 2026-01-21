@@ -1,8 +1,10 @@
-import { useState } from 'react';
-import { mockPatients, mockAlerts } from '../../data/mockData';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '../../context/LanguageContext';
-import { deriveHealthStatus } from '../../utils/statusLabels';
 import { appendNotificationLog, createLogFromAlert } from '../../data/notificationLogStore';
+import { fetchOverviewAsync, updateAlert } from '../../store/slices/dashboardSlice';
+import type { RootState, AppDispatch } from '../../store/store';
+import type { AlertData, VitalData } from '../../store/slices/dashboardSlice';
 
 // Dashboard sub-components
 import { EmergencyAlerts } from '../../components/dashboard/EmergencyAlerts';
@@ -10,111 +12,219 @@ import { SummaryCards } from '../../components/dashboard/SummaryCards';
 import { HeartRateColumn } from '../../components/dashboard/HeartRateColumn';
 import { BreathingRateColumn } from '../../components/dashboard/BreathingRateColumn';
 
+// Helper to get the most reliable patient ID for navigation
+// Helper to get the most reliable patient ID for navigation (HEX ID only)
+// Helper to get the most reliable patient ID for navigation (HEX ID only)
+const getBestPatientId = (item: any): string => {
+    if (!item) return '';
+
+    const p = item.patient || {};
+    const pIdField = item.patientId;
+
+    // Check all common locations for a 24-char MongoDB Hex ID
+    // CRITICAL: We DO NOT use item.id here because for alerts, item.id is the ALERT ID, not the patient ID.
+    const possibleIds = [
+        p._id,
+        p.id,
+        (typeof pIdField === 'object' ? pIdField?._id : pIdField),
+        (typeof pIdField === 'object' ? pIdField?.id : undefined),
+        (typeof item.patient === 'string' ? item.patient : undefined)
+    ];
+
+    for (const id of possibleIds) {
+        if (id && typeof id === 'string' && id.length > 20 && id !== item.patientCode) {
+            return id;
+        }
+    }
+
+    return '';
+};
+
 interface DashboardPageProps {
     systemOnline: boolean;
     onViewPatientDetails: (patientId: string) => void;
 }
 
 export function DashboardPage({ systemOnline, onViewPatientDetails }: DashboardPageProps) {
-    const { t, language } = useLanguage();
-    const [alerts, setAlerts] = useState(() => {
-        const baseAlerts = [...mockAlerts];
+    const { t, language, getLocalizedText } = useLanguage();
+    const dispatch = useDispatch<AppDispatch>();
 
-        // Ensure every patient with critical/warning vitals has an alert
-        mockPatients.forEach(patient => {
-            const hasActiveAlert = baseAlerts.some(a => a.patientId === patient.id && a.status === 'active');
+    // Get data from Redux store
+    const { summary, alerts, vitals, loading, error } = useSelector((state: RootState) => state.dashboard);
 
-            // Emergency criteria matching the table thresholds
-            const isHeartEmergency = patient.heartRate > 100 || patient.heartRate < 60;
-            const isBreathingEmergency = patient.breathingRate > 20 || patient.breathingRate < 12;
-            const isNonNormal = patient.alertStatus !== 'normal';
+    console.log('DashboardPage State:', {
+        summary,
+        alertsCount: alerts?.length,
+        vitalsCount: (vitals?.heartRate?.length + vitals?.respiratoryRate?.length),
+        loading,
+        error
+    });
 
-            if (!hasActiveAlert && (isHeartEmergency || isBreathingEmergency || isNonNormal)) {
-                let severity: 'critical' | 'warning' | 'caution' = 'caution';
-                let typeKey = 'dashboard.heartEmergency';
-                let value = `${patient.heartRate} BPM`;
+    // Fetch data on mount
+    useEffect(() => {
+        console.log('DashboardPage - Mounting/Fetching overview');
+        dispatch(fetchOverviewAsync());
 
-                // Calculate priority severity
-                if (patient.heartRate > 100 || patient.heartRate < 50 || patient.breathingRate > 25 || patient.breathingRate < 10) {
-                    severity = 'critical';
-                } else if (isHeartEmergency || isBreathingEmergency) {
-                    severity = 'warning';
-                } else if (isNonNormal) {
-                    severity = patient.alertStatus === 'critical' ? 'critical' :
-                        patient.alertStatus === 'warning' ? 'warning' : 'caution';
-                }
+        // Set up polling every 10 seconds
+        const interval = setInterval(() => {
+            console.log('DashboardPage - Polling overview');
+            dispatch(fetchOverviewAsync());
+        }, 10000);
 
-                // Determine primary type
-                if (isBreathingEmergency && !isHeartEmergency) {
-                    typeKey = 'dashboard.breathingEmergency';
-                    value = `${patient.breathingRate} RPM`;
-                }
+        return () => clearInterval(interval);
+    }, [dispatch]);
 
-                baseAlerts.unshift({
-                    id: `AUTO-${patient.id}`,
-                    patientId: patient.id,
-                    patientName: patient.nameKorean,
-                    patientNameEnglish: patient.nameEnglish,
-                    type: t(typeKey) as any,
-                    severity,
-                    timestamp: new Date(),
-                    status: 'active',
-                    value
+    useEffect(() => {
+        if (alerts && alerts.length > 0) {
+            console.log('DashboardPage - Sample Alert Raw:', alerts[0]);
+        }
+    }, [alerts]);
+
+    // Create a lookup map for patient IDs based on patient codes from vitals
+    const patientIdMap = new Map<string, string>();
+    const allVitals = [...(vitals?.heartRate || []), ...(vitals?.respiratoryRate || [])];
+    allVitals.forEach(v => {
+        if (v?.patientCode && v?.patientId && String(v.patientId).length > 20) {
+            patientIdMap.set(v.patientCode, String(v.patientId));
+        }
+    });
+
+    // Map API alerts to display format with multilingual support
+    // Increase display limit so all active alerts are visible (e.g. 20+)
+    const displayAlerts = (alerts || []).slice(0, 50).map(a => {
+        try {
+            let pId = getBestPatientId(a);
+
+            // Fallback: If no hex ID found in alert, try to find it in the patientIdMap via patientCode
+            if (!pId && a.patientCode && patientIdMap.has(a.patientCode)) {
+                pId = patientIdMap.get(a.patientCode)!;
+                console.log(`Resolved missing patientId for ${a.patientCode} using vitals map: ${pId}`);
+            }
+
+            // Log for debugging
+            if (!pId) {
+                console.warn('DashboardPage - Alert still missing clear patient ID after lookup:', { alertId: a.id, code: a.patientCode, raw: a });
+            }
+
+            return {
+                ...a,
+                patientId: pId, // Must be the HEX ID, or empty string.
+                patientName: a.patientName || (a as any).patient?.fullName?.ko || (a as any).patient?.name || getLocalizedText(a.patientNameEnglish ? { ko: a.patientName || '', en: a.patientNameEnglish } : undefined, a.patientName) || a.patientCode || '',
+                type: a.message?.ko || a.type || '',
+                timestamp: a.createdAt ? new Date(a.createdAt) : (a.timestamp ? new Date(a.timestamp) : new Date()),
+                severity: a.severity?.toLowerCase() || 'caution',
+                status: a.status === 'NEW' ? 'active' : (a.status || 'active'), // Ensure 'NEW' is treated as 'active' for display
+            };
+        } catch (e) {
+            console.error('Error mapping alert:', a, e);
+            return null;
+        }
+    }).filter(Boolean) as any[];
+
+    // Filter active alerts
+    const activeAlerts = displayAlerts.filter(alert => alert.status === 'active');
+
+    // Extract summary data with proper fallbacks
+    const summaryData = summary || {};
+    const totalPatients = summaryData.totalPatients || 0;
+    const criticalCount = summaryData.criticalPatients || 0;
+    const connectedDevices = typeof summaryData.connectedDevices === 'object'
+        ? summaryData.connectedDevices?.connected || 0
+        : (summaryData.connectedDevices || 0);
+    const totalDevices = typeof summaryData.connectedDevices === 'object'
+        ? summaryData.connectedDevices?.total || 0
+        : (summaryData.totalDevices || 0);
+
+    // Create unified patient list from vitals data
+    const createPatientsFromVitals = () => {
+        // Merge heart rate and respiratory rate data by patient
+        const patientMap = new Map();
+
+        const hrVitals = vitals?.heartRate || [];
+        const rrVitals = vitals?.respiratoryRate || [];
+
+        // Add heart rate data
+        hrVitals.forEach(hr => {
+            if (!hr) return;
+            const pId = getBestPatientId(hr);
+            if (!pId) return;
+
+            patientMap.set(pId, {
+                id: pId,
+                patientId: pId,
+                patientCode: hr.patientCode || hr.patientId || '',
+                nameKorean: hr.name || hr.patientName || hr.patientCode || '',
+                nameEnglish: hr.patientNameEnglish || hr.name || hr.patientCode || '',
+                heartRate: hr.value || 0,
+                breathingRate: 0,
+                alertStatus: 'normal' as 'normal' | 'caution' | 'warning' | 'critical',
+            });
+        });
+
+        // Add respiratory rate data
+        rrVitals.forEach(rr => {
+            if (!rr) return;
+            const pId = getBestPatientId(rr);
+            if (!pId) return;
+
+            const existing = patientMap.get(pId);
+            if (existing) {
+                existing.breathingRate = rr.value || 0;
+            } else {
+                patientMap.set(pId, {
+                    id: pId,
+                    patientId: pId,
+                    patientCode: rr.patientCode || rr.patientId || '',
+                    nameKorean: rr.name || rr.patientName || rr.patientCode || '',
+                    nameEnglish: rr.patientNameEnglish || rr.name || rr.patientCode || '',
+                    heartRate: 0,
+                    breathingRate: rr.value || 0,
+                    alertStatus: 'normal' as 'normal' | 'caution' | 'warning' | 'critical',
                 });
             }
         });
-        return baseAlerts;
-    });
 
-    const activeAlerts = alerts.filter(alert => alert.status === 'active');
-    const criticalCount = activeAlerts.filter(a => a.severity === 'critical').length;
-    const connectedDevices = mockPatients.filter(p => {
-        const health = deriveHealthStatus({
-            connectionStatus: p.deviceStatus,
-            deviceStatus: p.sensorConnected ? 'normal' : 'error'
-        });
-        return health === 'normal';
-    }).length;
-    const totalDevices = mockPatients.length;
+        return Array.from(patientMap.values());
+    };
+
+    const allPatientsFromVitals = createPatientsFromVitals();
+
+    // Create separate lists for heart rate and breathing rate displays
+    const patientsFromHeartRate = allPatientsFromVitals.filter(p => (p.heartRate || 0) > 0);
+    const patientsFromBreathingRate = allPatientsFromVitals.filter(p => (p.breathingRate || 0) > 0);
 
     // Alert management handlers
     const handleAcknowledgeAlert = (alertId: string, note: string) => {
-        setAlerts(prevAlerts => {
-            const targetAlert = prevAlerts.find(a => a.id === alertId);
-            if (targetAlert) {
-                appendNotificationLog(createLogFromAlert(targetAlert, 'acknowledged'));
+        const targetAlert = alerts.find(a => a.id === alertId);
+        if (targetAlert) {
+            appendNotificationLog(createLogFromAlert(targetAlert as any, 'acknowledged'));
+        }
+
+        dispatch(updateAlert({
+            id: alertId,
+            updates: {
+                status: 'acknowledged',
+                acknowledgedAt: new Date().toISOString(),
+                acknowledgedBy: 'Admin',
+                notes: note
             }
-            return prevAlerts.map(alert =>
-                alert.id === alertId
-                    ? {
-                        ...alert,
-                        status: 'acknowledged' as const,
-                        acknowledgedAt: new Date(),
-                        acknowledgedBy: 'Admin',
-                        notes: note || alert.notes
-                    }
-                    : alert
-            );
-        });
+        }));
     };
 
     const handleResolveAlert = (alertId: string) => {
-        setAlerts(prevAlerts => {
-            const targetAlert = prevAlerts.find(a => a.id === alertId);
-            if (targetAlert) {
-                appendNotificationLog(createLogFromAlert(targetAlert, 'resolved'));
+        const targetAlert = alerts.find(a => a.id === alertId);
+        if (targetAlert) {
+            appendNotificationLog(createLogFromAlert(targetAlert as any, 'resolved'));
+        }
+
+        dispatch(updateAlert({
+            id: alertId,
+            updates: {
+                status: 'resolved',
+                resolvedAt: new Date().toISOString(),
+                resolvedBy: 'Admin'
             }
-            return prevAlerts.map(alert =>
-                alert.id === alertId
-                    ? {
-                        ...alert,
-                        status: 'resolved' as const,
-                        resolvedAt: new Date(),
-                        resolvedBy: 'Admin'
-                    }
-                    : alert
-            );
-        });
+        }));
     };
 
     // Helper function to determine heart rate severity
@@ -133,7 +243,7 @@ export function DashboardPage({ systemOnline, onViewPatientDetails }: DashboardP
         return 'normal';
     };
 
-    // Helper function to calculate urgency score (deviation from normal range)
+    // Helper function to calculate urgency score
     const getHeartRateUrgency = (hr: number) => {
         if (hr > 90) return hr - 90;
         if (hr < 60) return 60 - hr;
@@ -146,50 +256,43 @@ export function DashboardPage({ systemOnline, onViewPatientDetails }: DashboardP
         return 0;
     };
 
-    // Sort patients by heart rate emergency level (numerical urgency)
-    const patientsByHeartRate = [...mockPatients].sort((a, b) => {
+    // Sort patients by heart rate emergency level
+    const patientsByHeartRate = [...patientsFromHeartRate].sort((a, b) => {
         const aUrgency = getHeartRateUrgency(a.heartRate);
         const bUrgency = getHeartRateUrgency(b.heartRate);
-
         if (bUrgency !== aUrgency) {
             return bUrgency - aUrgency;
         }
-
         const severityOrder = { critical: 0, warning: 1, caution: 2, normal: 3 };
         const aSeverity = getHeartRateSeverity(a.heartRate);
         const bSeverity = getHeartRateSeverity(b.heartRate);
-        return (severityOrder[aSeverity as keyof typeof severityOrder] ?? 3) - (severityOrder[bSeverity as keyof typeof severityOrder] ?? 3);
+        return (severityOrder[aSeverity] ?? 3) - (severityOrder[bSeverity] ?? 3);
     });
 
-    // Sort patients by breathing rate emergency level (numerical urgency)
-    const patientsByBreathingRate = [...mockPatients].sort((a, b) => {
+    // Sort patients by breathing rate emergency level
+    const patientsByBreathingRate = [...patientsFromBreathingRate].sort((a, b) => {
         const aUrgency = getBreathingRateUrgency(a.breathingRate);
         const bUrgency = getBreathingRateUrgency(b.breathingRate);
-
         if (bUrgency !== aUrgency) {
             return bUrgency - aUrgency;
         }
-
         const severityOrder = { critical: 0, warning: 1, caution: 2, normal: 3 };
         const aSeverity = getBreathingRateSeverity(a.breathingRate);
         const bSeverity = getBreathingRateSeverity(b.breathingRate);
-        return (severityOrder[aSeverity as keyof typeof severityOrder] ?? 3) - (severityOrder[bSeverity as keyof typeof severityOrder] ?? 3);
+        return (severityOrder[aSeverity] ?? 3) - (severityOrder[bSeverity] ?? 3);
     });
 
     // Unified Alert Sorting Logic
-    const getAlertUrgencyScore = (alert: typeof mockAlerts[0]) => {
-        const patient = mockPatients.find(p => p.id === alert.patientId);
-        if (!patient) return 0;
+    const getAlertUrgencyScore = (alert: { type?: string; severity?: string }) => {
+        let score = 0;
 
-        const hrUrgency = getHeartRateUrgency(patient.heartRate);
-        const brUrgency = getBreathingRateUrgency(patient.breathingRate);
-
-        let score = Math.max(hrUrgency, brUrgency);
-
+        // Fall detection gets highest priority
         if (alert.type === '낙상 감지') score += 100;
 
-        if (alert.severity === 'critical') score += 1000;
-        if (alert.severity === 'warning') score += 500;
+        // Severity scoring
+        if (alert.severity === 'critical' || alert.severity === 'CRITICAL' || alert.severity === 'HIGH') score += 1000;
+        if (alert.severity === 'warning' || alert.severity === 'MEDIUM') score += 500;
+        if (alert.severity === 'caution' || alert.severity === 'LOW') score += 100;
 
         return score;
     };
@@ -198,10 +301,40 @@ export function DashboardPage({ systemOnline, onViewPatientDetails }: DashboardP
         getAlertUrgencyScore(b) - getAlertUrgencyScore(a)
     );
 
+    // Show loading state
+    if (loading && alerts.length === 0) {
+        return (
+            <div className="min-h-[400px] flex items-center justify-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-2 border-blue-600 border-t-transparent" />
+            </div>
+        );
+    }
+
+    // Show error state
+    if (error && alerts.length === 0) {
+        return (
+            <div className="min-h-[400px] flex items-center justify-center">
+                <div className="text-center p-6 bg-red-50 rounded-2xl border border-red-100 max-w-md">
+                    <p className="text-red-600 font-bold mb-2">{t('error.loadingData')}</p>
+                    <p className="text-red-500 text-xs mb-6 font-medium bg-white/50 p-3 rounded-lg border border-red-50">
+                        {typeof error === 'string' ? error : JSON.stringify(error)}
+                    </p>
+                    <button
+                        onClick={() => dispatch(fetchOverviewAsync())}
+                        className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-sm transition-all active:scale-95"
+                    >
+                        {t('common.reset')}
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-4 md:space-y-6">
+
             <SummaryCards
-                totalPatients={mockPatients.length}
+                totalPatients={totalPatients}
                 activeAlertsCount={activeAlerts.length}
                 criticalCount={criticalCount}
                 connectedDevices={connectedDevices}
@@ -211,7 +344,7 @@ export function DashboardPage({ systemOnline, onViewPatientDetails }: DashboardP
 
             {sortedActiveAlerts.length > 0 && (
                 <EmergencyAlerts
-                    alerts={sortedActiveAlerts}
+                    alerts={sortedActiveAlerts as any}
                     onViewPatientDetails={onViewPatientDetails}
                     onAcknowledge={handleAcknowledgeAlert}
                     onResolve={handleResolveAlert}
@@ -220,7 +353,7 @@ export function DashboardPage({ systemOnline, onViewPatientDetails }: DashboardP
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                 <HeartRateColumn
-                    patients={patientsByHeartRate}
+                    patients={patientsByHeartRate as any}
                     language={language}
                     t={t}
                     onViewPatientDetails={onViewPatientDetails}
@@ -228,7 +361,7 @@ export function DashboardPage({ systemOnline, onViewPatientDetails }: DashboardP
                 />
 
                 <BreathingRateColumn
-                    patients={patientsByBreathingRate}
+                    patients={patientsByBreathingRate as any}
                     language={language}
                     t={t}
                     onViewPatientDetails={onViewPatientDetails}

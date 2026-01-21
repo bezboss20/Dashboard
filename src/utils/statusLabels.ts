@@ -21,10 +21,11 @@ export const deriveHealthStatus = ({ connectionStatus, deviceStatus }: DerivePar
 };
 
 /**
- * Returns the localized label for health status.
+ * Returns the translation key for health status.
+ * Components should use t(getHealthStatusLabel(status)) to get localized text.
  */
 export const getHealthStatusLabel = (status: DeviceHealthStatus): string => {
-    return status === 'normal' ? '정상' : '비정상';
+    return status === 'normal' ? 'status.normal' : 'status.abnormal';
 };
 
 /**

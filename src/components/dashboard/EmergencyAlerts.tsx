@@ -1,6 +1,24 @@
 import { AlertTriangle, ChevronRight, Check } from 'lucide-react';
-import { Alert } from '../../data/mockData';
 import { useLanguage } from '../../context/LanguageContext';
+
+// Local interface for alert data from API
+interface Alert {
+    id: string;
+    patientId?: string;
+    patientCode?: string;
+    patientName: string;
+    patientNameEnglish?: string;
+    patientNameData?: Record<string, string>; // Multilingual name data from API
+    type?: string;
+    message?: {
+        ko: string;
+        en: string;
+    };
+    severity: 'critical' | 'warning' | 'caution';
+    timestamp: Date;
+    status: 'active' | 'acknowledged' | 'resolved';
+    value?: string;
+}
 
 interface EmergencyAlertsProps {
     alerts: Alert[];
@@ -10,7 +28,34 @@ interface EmergencyAlertsProps {
 }
 
 export function EmergencyAlerts({ alerts, onViewPatientDetails, onAcknowledge, onResolve }: EmergencyAlertsProps) {
-    const { t, language } = useLanguage();
+    const { t, language, getLocalizedText } = useLanguage();
+
+    // Helper to translate alert messages from API (which may be in Korean)
+    const translateAlertMessage = (message: string | undefined): string => {
+        if (!message) return '';
+
+        // Map Korean messages to translation keys
+        if (message.includes('심박수') && message.includes('초과')) {
+            return t('alerts.msg.hrExceeded');
+        }
+        if (message.includes('심박수') && (message.includes('이하') || message.includes('below'))) {
+            return t('alerts.msg.hrLow');
+        }
+        if (message.includes('호흡수') && message.includes('벗어')) {
+            return t('alerts.msg.rrOutOfRange');
+        }
+        if (message.includes('호흡수') && message.includes('초과')) {
+            return t('alerts.msg.rrHigh');
+        }
+        if (message.includes('낙상') || message.includes('Fall')) {
+            return t('alerts.msg.fallDetected');
+        }
+
+        return message;
+    };
+
+    // Increase display limit so all active alerts are visible (e.g. 20+)
+    const displayAlerts = alerts.slice(0, 50);
 
     return (
         <div className="space-y-4">
@@ -21,7 +66,7 @@ export function EmergencyAlerts({ alerts, onViewPatientDetails, onAcknowledge, o
             </div>
 
             <div className="flex gap-3 lg:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory no-scrollbar -mx-1 px-1">
-                {alerts.map((alert) => {
+                {displayAlerts.map((alert) => {
                     const isCritical = alert.severity === 'critical';
                     const isWarning = alert.severity === 'warning';
 
@@ -29,50 +74,83 @@ export function EmergencyAlerts({ alerts, onViewPatientDetails, onAcknowledge, o
                     const textColor = isCritical ? 'text-red-700' : isWarning ? 'text-orange-700' : 'text-yellow-700';
                     const badgeColor = isCritical ? 'bg-red-600' : isWarning ? 'bg-orange-600' : 'bg-yellow-600';
 
+                    // Get patient identifier - use patientCode or patientId
+                    const patientIdentifier = alert.patientCode || alert.patientId || 'Unknown';
+                    const patientIdShort = patientIdentifier.includes('-')
+                        ? patientIdentifier.split('-')[1] || patientIdentifier
+                        : patientIdentifier;
+
+                    // Get alert type - use type or message based on language
+                    const rawAlertType = alert.type || alert.message?.ko || alert.message?.en || '';
+                    // Translate alert type labels
+                    const displayType = rawAlertType === '심박 위급' ? t('dashboard.heartEmergency') :
+                        rawAlertType === '호흡 위급' ? t('dashboard.breathingEmergency') :
+                            rawAlertType === '낙상 감지' ? t('dashboard.fallDetected') :
+                                translateAlertMessage(rawAlertType);
+
+                    // Secure Patient ID retrieval
+                    const patientId = alert.patientId;
+
                     return (
                         <div
                             key={alert.id}
-                            className={`flex-shrink-0 w-[240px] xs:w-[260px] sm:w-[280px] lg:w-[320px] snap-center ${bgColor} border rounded-2xl p-3.5 lg:p-5 shadow-sm relative group transition-all hover:shadow-md`}
+                            onClick={() => {
+                                if (patientId) {
+                                    onViewPatientDetails(patientId);
+                                } else {
+                                    console.error(`Alert card clicked but no valid backend patientId found for: ${alert.patientName} (${alert.patientCode})`);
+                                }
+                            }}
+                            className={`flex-shrink-0 w-[240px] xs:w-[260px] sm:w-[280px] lg:w-[320px] snap-center ${bgColor} border rounded-2xl p-3.5 lg:p-5 shadow-sm relative group transition-all hover:shadow-md ${patientId ? 'cursor-pointer' : 'cursor-default opacity-80'}`}
                         >
                             <div className="flex items-start justify-between mb-2">
                                 <div className="flex items-center gap-1.5 lg:gap-2 min-w-0">
                                     <div className={`w-2 h-2 ${badgeColor} rounded-full ${isCritical ? 'animate-pulse' : ''} flex-shrink-0`} />
                                     <span className={`text-[9px] min-[380px]:text-[10px] lg:text-xs font-bold ${textColor} flex-shrink-0`}>{t(`status.${alert.severity}`).toUpperCase()}</span>
                                     <span className="text-[9px] lg:text-[10px] text-gray-400 font-medium truncate">
-                                        | {alert.type === '심박 위급' ? t('dashboard.heartEmergency') :
-                                            alert.type === '호흡 위급' ? t('dashboard.breathingEmergency') :
-                                                alert.type === '낙상 감지' ? t('dashboard.fallDetected') : alert.type}
+                                        | {displayType}
                                     </span>
                                 </div>
-                                <button
-                                    onClick={() => onViewPatientDetails(alert.patientId)}
-                                    className="p-1 text-gray-400 hover:text-gray-600 flex-shrink-0"
+                                <div
+                                    className="p-1 text-gray-400 group-hover:text-gray-600 flex-shrink-0 bg-gray-100 rounded-full transition-colors"
+                                    title={t('table.viewDetails')}
                                 >
                                     <ChevronRight className="w-4 h-4" />
-                                </button>
+                                </div>
                             </div>
 
-                            <div className="space-y-0.5 lg:space-y-1 mb-2 lg:mb-4">
+                            <div className="w-full text-left space-y-0.5 lg:space-y-1 mb-3 lg:mb-4 group-hover:bg-black/5 p-1 -m-1 rounded-lg transition-colors">
                                 <p className="text-[10px] lg:text-xs text-gray-500 truncate">
-                                    {t('alerts.patient')}: {alert.patientId.split('-')[1] || alert.patientId} - {language === 'ko' ? alert.patientName : alert.patientNameEnglish}
+                                    {t('alerts.patient')}: {alert.patientNameData ? getLocalizedText(alert.patientNameData, alert.patientName) : (language === 'ko' ? alert.patientName : (alert.patientNameEnglish || alert.patientName))} {alert.patientCode ? `(${alert.patientCode})` : ''}
                                 </p>
-                                <p className="text-xs lg:text-sm font-bold text-gray-900 truncate">{t('alerts.value')}: {alert.value}</p>
-                                <p className="text-[9px] lg:text-[10px] text-gray-400">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                                <p className="text-xs lg:text-sm font-bold text-gray-900 truncate flex items-center justify-between">
+                                    <span>{alert.value ? `${t('alerts.value')}: ${alert.value}` : displayType}</span>
+                                    <span className="text-[10px] text-blue-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {t('table.viewDetails')} →
+                                    </span>
+                                </p>
+                                <p className="text-[9px] lg:text-[10px] text-gray-400">{alert.timestamp.toLocaleTimeString()}</p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
                                 <button
-                                    onClick={() => onAcknowledge(alert.id, '')}
-                                    className="flex items-center justify-center gap-1 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-lg text-[9px] lg:text-[10px] font-bold hover:bg-gray-50 transition-colors uppercase"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onAcknowledge(alert.id, '');
+                                    }}
+                                    className="flex items-center justify-center gap-1 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-lg text-[9px] lg:text-[10px] font-bold hover:bg-gray-50 transition-colors uppercase truncate px-1"
                                 >
-                                    {t('alerts.acknowledge')}
+                                    <span className="truncate">{t('alerts.acknowledge')}</span>
                                 </button>
                                 <button
-                                    onClick={() => onResolve(alert.id)}
-                                    className={`flex items-center justify-center gap-1 py-1.5 ${isCritical ? 'bg-red-500' : isWarning ? 'bg-orange-500' : 'bg-yellow-500'} text-white rounded-lg text-[9px] lg:text-[10px] font-bold hover:opacity-90 transition-colors uppercase`}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onResolve(alert.id);
+                                    }}
+                                    className={`flex items-center justify-center gap-1 py-1.5 ${isCritical ? 'bg-red-500' : isWarning ? 'bg-orange-500' : 'bg-yellow-500'} text-white rounded-lg text-[9px] lg:text-[10px] font-bold hover:opacity-90 transition-colors uppercase truncate px-1`}
                                 >
                                     <Check className="w-3 h-3 flex-shrink-0" />
-                                    {t('alerts.resolve')}
+                                    <span className="truncate">{t('alerts.resolve')}</span>
                                 </button>
                             </div>
                         </div>
