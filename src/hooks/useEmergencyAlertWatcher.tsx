@@ -27,7 +27,7 @@ export function useEmergencyAlertWatcher(onNewAlert: (alert: any) => void) {
 
     const pollAlerts = useCallback(async () => {
         try {
-            console.log('Polling for new emergency alerts (watcher)...');
+            // console.log('Polling for new emergency alerts (watcher)...');
             const response = await axios.get(`${API_BASE_URL}/overview`, {
                 headers: { 'ngrok-skip-browser-warning': 'true' }
             });

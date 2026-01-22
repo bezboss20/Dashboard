@@ -49,7 +49,7 @@ export default function App() {
 
   return (
     <LanguageProvider>
-      <ResponsiveScaleShell>
+      <ResponsiveScaleShell mobileMax={1440}>
         <EmergencyAlertToastProvider>
           <div className="min-h-screen bg-gray-50 flex relative lg:static">
             {/* Mobile Sidebar Overlay */}

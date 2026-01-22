@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { fetchPatients } from '../../services/patientService';
 
 export type PatientStatus = 'ACTIVE' | 'DISCHARGED' | 'TRANSFERRED';
 
@@ -98,56 +98,14 @@ export const fetchPatientsAsync = createAsyncThunk(
         date?: string;
     } = {}, { rejectWithValue }) => {
         try {
-            // Build query parameters
-            const queryParams = new URLSearchParams();
-            queryParams.append('page', String(params.page || 1));
-            queryParams.append('limit', String(params.limit || 100));
-            if (params.patientStatus && params.patientStatus !== 'ALL') {
-                queryParams.append('patientStatus', params.patientStatus);
-            }
-            if (params.search) {
-                queryParams.append('search', params.search);
-            }
-            if (params.date) {
-                queryParams.append('date', params.date);
-            }
+            // console.log('Monitoring API - Calling with params:', params);
+            const { patients, total } = await fetchPatients(params);
 
-            const apiUrl = `https://kaleidoscopically-prorailroad-kris.ngrok-free.dev/get-patients?${queryParams.toString()}`;
-            console.log('Monitoring API - Calling:', apiUrl);
-
-            const response = await axios.get<PatientsResponse>(
-                apiUrl,
-                {
-                    headers: {
-                        'ngrok-skip-browser-warning': 'true'
-                    }
-                }
-            );
-
-            console.log('Monitoring API Response:', response.data);
-            console.log('Monitoring API Response.success:', response.data.success);
-            console.log('Monitoring API Response.data:', response.data.data);
-
-            if (response.data.success) {
-                // API returns patients directly in data array, not nested
-                const patientsData = {
-                    patients: Array.isArray(response.data.data) ? response.data.data : [],
-                    total: Array.isArray(response.data.data) ? response.data.data.length : 0
-                };
-                console.log('Monitoring API - Returning:', patientsData);
-                return patientsData;
-            }
-            console.error('Monitoring API - Success was false');
-            return rejectWithValue('API returned unsuccessful response');
+            // console.log('Monitoring API - Returned:', { patientsCount: patients.length, total });
+            return { patients, total };
         } catch (error) {
             console.error('Monitoring API - Error caught:', error);
-            if (axios.isAxiosError(error)) {
-                console.error('Monitoring API - Axios Error:', error.response?.status, error.response?.data);
-                console.error('Monitoring API - Request URL was:', error.config?.url);
-                return rejectWithValue(error.message);
-            }
-            console.error('Monitoring API - Unknown error:', error);
-            return rejectWithValue('An unexpected error occurred');
+            return rejectWithValue(error instanceof Error ? error.message : 'An unexpected error occurred');
         }
     }
 );

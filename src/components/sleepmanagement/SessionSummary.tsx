@@ -133,7 +133,7 @@ export function SessionSummary({
                 >
                   {t('sleep.sessionSummary')}
                   {patientName && (
-                    <span className="ml-2 text-blue-600 font-bold">
+                    <span className="ml-2 text-blue-600 font-bold whitespace-nowrap">
                       [{patientName}]
                     </span>
                   )}

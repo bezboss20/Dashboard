@@ -1,76 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { fetchDashboardOverview } from '../../services/dashboardService';
+import { SummaryData, AlertData, VitalData } from '../../types/dashboard';
 
-// Types based on the API response structure
-export interface VitalData {
-    patientId?: string;
-    patientCode?: string;    // API returns patientCode like "PAT-00006"
-    name?: string;           // API uses 'name' not 'patientName'
-    patientName?: string;    // Keep for backwards compatibility
-    patientNameEnglish?: string;
-    nameData?: Record<string, string>;
-    value: number | null;    // Can be null in API response
-    unit?: string;           // "BPM" or "RPM"
-    timestamp?: string;
-    status?: 'normal' | 'caution' | 'warning' | 'critical';
-}
-
-export interface AlertData {
-    id: string;
-    patientId?: string;
-    patientCode?: string;      // API returns patientCode like "PAT-00018"
-    patientName: string;
-    patientNameEnglish?: string;
-    patientNameData?: Record<string, string>;
-    type?: '심박 위급' | '호흡 위급' | '낙상 감지' | string;
-    severity: 'critical' | 'warning' | 'caution' | 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-    message?: {                // API returns message as object with ko/en
-        ko: string;
-        en: string;
-    };
-    timestamp?: string;
-    createdAt?: string;        // API uses createdAt instead of timestamp
-    status?: 'active' | 'acknowledged' | 'resolved' | 'NEW';
-    value?: string;
-    acknowledgedAt?: string;
-    acknowledgedBy?: string;
-    resolvedAt?: string;
-    resolvedBy?: string;
-    notes?: string;
-    patient?: {
-        id: string;
-        fullName?: { ko: string; en: string };
-        fullNameData?: { ko: string; en: string };
-        name?: string;
-        nameKorean?: string;
-        nameEnglish?: string;
-    };
-}
-
-export interface ConnectedDevicesData {
-    connected: number;
-    total: number;
-}
-
-export interface SummaryData {
-    totalPatients?: number;
-    activeAlerts?: number;
-    criticalPatients?: number;
-    connectedDevices?: ConnectedDevicesData | number; // API returns object, but we handle both
-    totalDevices?: number;
-}
-
-export interface OverviewResponse {
-    success: boolean;
-    data: {
-        summary: SummaryData;
-        alerts: AlertData[];
-        vitals: {
-            heartRate: VitalData[];
-            respiratoryRate: VitalData[];
-        };
-    };
-}
+// Re-export types for backward compatibility if needed in components
+export type { SummaryData, AlertData, VitalData };
 
 interface DashboardState {
     summary: SummaryData;
@@ -107,54 +40,12 @@ export const fetchOverviewAsync = createAsyncThunk(
     'dashboard/fetchOverviewAsync',
     async (_, { rejectWithValue }) => {
         try {
-            const apiUrl = 'https://kaleidoscopically-prorailroad-kris.ngrok-free.dev/overview';
-            console.log('Dashboard API - Calling:', apiUrl);
-
-            const response = await axios.get<any>(
-                apiUrl,
-                {
-                    headers: {
-                        'ngrok-skip-browser-warning': 'true'
-                    }
-                }
-            );
-
-            console.log('Dashboard API Raw Response:', response.data);
-
-            const responseData = response.data;
-            if (!responseData) {
-                return rejectWithValue('Empty response from server');
-            }
-
-            // Handle structure: data might be nested under 'data' or top-level
-            // If responseData.success is true, look in responseData.data
-            // Otherwise check if responseData itself has dashboard properties
-            let extractedData = null;
-
-            if (responseData.success === true && responseData.data) {
-                extractedData = responseData.data;
-            } else if (responseData.summary || responseData.alerts || responseData.vitals) {
-                // Probable top-level structure
-                extractedData = responseData;
-            } else if (responseData.data && (responseData.data.summary || responseData.data.alerts)) {
-                // Success flag might be missing but 'data' exists
-                extractedData = responseData.data;
-            }
-
-            if (extractedData) {
-                console.log('Dashboard API - Successfully extracted data:', extractedData);
-                return extractedData;
-            }
-
-            console.error('Dashboard API - Failed to find data in response:', responseData);
-            return rejectWithValue('API returned invalid data format');
+            const data = await fetchDashboardOverview();
+            return data;
         } catch (error) {
             console.error('Dashboard API - Error caught:', error);
-            if (axios.isAxiosError(error)) {
-                const errorMessage = error.response?.data?.message || error.message;
-                return rejectWithValue(errorMessage);
-            }
-            return rejectWithValue('An unexpected error occurred');
+            const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+            return rejectWithValue(errorMessage);
         }
     }
 );
