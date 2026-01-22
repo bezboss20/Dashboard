@@ -112,8 +112,20 @@ export function SleepManagementPage({ initialPatientId, onBack }: SleepManagemen
     return Math.max(base, count * slot);
   }, [trendData, trendView, isSmallScreen]);
 
+  const { getLocalizedText } = useLanguage();
+
+  const selectedPatient = useMemo(() =>
+    allPatients.find(p => p.id === selectedPatientId),
+    [allPatients, selectedPatientId]
+  );
+
+  const patientName = useMemo(() => {
+    if (!selectedPatient) return '';
+    return getLocalizedText(selectedPatient.fullName, selectedPatient.fullName?.ko || '');
+  }, [selectedPatient, getLocalizedText]);
+
   useEffect(() => {
-    if (selectedPatientId && analytics) {
+    if (selectedPatientId && analytics && selectedPatient) {
       appendNotificationLog({
         id: `SLEEP-ANALYSIS-${selectedPatientId}-${Date.now()}`,
         timestamp: formatTimestamp(new Date()),
@@ -122,10 +134,12 @@ export function SleepManagementPage({ initialPatientId, onBack }: SleepManagemen
         category: '수면 관리/품질 분석',
         type: '수면_품질_분석',
         status: '성공',
-        details: '수면 품질 분석 완료'
+        details: '수면 품질 분석 완료',
+        patientName: patientName,
+        fullName: selectedPatient.fullName
       });
     }
-  }, [selectedPatientId, analytics]);
+  }, [selectedPatientId, analytics, selectedPatient, patientName]);
 
   if (loading && !analytics) {
     return (
@@ -170,6 +184,7 @@ export function SleepManagementPage({ initialPatientId, onBack }: SleepManagemen
         isSmallScreen={isSmallScreen}
         useScaledDesktopLayout={useScaledDesktopLayout}
         t={t}
+        patientName={patientName}
         onBack={onBack}
       />
 

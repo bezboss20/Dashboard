@@ -7,6 +7,7 @@ interface SessionSummaryProps {
   isSmallScreen: boolean;
   useScaledDesktopLayout: boolean;
   t: (key: string) => string;
+  patientName: string;
   onBack?: () => void;
 }
 
@@ -16,12 +17,22 @@ export function SessionSummary({
   isSmallScreen,
   useScaledDesktopLayout,
   t,
+  patientName,
   onBack
 }: SessionSummaryProps) {
+  const formatDuration = (val: string) => {
+    if (!val) return '0h 0m';
+    return val
+      .replace('h', t('time.hour'))
+      .replace('m', t('time.minute'))
+      .replace('시간', t('time.hour'))
+      .replace('분', t('time.minute'));
+  };
+
   const summaryCards = [
     {
       label: t('sleep.totalSleep'),
-      value: summary.totalDuration || '0h 0m',
+      value: formatDuration(summary.totalDuration),
       sub: `${t('sleep.goal')}: 8${t('time.hour')} 00${t('time.minute')}`,
       icon: Moon,
       color: 'bg-blue-50 text-blue-600'
@@ -112,16 +123,22 @@ export function SessionSummary({
           <div className={isSmallScreen ? 'mb-3' : 'mb-6'}>
             <div className={isSmallScreen ? 'flex flex-col gap-1' : 'flex items-end justify-between gap-3'}>
               {/* ✅ Title shifted right when back button exists */}
-              <h3
-                className={[
-                  isSmallScreen
-                    ? 'text-base max-[374px]:text-sm font-bold text-gray-900 whitespace-nowrap leading-tight'
-                    : 'text-lg font-bold text-gray-900',
-                  titleLeftPad
-                ].join(' ')}
-              >
-                {t('sleep.sessionSummary')}
-              </h3>
+              <div className={titleLeftPad}>
+                <h3
+                  className={[
+                    isSmallScreen
+                      ? 'text-base max-[374px]:text-sm font-bold text-gray-900 whitespace-nowrap leading-tight'
+                      : 'text-lg font-bold text-gray-900'
+                  ].join(' ')}
+                >
+                  {t('sleep.sessionSummary')}
+                  {patientName && (
+                    <span className="ml-2 text-blue-600 font-bold">
+                      [{patientName}]
+                    </span>
+                  )}
+                </h3>
+              </div>
 
               <p
                 className={[
@@ -201,7 +218,7 @@ export function SessionSummary({
             </div>
 
             <p className={isSmallScreen ? 'text-[10px] text-gray-400 font-bold whitespace-nowrap' : 'text-[10px] text-gray-400 font-bold'}>
-              {t('sleep.totalTimeInBed')}: {summary.totalDuration}
+              {t('sleep.totalTimeInBed')}: {formatDuration(summary.totalDuration)}
             </p>
           </div>
 

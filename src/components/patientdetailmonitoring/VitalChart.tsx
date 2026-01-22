@@ -30,23 +30,24 @@ interface VitalChartProps {
     gradientId: string;
 }
 
-function CustomTooltip({ active, payload, label, baseline, unit }: {
+function CustomTooltip({ active, payload, label, baseline, unit, t }: {
     active?: boolean;
     payload?: Array<{ value: number }>;
     label?: string;
     baseline: number | null;
     unit: string;
+    t: (key: string) => string;
 }) {
     if (active && payload && payload.length) {
         return (
             <div className="bg-white p-3 border border-gray-200 rounded-xl shadow-lg text-[12px] font-bold">
-                <p className="text-gray-500 mb-1">시간: {label}</p>
+                <p className="text-gray-500 mb-1">{t('detail.time')}: {label}</p>
                 <p className="text-gray-900">
-                    수치: {payload[0].value} {unit}
+                    {t('detail.value')}: {payload[0].value} {unit}
                 </p>
                 {baseline && (
                     <div className="mt-2 pt-2 border-t border-gray-100 text-gray-400">
-                        Baseline: {baseline} {unit}
+                        {t('detail.baseline')}: {baseline} {unit}
                     </div>
                 )}
             </div>
@@ -57,12 +58,27 @@ function CustomTooltip({ active, payload, label, baseline, unit }: {
 
 function TimeRangeSelector({
     current,
-    onChange
+    onChange,
+    t
 }: {
     current: TimeRange;
     onChange: (range: TimeRange) => void;
+    t: (key: string) => string;
 }) {
     const ranges: TimeRange[] = ['5분', '15분', '30분', '1시간', '6시간', '24시간'];
+
+    const getRangeLabel = (range: string) => {
+        if (range.includes('분')) {
+            const num = range.replace('분', '');
+            return `${num}${t('time.minute')}`;
+        }
+        if (range.includes('시간')) {
+            const num = range.replace('시간', '');
+            return `${num}${t('time.hour')}`;
+        }
+        return range;
+    };
+
     return (
         <div className="w-full max-w-full overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex items-center gap-1 whitespace-nowrap pr-2">
@@ -73,7 +89,7 @@ function TimeRangeSelector({
                         className={`px-2 py-1 text-[10px] font-bold rounded-full transition-all duration-200 ${current === range ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
                             }`}
                     >
-                        {range}
+                        {getRangeLabel(range)}
                     </button>
                 ))}
             </div>
@@ -90,8 +106,13 @@ export function VitalChart({
     onRangeChange,
     color,
     unit,
-    gradientId
-}: VitalChartProps) {
+    gradientId,
+    t
+}: VitalChartProps & { t: (key: string) => string }) {
+    const localizedRange = currentRange.includes('분')
+        ? `${currentRange.replace('분', '')}${t('time.minute')}`
+        : `${currentRange.replace('시간', '')}${t('time.hour')}`;
+
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-6 overflow-hidden">
             <div className="mb-2.5 sm:mb-6">
@@ -100,7 +121,7 @@ export function VitalChart({
                         {title}
                     </h3>
                     <div className="w-full sm:w-auto">
-                        <TimeRangeSelector current={currentRange} onChange={onRangeChange} />
+                        <TimeRangeSelector current={currentRange} onChange={onRangeChange} t={t} />
                     </div>
                 </div>
             </div>
@@ -133,7 +154,7 @@ export function VitalChart({
                             domain={dataKey === 'hr' ? ['dataMin - 10', 'dataMax + 10'] : ['dataMin - 5', 'dataMax + 5']}
                         />
 
-                        <Tooltip content={<CustomTooltip baseline={baseline} unit={unit} />} />
+                        <Tooltip content={<CustomTooltip baseline={baseline} unit={unit} t={t} />} />
 
                         {baseline && (
                             <ReferenceLine y={baseline} stroke="#94a3b8" strokeDasharray="6 6" strokeWidth={1.5} />
@@ -153,12 +174,14 @@ export function VitalChart({
             </div>
 
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-4">
-                <p className="text-[11px] sm:text-[12px] text-gray-400 font-bold whitespace-nowrap">최근 {currentRange}</p>
+                <p className="text-[11px] sm:text-[12px] text-gray-400 font-bold whitespace-nowrap">
+                    {t('detail.recent')} {localizedRange}
+                </p>
                 {baseline && (
                     <div className="flex items-center gap-1.5">
                         <div className="w-4 sm:w-6 h-0.5 border-t-2 border-dashed border-slate-400 flex-shrink-0"></div>
                         <span className="text-[10px] sm:text-[11px] text-gray-500 font-semibold whitespace-nowrap">
-                            Baseline: {baseline} {unit}
+                            {t('detail.baseline')}: {baseline} {unit}
                         </span>
                     </div>
                 )}

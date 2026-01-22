@@ -90,7 +90,7 @@ export function VitalMetrics({ vitals, deviceId, t }: VitalMetricsProps) {
                 icon={Heart}
                 label={t('detail.hr')}
                 value={vitals.hr.value}
-                unit="bpm"
+                unit={t('common.bpm')}
                 status={t(vitals.hr.status)}
                 statusKey={vitals.hr.status}
                 colorClass="bg-red-300"
@@ -109,7 +109,7 @@ export function VitalMetrics({ vitals, deviceId, t }: VitalMetricsProps) {
                 icon={Wind}
                 label={t('detail.rr')}
                 value={vitals.rr.value}
-                unit="rpm"
+                unit={t('common.rpm')}
                 status={t(vitals.rr.status)}
                 statusKey={vitals.rr.status}
                 colorClass="bg-teal-300"

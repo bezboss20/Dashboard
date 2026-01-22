@@ -86,15 +86,26 @@ interface PatientDetail {
  * UTILS
  */
 
-const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
+const getLocale = (lang: string) => {
+    const map: Record<string, string> = {
+        'ko': 'ko-KR',
+        'en': 'en-US',
+        'ja': 'ja-JP',
+        'ch': 'zh-CN',
+        'es': 'es-ES'
+    };
+    return map[lang] || 'en-US';
+};
+
+const formatTime = (date: Date, lang: string) => {
+    return date.toLocaleTimeString(getLocale(lang), {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: true
+        hour12: lang === 'en'
     });
 };
 
-const generateMonitoringData = (range: TimeRange, _patientId?: string): MonitoringPoint[] => {
+const generateMonitoringData = (range: TimeRange, lang: string, _patientId?: string): MonitoringPoint[] => {
     const points: MonitoringPoint[] = [];
     const now = new Date();
     let intervalMs = 0;
@@ -118,7 +129,7 @@ const generateMonitoringData = (range: TimeRange, _patientId?: string): Monitori
         lastRr = Math.max(12, Math.min(22, lastRr + (Math.random() - 0.5) * 1));
 
         points.push({
-            time: formatTime(time),
+            time: formatTime(time, lang),
             timestamp: time.getTime(),
             hr: Math.round(lastHr),
             rr: parseFloat(lastRr.toFixed(1))
@@ -128,7 +139,7 @@ const generateMonitoringData = (range: TimeRange, _patientId?: string): Monitori
     return points;
 };
 
-const getPatientDetail = async (patientId: string): Promise<PatientDetail> => {
+const getPatientDetail = async (patientId: string, lang: string, t: (key: string) => string): Promise<PatientDetail> => {
     const response = await fetch(
         `https://kaleidoscopically-prorailroad-kris.ngrok-free.dev/getPatient/${patientId}`,
         {
@@ -189,8 +200,8 @@ const getPatientDetail = async (patientId: string): Promise<PatientDetail> => {
         name: patient.fullName?.ko || patient.patientCode,
         englishName: patient.fullName?.en || patient.patientCode,
         age: patient.age || 0,
-        gender: patient.gender === 'FEMALE' ? '여' : '남',
-        room: `${patient.ward?.roomNumber || 0}호`,
+        gender: patient.gender === 'FEMALE' ? 'FEMALE' : 'MALE',
+        room: `${patient.ward?.roomNumber || 0}`,
         status,
         statusLabel: status.toLowerCase(),
         lastUpdated: 'time.justNow',
@@ -254,7 +265,7 @@ const getPatientDetail = async (patientId: string): Promise<PatientDetail> => {
                 id: a.id,
                 type: a.type || 'ALERT',
                 message: messageKey,
-                time: new Date(a.createdAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+                time: new Date(a.createdAt).toLocaleTimeString(getLocale(lang), { hour: '2-digit', minute: '2-digit' }),
                 severity: mapSeverity(a.severity)
             };
         }),
@@ -300,18 +311,18 @@ export function PatientDetailMonitoringPage({ patientId, onBack }: { patientId: 
     const [hrRange, setHrRange] = useState<TimeRange>('1시간');
     const [rrRange, setRrRange] = useState<TimeRange>('1시간');
 
-    const hrData = useMemo(() => generateMonitoringData(hrRange, patientId), [hrRange, patientId]);
-    const rrData = useMemo(() => generateMonitoringData(rrRange, patientId), [rrRange, patientId]);
+    const hrData = useMemo(() => generateMonitoringData(hrRange, language, patientId), [hrRange, language, patientId]);
+    const rrData = useMemo(() => generateMonitoringData(rrRange, language, patientId), [rrRange, language, patientId]);
 
     const hrBaseline = useMemo(() => {
         if (hrData.length === 0) return null;
-        const avg = hrData.reduce((acc, curr) => acc + curr.hr, 0) / hrData.length;
+        const avg = hrData.reduce((acc: number, curr: MonitoringPoint) => acc + curr.hr, 0) / hrData.length;
         return Math.round(avg);
     }, [hrData]);
 
     const rrBaseline = useMemo(() => {
         if (rrData.length === 0) return null;
-        const avg = rrData.reduce((acc, curr) => acc + curr.rr, 0) / rrData.length;
+        const avg = rrData.reduce((acc: number, curr: MonitoringPoint) => acc + curr.rr, 0) / rrData.length;
         return Number(avg.toFixed(1));
     }, [rrData]);
 
@@ -319,7 +330,7 @@ export function PatientDetailMonitoringPage({ patientId, onBack }: { patientId: 
         const loadData = async () => {
             try {
                 setLoading(true);
-                const patientData = await getPatientDetail(patientId);
+                const patientData = await getPatientDetail(patientId, language, t);
                 setData(patientData);
             } catch (err) {
                 setError(t('error.loadingData'));
@@ -329,7 +340,7 @@ export function PatientDetailMonitoringPage({ patientId, onBack }: { patientId: 
         };
         loadData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [patientId]);
+    }, [patientId, language]);
 
     if (loading) {
         return (
@@ -433,6 +444,7 @@ export function PatientDetailMonitoringPage({ patientId, onBack }: { patientId: 
                             color="#EF4444"
                             unit="BPM"
                             gradientId="colorHr"
+                            t={t}
                         />
 
                         {/* RR */}
@@ -446,6 +458,7 @@ export function PatientDetailMonitoringPage({ patientId, onBack }: { patientId: 
                             color="#10B981"
                             unit="RPM"
                             gradientId="colorRr"
+                            t={t}
                         />
 
                         {/* Sleep */}

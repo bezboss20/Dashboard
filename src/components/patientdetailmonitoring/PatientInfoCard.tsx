@@ -137,15 +137,10 @@ export function PatientInfoCard({ data, language, t, onStatusChange }: PatientIn
                 <p className="text-[11px] sm:text-[12px] text-gray-500 font-medium leading-snug mb-3 sm:mb-4">
                     🎂 1965.05.20 ({data.age}
                     {t('detail.yearsOld')}) |{' '}
-                    {language === 'ko'
-                        ? data.gender === '남성'
-                            ? '남성'
-                            : '여성'
-                        : data.gender === '남성'
-                            ? 'Male'
-                            : 'Female'}{' '}
-                    | {data.room}
-                    {language === 'ko' ? '호' : ''}
+                    {data.gender === 'FEMALE' ? t('gender.female') : t('gender.male')} |{' '}
+                    {['ko', 'ja', 'ch'].includes(language)
+                        ? `${data.room.replace('호', '')}${t('detail.roomUnit')}`
+                        : `${t('detail.roomUnit')} ${data.room.replace('호', '')}`}
                 </p>
 
                 {/* Patient Status Dropdown */}

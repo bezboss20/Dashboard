@@ -172,3 +172,119 @@ body {
 .animate-progress-shrink {
   animation: progress-shrink 4.5s linear forwards;
 }
+
+/* ===== LEAFLET MAP STABILIZATION ===== */
+/* Comprehensive fixes for tile rendering glitches, white/green blocks, and washed-out areas */
+/* Root cause: Parent scaling transform from ResponsiveScaleShell interferes with tile compositing */
+
+/* Map wrapper - create independent stacking context to isolate from parent transforms */
+.gps-map-wrapper {
+  /* contain: strict creates independent layout and paint context */
+  contain: layout style paint;
+  /* Backup: filter trick also creates stacking context */
+  filter: brightness(1);
+  /* Prevent inherited transforms from affecting tiles */
+  transform-style: flat;
+}
+
+/* Base container - solid background prevents flash-through */
+.leaflet-container {
+  background: #e5e7eb !important;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  /* Create own stacking context */
+  isolation: isolate;
+  /* Force hardware layer */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Tile pane - the critical layer for tile rendering */
+.leaflet-tile-pane {
+  /* Force its own compositing layer */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  /* Ensure no opacity inheritance issues */
+  opacity: 1 !important;
+}
+
+/* Individual tiles - prevent rendering artifacts */
+.leaflet-tile {
+  /* Force independent rendering */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* Prevent subpixel rendering gaps */
+  image-rendering: -webkit-optimize-contrast;
+  /* Ensure tiles are fully opaque when loaded */
+  opacity: 1 !important;
+}
+
+/* Loading tiles - prevent flash of incorrect state */
+.leaflet-tile-loaded {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Zoom animation layer - prevent ghost tiles during zoom */
+.leaflet-zoom-animated {
+  will-change: transform;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+/* Marker pane - separate from tiles to prevent interference */
+.leaflet-marker-pane {
+  z-index: 600 !important;
+}
+
+/* Overlay pane for popups */
+.leaflet-popup-pane {
+  z-index: 700 !important;
+}
+
+/* Prevent any filter effects from washing out tiles */
+.leaflet-pane {
+  filter: none !important;
+}
+
+/* Ensure shadow pane doesn't interfere */
+.leaflet-shadow-pane {
+  opacity: 1 !important;
+}
+
+/* Fix for tiles sometimes appearing washed out */
+.leaflet-tile-container img {
+  -webkit-filter: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+/* Prevent tile gaps during transitions */
+.leaflet-fade-anim .leaflet-tile {
+  transition: none !important;
+}
+
+/* Control containers - ensure proper z-index and visibility */
+.leaflet-control-container {
+  z-index: 800;
+}
+
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.leaflet-control-zoom a {
+  background: white !important;
+  color: #374151 !important;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  font-size: 18px !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: #f3f4f6 !important;
+}

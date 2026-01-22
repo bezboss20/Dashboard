@@ -121,7 +121,7 @@ export function EmergencyAlerts({ alerts, onViewPatientDetails, onAcknowledge, o
 
                             <div className="w-full text-left space-y-0.5 lg:space-y-1 mb-3 lg:mb-4 group-hover:bg-black/5 p-1 -m-1 rounded-lg transition-colors">
                                 <p className="text-[10px] lg:text-xs text-gray-500 truncate">
-                                    {t('alerts.patient')}: {alert.patientNameData ? getLocalizedText(alert.patientNameData, alert.patientName) : (language === 'ko' ? alert.patientName : (alert.patientNameEnglish || alert.patientName))} {alert.patientCode ? `(${alert.patientCode})` : ''}
+                                    {t('alerts.patient')}: {alert.patientName} {alert.patientCode ? `(${alert.patientCode})` : ''}
                                 </p>
                                 <p className="text-xs lg:text-sm font-bold text-gray-900 truncate flex items-center justify-between">
                                     <span>{alert.value ? `${t('alerts.value')}: ${alert.value}` : displayType}</span>

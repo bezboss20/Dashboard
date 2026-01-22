@@ -12,9 +12,8 @@ import { SummaryCards } from '../../components/dashboard/SummaryCards';
 import { HeartRateColumn } from '../../components/dashboard/HeartRateColumn';
 import { BreathingRateColumn } from '../../components/dashboard/BreathingRateColumn';
 
-// Helper to get the most reliable patient ID for navigation
 // Helper to get the most reliable patient ID for navigation (HEX ID only)
-// Helper to get the most reliable patient ID for navigation (HEX ID only)
+// The API returns patientId directly as a string (hex ID), not nested in a patient object
 const getBestPatientId = (item: any): string => {
     if (!item) return '';
 
@@ -22,12 +21,19 @@ const getBestPatientId = (item: any): string => {
     const pIdField = item.patientId;
 
     // Check all common locations for a 24-char MongoDB Hex ID
+    // Priority 1: Direct patientId field (most common in current API)
+    // Priority 2: Nested in patient object
     // CRITICAL: We DO NOT use item.id here because for alerts, item.id is the ALERT ID, not the patient ID.
     const possibleIds = [
+        // Direct patientId as string (current API format)
+        (typeof pIdField === 'string' ? pIdField : undefined),
+        // Nested in patient object
         p._id,
         p.id,
-        (typeof pIdField === 'object' ? pIdField?._id : pIdField),
+        // patientId as object with nested _id or id
+        (typeof pIdField === 'object' ? pIdField?._id : undefined),
         (typeof pIdField === 'object' ? pIdField?.id : undefined),
+        // patient field as string
         (typeof item.patient === 'string' ? item.patient : undefined)
     ];
 
@@ -91,7 +97,7 @@ export function DashboardPage({ systemOnline, onViewPatientDetails }: DashboardP
 
     // Map API alerts to display format with multilingual support
     // Increase display limit so all active alerts are visible (e.g. 20+)
-    const displayAlerts = (alerts || []).slice(0, 50).map(a => {
+    const displayAlerts = (alerts || []).slice(0, 50).map((a, idx) => {
         try {
             let pId = getBestPatientId(a);
 
@@ -101,15 +107,24 @@ export function DashboardPage({ systemOnline, onViewPatientDetails }: DashboardP
                 console.log(`Resolved missing patientId for ${a.patientCode} using vitals map: ${pId}`);
             }
 
-            // Log for debugging
-            if (!pId) {
-                console.warn('DashboardPage - Alert still missing clear patient ID after lookup:', { alertId: a.id, code: a.patientCode, raw: a });
-            }
+            // Aggressive name resolution - API now returns patientName as {ko, en} object
+            const patientObj = (a.patient || {}) as any;
+            // Priority: a.patientName (object), a.patientNameData, a.fullNameData, a.fullName, patientObj fields
+            const rawPatientName = (a as any).patientName;
+            const isPatientNameObject = rawPatientName && typeof rawPatientName === 'object' && (rawPatientName.ko || rawPatientName.en);
+            const patientNameData = isPatientNameObject ? rawPatientName : (a.patientNameData || (a as any).fullNameData || (a as any).fullName || patientObj.fullName || patientObj.fullNameData);
+
+            const nameEn = patientNameData?.en || a.patientNameEnglish || (a as any).nameEnglish || patientObj.nameEnglish || '';
+            const nameKo = patientNameData?.ko || (typeof rawPatientName === 'string' ? rawPatientName : '') || (a as any).nameKorean || patientObj.nameKorean || patientObj.name || '';
 
             return {
                 ...a,
                 patientId: pId, // Must be the HEX ID, or empty string.
-                patientName: a.patientName || (a as any).patient?.fullName?.ko || (a as any).patient?.name || getLocalizedText(a.patientNameEnglish ? { ko: a.patientName || '', en: a.patientNameEnglish } : undefined, a.patientName) || a.patientCode || '',
+                patientName: getLocalizedText(
+                    patientNameData || { ko: nameKo, en: nameEn },
+                    nameKo || a.patientCode || ''
+                ),
+                patientNameEnglish: nameEn,
                 type: a.message?.ko || a.type || '',
                 timestamp: a.createdAt ? new Date(a.createdAt) : (a.timestamp ? new Date(a.timestamp) : new Date()),
                 severity: a.severity?.toLowerCase() || 'caution',
@@ -149,12 +164,19 @@ export function DashboardPage({ systemOnline, onViewPatientDetails }: DashboardP
             const pId = getBestPatientId(hr);
             if (!pId) return;
 
+            const vitalsHr = hr as any;
+            // API returns name as {ko, en} object - check this first
+            // Fallback to other possible name fields for backwards compatibility
+            const nameData = vitalsHr.name || vitalsHr.fullNameData || vitalsHr.fullName || vitalsHr.nameData || vitalsHr.patientNameData;
+            const isNameObject = nameData && typeof nameData === 'object' && (nameData.ko || nameData.en);
+            const nameKo = isNameObject ? nameData.ko : (hr.patientName || vitalsHr.nameKorean || '');
+            const nameEn = isNameObject ? nameData.en : (hr.patientNameEnglish || vitalsHr.nameEnglish || '');
+
             patientMap.set(pId, {
                 id: pId,
                 patientId: pId,
-                patientCode: hr.patientCode || hr.patientId || '',
-                nameKorean: hr.name || hr.patientName || hr.patientCode || '',
-                nameEnglish: hr.patientNameEnglish || hr.name || hr.patientCode || '',
+                patientCode: hr.patientCode || '',
+                name: getLocalizedText(isNameObject ? nameData : { ko: nameKo, en: nameEn }, nameKo || hr.patientCode || ''),
                 heartRate: hr.value || 0,
                 breathingRate: 0,
                 alertStatus: 'normal' as 'normal' | 'caution' | 'warning' | 'critical',
@@ -171,12 +193,18 @@ export function DashboardPage({ systemOnline, onViewPatientDetails }: DashboardP
             if (existing) {
                 existing.breathingRate = rr.value || 0;
             } else {
+                const vitalsRr = rr as any;
+                // API returns name as {ko, en} object - check this first
+                const nameData = vitalsRr.name || vitalsRr.fullNameData || vitalsRr.fullName || vitalsRr.nameData || vitalsRr.patientNameData;
+                const isNameObject = nameData && typeof nameData === 'object' && (nameData.ko || nameData.en);
+                const nameKo = isNameObject ? nameData.ko : (rr.patientName || vitalsRr.nameKorean || '');
+                const nameEn = isNameObject ? nameData.en : (rr.patientNameEnglish || vitalsRr.nameEnglish || '');
+
                 patientMap.set(pId, {
                     id: pId,
                     patientId: pId,
-                    patientCode: rr.patientCode || rr.patientId || '',
-                    nameKorean: rr.name || rr.patientName || rr.patientCode || '',
-                    nameEnglish: rr.patientNameEnglish || rr.name || rr.patientCode || '',
+                    patientCode: rr.patientCode || '',
+                    name: getLocalizedText(isNameObject ? nameData : { ko: nameKo, en: nameEn }, nameKo || rr.patientCode || ''),
                     heartRate: 0,
                     breathingRate: rr.value || 0,
                     alertStatus: 'normal' as 'normal' | 'caution' | 'warning' | 'critical',
@@ -192,7 +220,6 @@ export function DashboardPage({ systemOnline, onViewPatientDetails }: DashboardP
     // Create separate lists for heart rate and breathing rate displays
     const patientsFromHeartRate = allPatientsFromVitals.filter(p => (p.heartRate || 0) > 0);
     const patientsFromBreathingRate = allPatientsFromVitals.filter(p => (p.breathingRate || 0) > 0);
-
     // Alert management handlers
     const handleAcknowledgeAlert = (alertId: string, note: string) => {
         const targetAlert = alerts.find(a => a.id === alertId);
@@ -276,11 +303,13 @@ export function DashboardPage({ systemOnline, onViewPatientDetails }: DashboardP
         if (bUrgency !== aUrgency) {
             return bUrgency - aUrgency;
         }
+
         const severityOrder = { critical: 0, warning: 1, caution: 2, normal: 3 };
         const aSeverity = getBreathingRateSeverity(a.breathingRate);
         const bSeverity = getBreathingRateSeverity(b.breathingRate);
         return (severityOrder[aSeverity] ?? 3) - (severityOrder[bSeverity] ?? 3);
     });
+
 
     // Unified Alert Sorting Logic
     const getAlertUrgencyScore = (alert: { type?: string; severity?: string }) => {

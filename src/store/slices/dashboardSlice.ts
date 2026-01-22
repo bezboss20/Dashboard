@@ -8,6 +8,7 @@ export interface VitalData {
     name?: string;           // API uses 'name' not 'patientName'
     patientName?: string;    // Keep for backwards compatibility
     patientNameEnglish?: string;
+    nameData?: Record<string, string>;
     value: number | null;    // Can be null in API response
     unit?: string;           // "BPM" or "RPM"
     timestamp?: string;
@@ -20,6 +21,7 @@ export interface AlertData {
     patientCode?: string;      // API returns patientCode like "PAT-00018"
     patientName: string;
     patientNameEnglish?: string;
+    patientNameData?: Record<string, string>;
     type?: '심박 위급' | '호흡 위급' | '낙상 감지' | string;
     severity: 'critical' | 'warning' | 'caution' | 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
     message?: {                // API returns message as object with ko/en
@@ -35,6 +37,14 @@ export interface AlertData {
     resolvedAt?: string;
     resolvedBy?: string;
     notes?: string;
+    patient?: {
+        id: string;
+        fullName?: { ko: string; en: string };
+        fullNameData?: { ko: string; en: string };
+        name?: string;
+        nameKorean?: string;
+        nameEnglish?: string;
+    };
 }
 
 export interface ConnectedDevicesData {

@@ -92,6 +92,11 @@ const translations: Record<Language, Record<string, string>> = {
         'time.minutesAgo': '분 전',
         'time.hour': '시간',
         'time.minute': '분',
+        'detail.recent': '최근',
+        'detail.baseline': '기준치',
+        'detail.time': '시간',
+        'detail.value': '수치',
+        'detail.roomUnit': '호',
         'detail.back': '이전으로',
         'detail.patientInfo': '환자 정보',
         'detail.gender': '성별',
@@ -199,6 +204,7 @@ const translations: Record<Language, Record<string, string>> = {
         'sleep.vitalsCorrelation': '활력 징후 상관관계',
         'sleep.avgHr': '평균 심박수',
         'sleep.avgResp': '평균 호흡수',
+        'sleep.avgHrv': '평균 심박수변동',
         'sleep.avgSpO2': '평균 산소포화도',
         'settings.title': '설정',
         'settings.subtitle': '시스템 환경 설정',
@@ -213,6 +219,7 @@ const translations: Record<Language, Record<string, string>> = {
         'common.collapse': '접기',
         'common.bpm': 'BPM',
         'common.rpm': 'RPM',
+
         'error.loadingData': '데이터를 불러오는 중 오류가 발생했습니다.',
         'error.patientNotFound': '환자 정보를 찾을 수 없습니다.',
         'notifications.table.date': '날짜',
@@ -397,8 +404,14 @@ const translations: Record<Language, Record<string, string>> = {
         'time.justNow': 'Just now',
         'time.secondsAgo': 's ago',
         'time.minutesAgo': 'm ago',
-        'time.hour': 'h',
-        'time.minute': 'm',
+        'time.hour': 'hr',
+        'time.hours': 'hrs',
+        'time.minute': 'min',
+        'detail.recent': 'Last',
+        'detail.baseline': 'Baseline',
+        'detail.time': 'Time',
+        'detail.value': 'Value',
+        'detail.roomUnit': 'Room',
         'detail.back': 'Back',
         'detail.patientInfo': 'Patient Info',
         'detail.gender': 'Gender',
@@ -506,6 +519,7 @@ const translations: Record<Language, Record<string, string>> = {
         'sleep.vitalsCorrelation': 'Vitals Correlation',
         'sleep.avgHr': 'Avg HR',
         'sleep.avgResp': 'Avg Resp',
+        'sleep.avgHrv': 'Avg HRV',
         'sleep.avgSpO2': 'Avg SpO2',
         'settings.title': 'Settings',
         'settings.subtitle': 'System Preferences',
@@ -519,6 +533,7 @@ const translations: Record<Language, Record<string, string>> = {
         'common.reset': 'Reset',
         'common.bpm': 'BPM',
         'common.rpm': 'RPM',
+
         'error.loadingData': 'An error occurred while loading data.',
         'error.patientNotFound': 'Patient information not found.',
         'notifications.table.date': 'Date',
@@ -706,6 +721,11 @@ const translations: Record<Language, Record<string, string>> = {
         'time.minutesAgo': '分前',
         'time.hour': '時間',
         'time.minute': '分',
+        'detail.recent': '最近',
+        'detail.baseline': '基準値',
+        'detail.time': '時間',
+        'detail.value': '数値',
+        'detail.roomUnit': '号',
         'detail.back': '戻る',
         'detail.patientInfo': '患者情報',
         'detail.gender': '性別',
@@ -813,6 +833,7 @@ const translations: Record<Language, Record<string, string>> = {
         'sleep.vitalsCorrelation': 'バイタルサイン相関',
         'sleep.avgHr': '平均心拍数',
         'sleep.avgResp': '平均呼吸数',
+        'sleep.avgHrv': '平均心拍変動',
         'sleep.avgSpO2': '平均SpO2',
         'settings.title': '設定',
         'settings.subtitle': 'システム設定',
@@ -827,6 +848,7 @@ const translations: Record<Language, Record<string, string>> = {
         'common.collapse': '折りたたむ',
         'common.bpm': 'BPM',
         'common.rpm': 'RPM',
+
         'error.loadingData': 'データの読み込み中にエラーが発生しました。',
         'error.patientNotFound': '患者情報が見つかりません。',
         'notifications.table.date': '日付',
@@ -1012,7 +1034,12 @@ const translations: Record<Language, Record<string, string>> = {
         'time.secondsAgo': '秒前',
         'time.minutesAgo': '分钟前',
         'time.hour': '小时',
-        'time.minute': '分钟',
+        'time.minute': '分',
+        'detail.recent': '最近',
+        'detail.baseline': '基准',
+        'detail.time': '时间',
+        'detail.value': '数值',
+        'detail.roomUnit': '号',
         'detail.back': '返回',
         'detail.patientInfo': '患者信息',
         'detail.gender': '性别',
@@ -1120,6 +1147,7 @@ const translations: Record<Language, Record<string, string>> = {
         'sleep.vitalsCorrelation': '生命体征相关性',
         'sleep.avgHr': '平均心率',
         'sleep.avgResp': '平均呼吸率',
+        'sleep.avgHrv': '平均心率变异',
         'sleep.avgSpO2': '平均血氧饱和度',
         'settings.title': '设置',
         'settings.subtitle': '系统偏好设置',
@@ -1134,6 +1162,7 @@ const translations: Record<Language, Record<string, string>> = {
         'common.collapse': '折叠',
         'common.bpm': 'BPM',
         'common.rpm': 'RPM',
+
         'error.loadingData': '加载数据时出错。',
         'error.patientNotFound': '找不到患者信息。',
         'notifications.table.date': '日期',
@@ -1319,7 +1348,12 @@ const translations: Record<Language, Record<string, string>> = {
         'time.secondsAgo': 's atrás',
         'time.minutesAgo': 'm atrás',
         'time.hour': 'h',
-        'time.minute': 'm',
+        'time.minute': 'min',
+        'detail.recent': 'Reciente',
+        'detail.baseline': 'Referencia',
+        'detail.time': 'Hora',
+        'detail.value': 'Valor',
+        'detail.roomUnit': 'Sala',
         'detail.back': 'Volver',
         'detail.patientInfo': 'Información del Paciente',
         'detail.gender': 'Género',
@@ -1427,6 +1461,7 @@ const translations: Record<Language, Record<string, string>> = {
         'sleep.vitalsCorrelation': 'Correlación de Vitales',
         'sleep.avgHr': 'FC Promedio',
         'sleep.avgResp': 'FR Promedio',
+        'sleep.avgHrv': 'VFC Promedio',
         'sleep.avgSpO2': 'SpO2 Promedio',
         'settings.title': 'Configuración',
         'settings.subtitle': 'Preferencias del Sistema',
@@ -1441,6 +1476,7 @@ const translations: Record<Language, Record<string, string>> = {
         'common.collapse': 'Contraer',
         'common.bpm': 'BPM',
         'common.rpm': 'RPM',
+
         'error.loadingData': 'Error al cargar los datos.',
         'error.patientNotFound': 'Paciente no encontrado.',
         'notifications.table.date': 'Fecha',
@@ -1618,8 +1654,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
         // If data is an object, try to get the value for current language
         // Fallback order: current language → English → Korean → first available → fallback
+        const localizedValue = data[language];
+        if (localizedValue !== undefined && localizedValue !== null && localizedValue !== '') {
+            return localizedValue;
+        }
+
         return (
-            data[language] ||
             data['en'] ||
             data['ko'] ||
             Object.values(data)[0] ||

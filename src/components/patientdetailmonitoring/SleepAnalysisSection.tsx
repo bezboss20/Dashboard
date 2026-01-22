@@ -28,7 +28,11 @@ export function SleepAnalysisSection({ sleepRecord, t }: SleepAnalysisSectionPro
                     </h3>
                     <div className="shrink-0">
                         <span className="whitespace-nowrap text-[10px] font-extrabold bg-gray-50 text-gray-600 border border-gray-100 shadow-sm px-2 py-1 rounded-full">
-                            {sleepRecord.totalDuration.replace('h', t('time.hour')).replace('m', t('time.minute'))}
+                            {sleepRecord.totalDuration
+                                .replace('h', t('time.hour'))
+                                .replace('m', t('time.minute'))
+                                .replace('시간', t('time.hour'))
+                                .replace('분', t('time.minute'))}
                         </span>
                     </div>
                 </div>
@@ -67,7 +71,11 @@ export function SleepAnalysisSection({ sleepRecord, t }: SleepAnalysisSectionPro
                             </div>
 
                             <div className="mt-0.5 text-[12px] sm:text-[15px] font-black text-gray-900 leading-5 whitespace-nowrap">
-                                {s.item.duration.replace('h', t('time.hour')).replace('m', t('time.minute'))}
+                                {s.item.duration
+                                    .replace('h', t('time.hour'))
+                                    .replace('m', t('time.minute'))
+                                    .replace('시간', t('time.hour'))
+                                    .replace('분', t('time.minute'))}
                             </div>
                         </div>
                     ))}

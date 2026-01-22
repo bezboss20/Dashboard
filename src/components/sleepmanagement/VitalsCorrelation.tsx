@@ -38,13 +38,22 @@ export function VitalsCorrelation({
     };
 
     const getTint = (type: string) => {
-        if (type.includes('심박수변동')) return 'bg-teal-50/60 border-teal-100';
-        if (type.includes('심박')) return 'bg-red-50/60 border-red-100';
+        if (type.includes('심박수변동') || type.includes('HRV')) return 'bg-teal-50/60 border-teal-100';
+        if (type.includes('심박') || type.includes('Heart') || type.includes('HR')) return 'bg-red-50/60 border-red-100';
         return 'bg-blue-50/60 border-blue-100';
     };
 
+    // Translate Korean labels to current language
+    const getLabel = (type: string) => {
+        if (type.includes('심박수변동') || type.toLowerCase().includes('hrv')) return t('sleep.avgHrv');
+        if (type.includes('심박') || type.toLowerCase().includes('heart')) return t('sleep.avgHr');
+        if (type.includes('호흡') || type.toLowerCase().includes('resp') || type.toLowerCase().includes('breathing')) return t('sleep.avgResp');
+        if (type.includes('산소') || type.toLowerCase().includes('spo2')) return t('sleep.avgSpO2');
+        return type;
+    };
+
     const vitalsData = (vitalCorrelations || []).map(v => ({
-        label: v.type,
+        label: getLabel(v.type),
         value: v.value,
         unit: v.unit,
         icon: getIcon(v.type),

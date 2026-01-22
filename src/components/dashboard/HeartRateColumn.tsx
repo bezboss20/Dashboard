@@ -5,8 +5,7 @@ interface Patient {
     id: string;
     patientId?: string;
     patientCode?: string;
-    nameKorean: string;
-    nameEnglish: string;
+    name: string;
     heartRate: number;
     breathingRate: number;
     alertStatus: 'normal' | 'caution' | 'warning' | 'critical';
@@ -58,7 +57,7 @@ export function HeartRateColumn({
                                     <div className={`px-1 py-0.5 rounded text-[8px] min-[380px]:text-[9px] font-mono ${badgeColor} flex-shrink-0`}>
                                         {patient.patientCode || 'N/A'}
                                     </div>
-                                    <span className="text-xs lg:text-sm font-bold text-gray-700 truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible">{language === 'ko' ? patient.nameKorean : patient.nameEnglish}</span>
+                                    <span className="text-xs lg:text-sm font-bold text-gray-700 truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible">{patient.name}</span>
                                 </div>
                                 <div className="flex items-baseline gap-1 flex-shrink-0">
                                     <span className={`text-base lg:text-lg font-black ${textColor}`}>{patient.heartRate}</span>
