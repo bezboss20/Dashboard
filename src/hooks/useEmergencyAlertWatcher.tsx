@@ -46,7 +46,8 @@ export function useEmergencyAlertWatcher(onNewAlert: (alert: any) => void) {
                             id: alertId,
                             patientId: alert.patientId,
                             patientCode: alert.patientCode || 'N/A',
-                            patientName: alert.patientName || 'Unknown Patient',
+                            // Fix #31 error: Encapsulate potential object {ko,en} in getLocalizedText
+                            patientName: getLocalizedText(alert.patientName) || 'Unknown Patient',
                             severity: alert.severity || 'CAUTION',
                             message: getLocalizedText(alert.message) || alert.type || 'Emergency Alert',
                             timestamp: alert.createdAt || new Date().toISOString(),

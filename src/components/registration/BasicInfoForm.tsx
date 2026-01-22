@@ -150,7 +150,7 @@ export function BasicInfoForm({ formData, language, t, onInputChange }: BasicInf
             />
           </div>
 
-          <div>
+          {/*<div>
             <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
               {t('registration.status')} *
             </label>
@@ -165,7 +165,7 @@ export function BasicInfoForm({ formData, language, t, onInputChange }: BasicInf
               <option value="DISCHARGED">{t('filter.discharged')}</option>
               <option value="TRANSFERRED">{t('filter.transferred')}</option>
             </select>
-          </div>
+          </div>*/}
         </div>
       </div>
     </div>
