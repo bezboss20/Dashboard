@@ -11,7 +11,10 @@ import {
   AlertCircle,
   Wrench,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  UserCheck,
+  UserMinus,
+  UserX
 } from 'lucide-react';
 import { MappedPatient } from '../../store/slices/monitoringSlice';
 import { useState, useEffect } from 'react';
@@ -84,6 +87,40 @@ export function PatientOverviewTable({
         return { text: t('status.normal'), color: 'text-green-600', bg: 'bg-green-50' };
       default:
         return { text: 'Unknown', color: 'text-gray-600', bg: 'bg-gray-50' };
+    }
+  };
+
+  const getPatientStatusInfo = (status: string) => {
+    const s = status?.toUpperCase();
+    switch (s) {
+      case 'ACTIVE':
+        return {
+          text: t('filter.active'),
+          color: 'text-green-600',
+          bg: 'bg-green-50',
+          icon: UserCheck
+        };
+      case 'DISCHARGED':
+        return {
+          text: t('filter.discharged'),
+          color: 'text-gray-600',
+          bg: 'bg-gray-50',
+          icon: UserMinus
+        };
+      case 'TRANSFERRED':
+        return {
+          text: t('filter.transferred'),
+          color: 'text-orange-600',
+          bg: 'bg-orange-50',
+          icon: UserX
+        };
+      default:
+        return {
+          text: status || t('common.unknown'),
+          color: 'text-gray-600',
+          bg: 'bg-gray-50',
+          icon: User
+        };
     }
   };
 
@@ -215,10 +252,11 @@ export function PatientOverviewTable({
       <div className="block sm:hidden">
         <div className="p-3 space-y-3">
           {currentPatients.map((patient) => {
-            const alertStatus = getAlertStatusText(patient.alertStatus);
+            const patientStatus = getPatientStatusInfo(patient.patientStatus);
             const deviceStatus = getDeviceStatusInfo(patient);
             const isSelected = patient.id === selectedPatientId;
             const DeviceIcon = deviceStatus.icon;
+            const StatusIcon = patientStatus.icon;
 
             return (
               <button
@@ -236,9 +274,9 @@ export function PatientOverviewTable({
                     <div className="text-xs text-gray-500 truncate">{patient.patientCode}</div>
                   </div>
 
-                  <div className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full ${alertStatus.bg}`}>
-                    {getAlertIcon(patient.alertStatus)}
-                    <span className={`text-[11px] font-semibold ${alertStatus.color}`}>{alertStatus.text}</span>
+                  <div className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full ${patientStatus.bg}`}>
+                    <StatusIcon className={`w-3 h-3 ${patientStatus.color}`} />
+                    <span className={`text-[11px] font-semibold ${patientStatus.color}`}>{patientStatus.text}</span>
                   </div>
                 </div>
 
@@ -387,7 +425,7 @@ export function PatientOverviewTable({
                   </div>
                 </th>
                 <th className="px-3 lg:px-6 py-3 text-left text-[10px] lg:text-xs uppercase tracking-wider text-gray-600">
-                  {t('table.alertStatus')}
+                  {t('patientStatus.label')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs uppercase tracking-wider text-gray-600">
                   {t('table.deviceStatus')}
@@ -414,10 +452,11 @@ export function PatientOverviewTable({
 
             <tbody className="divide-y divide-gray-200">
               {currentPatients.map((patient) => {
-                const alertStatus = getAlertStatusText(patient.alertStatus);
+                const patientStatus = getPatientStatusInfo(patient.patientStatus);
                 const deviceStatus = getDeviceStatusInfo(patient);
                 const isSelected = patient.id === selectedPatientId;
                 const DeviceIcon = deviceStatus.icon;
+                const StatusIcon = patientStatus.icon;
                 console.log("patientdata", patient);
 
                 return (
@@ -491,9 +530,9 @@ export function PatientOverviewTable({
                     </td>
 
                     <td className="px-6 py-4">
-                      <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${alertStatus.bg}`}>
-                        {getAlertIcon(patient.alertStatus)}
-                        <span className={`text-sm ${alertStatus.color}`}>{alertStatus.text}</span>
+                      <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${patientStatus.bg}`}>
+                        <StatusIcon className={`w-4 h-4 ${patientStatus.color}`} />
+                        <span className={`text-sm ${patientStatus.color}`}>{patientStatus.text}</span>
                       </div>
                     </td>
 
