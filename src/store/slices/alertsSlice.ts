@@ -93,7 +93,7 @@ export const fetchAlertsAsync = createAsyncThunk(
             // Build query parameters
             const queryParams = new URLSearchParams();
             queryParams.append('page', String(params.page || 1));
-            queryParams.append('limit', String(params.limit = 15));
+            queryParams.append('limit', String(params.limit = 10));
             if (params.search) {
                 queryParams.append('search', params.search);
             }

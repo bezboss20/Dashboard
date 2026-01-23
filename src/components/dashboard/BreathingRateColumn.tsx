@@ -37,7 +37,7 @@ export function BreathingRateColumn({
                     <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">{t('dashboard.sortedByUrgency')}</p>
                 </div>
             </div>
-            <div className="space-y-1.5 lg:space-y-2 overflow-y-auto" style={{ maxHeight: '400px' }}>
+            <div className="space-y-1.5 lg:space-y-2 overflow-y-auto" style={{ maxHeight: '650px' }}>
                 {patients.map((patient) => {
                     const severity = getBreathingRateSeverity(patient.breathingRate);
                     const bgColor = severity === 'critical' ? 'bg-red-50 border-red-200' :
