@@ -6,8 +6,7 @@
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  /* IMPORTANT: remove app-level centering that squashes UI */
   min-width: 320px;
   min-height: 100vh;
 }
@@ -287,4 +286,11 @@ body {
 
 .leaflet-control-zoom a:hover {
   background: #f3f4f6 !important;
+}
+
+/* ===== YOUR CONTAINER CLASS ===== */
+@layer components {
+  .align-elements {
+    @apply max-w-[1700px] mx-auto px-2
+  }
 }

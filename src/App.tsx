@@ -56,44 +56,49 @@ export default function App() {
               onToggleSystem={() => setSystemOnline(!systemOnline)}
             />
 
+            {/* Keep your existing padding/responsive exactly the same */}
             <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 lg:p-6">
-              {selectedPatientId ? (
-                <PatientDetailMonitoringPage
-                  patientId={selectedPatientId}
-                  onBack={handleBackFromPatientDetails}
-                />
-              ) : (
-                <>
-                  {currentPage === '통합 대시보드' && (
-                    <DashboardPage
-                      systemOnline={systemOnline}
-                      onViewPatientDetails={handleViewPatientDetails}
-                    />
-                  )}
+              {/* Center-justify the whole page content WITHOUT changing current padding:
+                  align-elements adds px-5, so we override with px-0 to preserve p-3/lg:p-6 */}
+              <div className="align-elements w-full px-0">
+                {selectedPatientId ? (
+                  <PatientDetailMonitoringPage
+                    patientId={selectedPatientId}
+                    onBack={handleBackFromPatientDetails}
+                  />
+                ) : (
+                  <>
+                    {currentPage === '통합 대시보드' && (
+                      <DashboardPage
+                        systemOnline={systemOnline}
+                        onViewPatientDetails={handleViewPatientDetails}
+                      />
+                    )}
 
-                  {currentPage === '환자 목록' && (
-                    <MonitoringPage
-                      onViewPatientDetails={handleViewPatientDetails}
-                      onViewSleepPage={handleViewSleepPage}
-                    />
-                  )}
+                    {currentPage === '환자 목록' && (
+                      <MonitoringPage
+                        onViewPatientDetails={handleViewPatientDetails}
+                        onViewSleepPage={handleViewSleepPage}
+                      />
+                    )}
 
-                  {currentPage === '알림 기록' && (
-                    <NotificationCenterPage onViewPatientDetails={handleViewPatientDetails} />
-                  )}
+                    {currentPage === '알림 기록' && (
+                      <NotificationCenterPage onViewPatientDetails={handleViewPatientDetails} />
+                    )}
 
-                  {currentPage === '수면 관리' && (
-                    <SleepManagementPage
-                      initialPatientId={sleepPatientId}
-                      onBack={() => setCurrentPage('환자 목록')}
-                    />
-                  )}
+                    {currentPage === '수면 관리' && (
+                      <SleepManagementPage
+                        initialPatientId={sleepPatientId}
+                        onBack={() => setCurrentPage('환자 목록')}
+                      />
+                    )}
 
-                  {currentPage === '환자 등록' && <RegistrationPage />}
-                  {currentPage === 'GPS 위치 추적' && <GPSTrackingPage />}
-                  {currentPage === '설정' && <SettingsPage />}
-                </>
-              )}
+                    {currentPage === '환자 등록' && <RegistrationPage />}
+                    {currentPage === 'GPS 위치 추적' && <GPSTrackingPage />}
+                    {currentPage === '설정' && <SettingsPage />}
+                  </>
+                )}
+              </div>
             </main>
           </div>
         </EmergencyAlertToastProvider>
