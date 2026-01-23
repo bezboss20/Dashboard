@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { fetchDashboardOverview } from '../../services/dashboardService';
-import { SummaryData, AlertData, VitalData } from '../../types/dashboard';
+import { SummaryData, AlertData, VitalData, OverviewResponse } from '../../types/dashboard';
 
 // Re-export types for backward compatibility if needed in components
-export type { SummaryData, AlertData, VitalData };
+export type { SummaryData, AlertData, VitalData, OverviewResponse };
 
 interface DashboardState {
     summary: SummaryData;
