@@ -291,6 +291,6 @@ body {
 /* ===== YOUR CONTAINER CLASS ===== */
 @layer components {
   .align-elements {
-    @apply max-w-[1700px] mx-auto px-2
+    @apply max-w-[2100px] mx-auto px-2
   }
 }
