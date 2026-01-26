@@ -16,7 +16,7 @@ import {
 import { MenuItem } from '../App';
 import { useLanguage } from '../context/LanguageContext';
 import { useState, useEffect } from 'react';
-
+import Logo from '../assets/Logo1.png';
 interface NavbarProps {
     currentPage: MenuItem;
     onPageChange: (page: MenuItem) => void;
@@ -71,17 +71,10 @@ export function Navbar({
             {/* MAIN BAR */}
             <div className="w-full h-16 flex items-center justify-between px-3 sm:px-4 overflow-x-hidden">
                 {/* LOGO SECTION */}
-                <div className="flex items-center gap-3 flex-shrink-0">
-                    <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-                        <MapPin className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="hidden md:block">
-                        <h1 className="text-sm font-black text-gray-900 leading-tight">
-                            {t('sidebar.brandTitle')}
-                        </h1>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                            {t('sidebar.brandSubtitle')}
-                        </p>
+                <div className="flex items-center gap-3 shrink-0">
+
+                    <div className="w-16 h-16 mt-12">
+                        <img src={Logo} alt="logo" />
                     </div>
                 </div>
 
@@ -104,7 +97,7 @@ export function Navbar({
                 </div>
 
                 {/* RIGHT SIDE */}
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 shrink-0">
                     {/* TIME – LARGE DESKTOP ONLY */}
                     <div className="hidden 2xl:flex items-center gap-4 text-xs text-gray-500 bg-gray-50 px-4 py-2 rounded-xl">
                         <div className="flex items-center gap-2">

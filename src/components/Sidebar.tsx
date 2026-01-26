@@ -48,7 +48,7 @@ export function Sidebar({ currentPage, isOpen, onPageChange, onClose }: SidebarP
                             : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
                             }`}
                     >
-                        <item.icon className={`w-4 h-4 flex-shrink-0 ${currentPage === item.label ? 'text-white' : 'text-gray-400'}`} />
+                        <item.icon className={`w-4 h-4 shrink-0 ${currentPage === item.label ? 'text-white' : 'text-gray-400'}`} />
                         <span className="truncate">{t(item.translationKey)}</span>
                     </button>
                 ))}
@@ -58,7 +58,7 @@ export function Sidebar({ currentPage, isOpen, onPageChange, onClose }: SidebarP
                 <div className="bg-gray-50 rounded-2xl p-4 max-[374px]:p-3">
                     <div className="flex items-center gap-3 max-[374px]:gap-2 mb-1">
                         <div className="w-10 h-10 max-[374px]:w-8 max-[374px]:h-8 bg-white rounded-full border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm">
-                            <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-black text-xs">
+                            <div className="w-full h-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-black text-xs">
                                 KM
                             </div>
                         </div>

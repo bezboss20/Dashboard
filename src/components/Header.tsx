@@ -30,7 +30,7 @@ export function Header({ systemOnline, onToggleSystem, onToggleSidebar }: Header
             <div className="flex items-center gap-1.5 lg:gap-4 min-w-0">
                 <button
                     onClick={onToggleSidebar}
-                    className="p-1.5 -ml-1 text-gray-400 hover:text-gray-600 lg:hidden flex-shrink-0"
+                    className="p-1.5 -ml-1 text-gray-400 hover:text-gray-600 lg:hidden shrink-0"
                 >
                     <Menu className="w-5 h-5 lg:w-6 lg:h-6" />
                 </button>
@@ -42,7 +42,7 @@ export function Header({ systemOnline, onToggleSystem, onToggleSidebar }: Header
                 </div>
             </div>
 
-            <div className="flex items-center gap-1.5 lg:gap-6 flex-shrink-0">
+            <div className="flex items-center gap-1.5 lg:gap-6 shrink-0">
                 <div className="hidden lg:flex items-center gap-4 text-sm text-gray-500">
                     <div className="flex items-center gap-2 border-r border-gray-200 pr-4">
                         <Calendar className="w-4 h-4" />
@@ -85,12 +85,12 @@ export function Header({ systemOnline, onToggleSystem, onToggleSidebar }: Header
                     >
                         {systemOnline ? (
                             <>
-                                <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                                <CheckCircle className="w-3.5 h-3.5 shrink-0" />
                                 <span className="hidden lg:inline">{t('header.systemOnline')}</span>
                             </>
                         ) : (
                             <>
-                                <XCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                                <XCircle className="w-3.5 h-3.5 shrink-0" />
                                 <span className="hidden lg:inline">{t('header.systemOffline')}</span>
                             </>
                         )}

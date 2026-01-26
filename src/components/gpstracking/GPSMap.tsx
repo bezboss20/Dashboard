@@ -243,7 +243,7 @@ export function GPSMap({
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-wide leading-none mb-1 whitespace-nowrap">Device ID</p>
                                         <p className="text-xs font-black text-gray-900 whitespace-nowrap">{device.deviceId}</p>
                                     </div>
-                                    <div className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap flex-shrink-0 ${device.status === 'online' ? 'bg-orange-50 text-green-600' : 'bg-gray-50 text-gray-500'}`}>
+                                    <div className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap shrink-0 ${device.status === 'online' ? 'bg-orange-50 text-green-600' : 'bg-gray-50 text-gray-500'}`}>
                                         {device.status}
                                     </div>
                                 </div>
@@ -251,7 +251,7 @@ export function GPSMap({
                                 {device.patientName && (
                                     <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-100">
                                         <p className="text-[9px] font-bold text-gray-400 uppercase mb-0.5">{t('gps.assignedPatient')}</p>
-                                        <p className="text-[11px] font-black text-gray-900 break-words">
+                                        <p className="text-[11px] font-black text-gray-900 wrap-break-word">
                                             {device.patientName} ({device.patientId})
                                         </p>
                                     </div>
@@ -269,7 +269,7 @@ export function GPSMap({
                                         }}
                                         className="flex items-center justify-center gap-1.5 w-full px-2 py-1.5 bg-blue-600 text-white rounded-lg text-[10px] font-bold hover:bg-blue-700 transition-colors"
                                     >
-                                        <Crosshair className="w-3 h-3 flex-shrink-0" />
+                                        <Crosshair className="w-3 h-3 shrink-0" />
                                         <span>{t('gps.fixLocation')}</span>
                                     </button>
                                 </div>
