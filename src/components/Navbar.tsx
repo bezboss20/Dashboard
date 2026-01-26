@@ -73,7 +73,7 @@ export function Navbar({
                 {/* LOGO SECTION */}
                 <div className="flex items-center gap-3 shrink-0">
 
-                    <div className="w-16 h-16 mt-12">
+                    <div className="w-30 h-30 mt-22">
                         <img src={Logo} alt="logo" />
                     </div>
                 </div>
