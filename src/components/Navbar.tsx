@@ -73,7 +73,7 @@ export function Navbar({
                 {/* LOGO SECTION */}
                 <div className="flex items-center gap-3 shrink-0">
 
-                    <div className="w-30 h-30 mt-22">
+                    <div className="w-28 h-28 mt-21">
                         <img src={Logo} alt="logo" />
                     </div>
                 </div>
@@ -111,7 +111,7 @@ export function Navbar({
                     </div>
 
                     {/* LANGUAGE */}
-                    <div className="flex items-center gap-1 bg-gray-50 rounded-full px-2 py-1 text-xs border">
+                    <div className="flex items-center gap-0 bg-gray-50 rounded-full px-1 py-1 text-xs border">
                         <Globe className="w-3 h-3 text-gray-400" />
                         <select
                             value={language}
