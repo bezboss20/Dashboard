@@ -132,7 +132,7 @@ export function EmergencyAlerts({ alerts, onViewPatientDetails, onAcknowledge, o
                                 <p className="text-[9px] lg:text-[10px] text-gray-400">{alert.timestamp.toLocaleTimeString()}</p>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 gap-1">
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -141,16 +141,6 @@ export function EmergencyAlerts({ alerts, onViewPatientDetails, onAcknowledge, o
                                     className="flex items-center justify-center gap-1 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-lg text-[9px] lg:text-[10px] font-bold hover:bg-gray-50 transition-colors uppercase truncate px-1"
                                 >
                                     <span className="truncate">{t('alerts.acknowledge')}</span>
-                                </button>
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onResolve(alert.id);
-                                    }}
-                                    className={`flex items-center justify-center gap-1 py-1.5 ${isCritical ? 'bg-red-500' : isWarning ? 'bg-orange-500' : 'bg-yellow-500'} text-white rounded-lg text-[9px] lg:text-[10px] font-bold hover:opacity-90 transition-colors uppercase truncate px-1`}
-                                >
-                                    <Check className="w-3 h-3 flex-shrink-0" />
-                                    <span className="truncate">{t('alerts.resolve')}</span>
                                 </button>
                             </div>
                         </div>
