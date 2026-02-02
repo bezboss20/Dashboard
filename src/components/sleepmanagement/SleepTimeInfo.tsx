@@ -35,7 +35,7 @@ export function SleepTimeInfo({
                 {t('sleep.timeInfo')}
             </h3>
 
-            <div className={isSmallScreen ? 'grid grid-cols-2 gap-3 flex-1' : 'grid grid-cols-2 gap-4 flex-1'}>
+            <div className={isSmallScreen ? 'grid grid-cols-2 max-[449px]:grid-cols-1 gap-3 flex-1' : 'grid grid-cols-2 gap-4 flex-1'}>
                 {timeItems.map((item, idx) => (
                     <div
                         key={idx}
@@ -49,7 +49,7 @@ export function SleepTimeInfo({
                         <p className={isSmallScreen ? 'text-[13px] font-black text-gray-900 tracking-tight leading-none' : 'text-[15px] font-black text-gray-900 tracking-tight'}>
                             {item.time}
                         </p>
-                        <p className={isSmallScreen ? 'text-[9px] text-gray-400 font-bold leading-tight' : 'text-[10px] text-gray-400 font-bold uppercase'}>
+                        <p className={isSmallScreen ? 'text-[9px] text-gray-400 font-bold leading-tight wrap-break-word whitespace-normal text-center px-1' : 'text-[10px] text-gray-400 font-bold uppercase'}>
                             {item.label}
                         </p>
                     </div>

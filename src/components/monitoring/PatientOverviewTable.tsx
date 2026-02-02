@@ -406,44 +406,44 @@ export function PatientOverviewTable({
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-3 lg:px-6 py-3 text-center text-[10px] lg:text-xs uppercase tracking-wider text-gray-600">
+                <th className="px-3 lg:px-3 xl:px-4 2xl:px-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
                   {t('table.patientId')}
                 </th>
-                <th className="px-3 lg:px-6 py-3 text-center text-[10px] lg:text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-center gap-2">
-                    <Heart className="w-3.5 h-3.5 lg:w-4 lg:h-4" /> {t('table.heartRate')}
+                <th className="px-3 lg:px-3 xl:px-4 2xl:px-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                  <div className="flex items-center justify-center gap-1.5 lg:gap-1 xl:gap-1 2xl:gap-2">
+                    <Heart className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" /> {t('table.heartRate')}
                   </div>
                 </th>
-                <th className="px-3 lg:px-6 py-3 text-center text-[10px] lg:text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-center gap-2">
-                    <Wind className="w-3.5 h-3.5 lg:w-4 lg:h-4" /> {t('table.breathingRate')}
+                <th className="px-3 lg:px-3 xl:px-4 2xl:px-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                  <div className="flex items-center justify-center gap-1.5 lg:gap-1 xl:gap-1 2xl:gap-2">
+                    <Wind className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" /> {t('table.breathingRate')}
                   </div>
                 </th>
-                <th className="hidden sm:table-cell px-3 lg:px-6 py-3 text-center text-[10px] lg:text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-center gap-2">
-                    <Moon className="w-3.5 h-3.5 lg:w-4 lg:h-4" /> {t('table.sleepState')}
+                <th className="hidden sm:table-cell px-3 lg:px-3 xl:px-4 2xl:px-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                  <div className="flex items-center justify-center gap-1.5 lg:gap-1 xl:gap-1 2xl:gap-2">
+                    <Moon className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" /> {t('table.sleepState')}
                   </div>
                 </th>
-                <th className="px-3 lg:px-6 py-3 text-center text-[10px] lg:text-xs uppercase tracking-wider text-gray-600">
+                <th className="px-3 lg:px-3 xl:px-4 2xl:px-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
                   {t('patientStatus.label')}
                 </th>
-                <th className="px-6 py-3 text-center text-xs uppercase tracking-wider text-gray-600">
+                <th className="px-3 lg:px-3 xl:px-4 2xl:px-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
                   {t('table.deviceStatus')}
                 </th>
-                <th className="px-6 py-3 text-center text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-center gap-2">
-                    <Clock className="w-4 h-4" /> {t('table.registrationDate')}
+                <th className="px-3 lg:px-3 xl:px-4 2xl:px-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                  <div className="flex items-center justify-center gap-1.5 lg:gap-1 xl:gap-1 2xl:gap-2">
+                    <Clock className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" /> {t('table.registrationDate')}
                   </div>
                 </th>
-                <th className="px-6 py-3 text-center text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-center gap-1">
-                    <Moon className="w-3.5 h-3.5 text-indigo-500" />
+                <th className="px-3 lg:px-3 xl:px-4 2xl:px-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                  <div className="flex items-center justify-center gap-1 lg:gap-0.5 xl:gap-0.5 2xl:gap-1">
+                    <Moon className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-3.5 2xl:h-3.5 text-indigo-500" />
                     <span>{t('table.sleep')}</span>
                   </div>
                 </th>
-                <th className="px-6 py-3 text-center text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-center gap-1">
-                    <User className="w-3.5 h-3.5 text-blue-500" />
+                <th className="px-3 lg:px-3 xl:px-4 2xl:px-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                  <div className="flex items-center justify-center gap-1 lg:gap-0.5 xl:gap-0.5 2xl:gap-1">
+                    <User className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-3.5 2xl:h-3.5 text-blue-500" />
                     <span>{t('table.viewDetails')}</span>
                   </div>
                 </th>
@@ -465,23 +465,23 @@ export function PatientOverviewTable({
                     onClick={() => onSelectPatient(patient.id)}
                     className={`cursor-pointer transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
                   >
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center w-full gap-2">
-                        <div className={`w-1 h-8 rounded shrink-0 ${isSelected ? 'bg-blue-600' : 'bg-transparent'}`}></div>
+                    <td className="px-3 lg:px-3 xl:px-4 2xl:px-6 py-4 lg:py-3 xl:py-3 2xl:py-4 text-center">
+                      <div className="flex items-center justify-center w-full gap-2 lg:gap-1.5 xl:gap-1.5 2xl:gap-2">
+                        <div className={`w-1 h-8 lg:h-6 xl:h-6 2xl:h-8 rounded shrink-0 ${isSelected ? 'bg-blue-600' : 'bg-transparent'}`}></div>
                         <div className="flex flex-col text-center">
-                          <span className="text-gray-900 font-medium">
+                          <span className="text-gray-900 font-medium text-sm lg:text-xs xl:text-xs 2xl:text-sm">
                             {getLocalizedText({ ko: patient.nameKorean, en: patient.nameEnglish }, patient.nameKorean)}
                           </span>
-                          <span className="text-sm text-gray-500">{patient.patientCode}</span>
+                          <span className="text-sm lg:text-[11px] xl:text-[11px] 2xl:text-sm text-gray-500">{patient.patientCode}</span>
                         </div>
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center w-full gap-2">
-                        <div className="flex items-center gap-2">
-                          <Heart className="w-4 h-4 text-red-500" />
-                          <span className={`${getHeartRateColor(patient.heartRate)} font-medium`}>{patient.heartRate}</span>
+                    <td className="px-3 lg:px-2.5 xl:px-3 2xl:px-6 py-4 lg:py-3 xl:py-3 2xl:py-4 text-center">
+                      <div className="flex items-center justify-center w-full gap-2 lg:gap-1 xl:gap-1.5 2xl:gap-2">
+                        <div className="flex items-center gap-2 lg:gap-1 xl:gap-1 2xl:gap-2">
+                          <Heart className="w-4 h-4 lg:w-3 lg:h-3 xl:w-3.5 xl:h-3.5 2xl:w-4 2xl:h-4 text-red-500" />
+                          <span className={`${getHeartRateColor(patient.heartRate)} font-medium text-sm lg:text-xs xl:text-xs 2xl:text-sm`}>{patient.heartRate}</span>
                         </div>
                         {patient.heartRateHistory?.oneMin && (
                           <Sparkline
@@ -500,11 +500,11 @@ export function PatientOverviewTable({
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center w-full gap-2">
-                        <div className="flex items-center gap-2">
-                          <Wind className="w-4 h-4 text-blue-500" />
-                          <span className={`${getBreathingRateColor(patient.breathingRate)} font-medium`}>
+                    <td className="px-3 lg:px-2.5 xl:px-3 2xl:px-6 py-4 lg:py-3 xl:py-3 2xl:py-4 text-center">
+                      <div className="flex items-center justify-center w-full gap-2 lg:gap-1 xl:gap-1.5 2xl:gap-2">
+                        <div className="flex items-center gap-2 lg:gap-1 xl:gap-1 2xl:gap-2">
+                          <Wind className="w-4 h-4 lg:w-3 lg:h-3 xl:w-3.5 xl:h-3.5 2xl:w-4 2xl:h-4 text-blue-500" />
+                          <span className={`${getBreathingRateColor(patient.breathingRate)} font-medium text-sm lg:text-xs xl:text-xs 2xl:text-sm`}>
                             {patient.breathingRate}
                           </span>
                         </div>
@@ -525,55 +525,55 @@ export function PatientOverviewTable({
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 text-center">
-                      <span className="text-gray-700">{getSleepStateText(patient.sleepState)}</span>
+                    <td className="px-3 lg:px-2.5 xl:px-3 2xl:px-6 py-4 lg:py-3 xl:py-3 2xl:py-4 text-center">
+                      <span className="text-gray-700 text-sm lg:text-xs xl:text-xs 2xl:text-sm">{getSleepStateText(patient.sleepState)}</span>
                     </td>
 
-                    <td className="px-6 py-4 text-center">
-                      <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${patientStatus.bg}`}>
-                        <StatusIcon className={`w-4 h-4 ${patientStatus.color}`} />
-                        <span className={`text-sm ${patientStatus.color}`}>{patientStatus.text}</span>
+                    <td className="px-3 lg:px-2.5 xl:px-3 2xl:px-6 py-4 lg:py-3 xl:py-3 2xl:py-4 text-center">
+                      <div className={`inline-flex items-center gap-2 lg:gap-1 xl:gap-1 2xl:gap-2 px-3 lg:px-2 xl:px-2 2xl:px-3 py-1 lg:py-0.5 xl:py-0.5 2xl:py-1 rounded-full ${patientStatus.bg}`}>
+                        <StatusIcon className={`w-4 h-4 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4 ${patientStatus.color}`} />
+                        <span className={`text-sm lg:text-[10px] xl:text-[11px] 2xl:text-sm ${patientStatus.color}`}>{patientStatus.text}</span>
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 text-center">
-                      <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${deviceStatus.bg}`}>
-                        <DeviceIcon className={`w-4 h-4 ${deviceStatus.iconColor}`} />
-                        <span className={`text-sm ${deviceStatus.color}`}>{deviceStatus.text}</span>
+                    <td className="px-3 lg:px-2.5 xl:px-3 2xl:px-6 py-4 lg:py-3 xl:py-3 2xl:py-4 text-center">
+                      <div className={`inline-flex items-center gap-2 lg:gap-1 xl:gap-1 2xl:gap-2 px-3 lg:px-2 xl:px-2 2xl:px-3 py-1 lg:py-0.5 xl:py-0.5 2xl:py-1 rounded-full ${deviceStatus.bg}`}>
+                        <DeviceIcon className={`w-4 h-4 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4 ${deviceStatus.iconColor}`} />
+                        <span className={`text-sm lg:text-[10px] xl:text-[11px] 2xl:text-sm ${deviceStatus.color}`}>{deviceStatus.text}</span>
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 text-center">
-                      <span className="text-sm text-gray-900 font-medium">{formatDate(patient.personalInfo.admissionDate)}</span>
+                    <td className="px-3 lg:px-2.5 xl:px-3 2xl:px-6 py-4 lg:py-3 xl:py-3 2xl:py-4 text-center">
+                      <span className="text-sm lg:text-xs xl:text-xs 2xl:text-sm text-gray-900 font-medium">{formatDate(patient.personalInfo.admissionDate)}</span>
                     </td>
 
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-3 lg:px-2 xl:px-2.5 2xl:px-6 py-4 lg:py-3 xl:py-3 2xl:py-4 text-center">
                       {onViewSleepPage && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             onViewSleepPage(patient.id);
                           }}
-                          className="p-2 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 transition-colors"
+                          className="p-2 lg:p-1.5 xl:p-1.5 2xl:p-2 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 transition-colors"
                           aria-label={t('table.openSleepPage')}
                           title={t('table.openSleepPage')}
                         >
-                          <Moon className="w-4 h-4" />
+                          <Moon className="w-4 h-4 lg:w-3.5 lg:h-3.5 xl:w-3.5 xl:h-3.5 2xl:w-4 2xl:h-4" />
                         </button>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-3 lg:px-2 xl:px-2.5 2xl:px-6 py-4 lg:py-3 xl:py-3 2xl:py-4 text-center">
                       {onViewPatientDetails && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             onViewPatientDetails(patient.id);
                           }}
-                          className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                          className="p-2 lg:p-1.5 xl:p-1.5 2xl:p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
                           aria-label={t('table.viewPatientDetails')}
                           title={t('table.viewPatientDetails')}
                         >
-                          <User className="w-4 h-4" />
+                          <User className="w-4 h-4 lg:w-3.5 lg:h-3.5 xl:w-3.5 xl:h-3.5 2xl:w-4 2xl:h-4" />
                         </button>
                       )}
                     </td>

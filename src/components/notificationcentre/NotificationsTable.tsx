@@ -34,7 +34,7 @@ export function NotificationsTable({ logs, onViewPatientDetails, t }: Notificati
                         </span>
 
                         <span
-                          className={`flex-shrink-0 whitespace-nowrap px-2 py-1 rounded-md text-[10px] font-bold ${log.status === '성공'
+                          className={`shrink-0 whitespace-nowrap px-2 py-1 rounded-md text-[10px] font-bold ${log.status === '성공'
                             ? 'bg-green-100 text-green-700'
                             : 'bg-red-100 text-red-700'
                             }`}
@@ -59,7 +59,7 @@ export function NotificationsTable({ logs, onViewPatientDetails, t }: Notificati
                       <span className="text-[11px] font-bold text-gray-400 shrink-0 w-16 max-[374px]:w-14 pt-0.5">
                         {t('notifications.table.system')}
                       </span>
-                      <span className="text-[12px] text-gray-700 flex-1 min-w-0 whitespace-normal break-words text-right">
+                      <span className="text-[12px] text-gray-700 flex-1 min-w-0 whitespace-normal wrap-break-word text-right">
                         {log.system}
                       </span>
                     </div>
@@ -96,7 +96,7 @@ export function NotificationsTable({ logs, onViewPatientDetails, t }: Notificati
                       <span className="text-[11px] font-bold text-gray-400 shrink-0 w-16 max-[374px]:w-14 pt-0.5">
                         {t('notifications.table.category')}
                       </span>
-                      <span className="text-[12px] text-gray-700 flex-1 min-w-0 whitespace-normal break-words text-right">
+                      <span className="text-[12px] text-gray-700 flex-1 min-w-0 whitespace-normal wrap-break-word text-right">
                         {log.category}
                       </span>
                     </div>
@@ -108,7 +108,7 @@ export function NotificationsTable({ logs, onViewPatientDetails, t }: Notificati
                       <span className="text-[11px] font-bold text-gray-400 shrink-0 w-16 max-[374px]:w-14 pt-0.5">
                         {t('notifications.table.type')}
                       </span>
-                      <span className="text-[12px] text-gray-700 flex-1 min-w-0 whitespace-normal break-words text-right">
+                      <span className="text-[12px] text-gray-700 flex-1 min-w-0 whitespace-normal wrap-break-word text-right">
                         {log.type}
                       </span>
                     </div>
@@ -119,7 +119,7 @@ export function NotificationsTable({ logs, onViewPatientDetails, t }: Notificati
                     <span className="text-[11px] font-bold text-gray-400 block mb-1">
                       {t('notifications.table.details')}
                     </span>
-                    <div className="text-[11px] max-[374px]:text-[10px] text-gray-600 leading-relaxed bg-gray-50 p-2 rounded break-words">
+                    <div className="text-[11px] max-[374px]:text-[10px] text-gray-600 leading-relaxed bg-gray-50 p-2 rounded wrap-break-word">
                       {log.details}
                     </div>
                   </td>
@@ -147,7 +147,7 @@ export function NotificationsTable({ logs, onViewPatientDetails, t }: Notificati
                 ].map((header) => (
                   <th
                     key={header}
-                    className="text-center py-3 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap"
+                    className="text-center py-3 lg:py-2 xl:py-2.5 2xl:py-3 px-4 lg:px-2 xl:px-3 2xl:px-4 text-xs lg:text-[9px] xl:text-[10px] 2xl:text-xs font-bold text-gray-600 uppercase tracking-wider"
                   >
                     {header}
                   </th>
@@ -165,13 +165,13 @@ export function NotificationsTable({ logs, onViewPatientDetails, t }: Notificati
               ) : (
                 logs.map((log) => (
                   <tr key={log.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4 text-sm text-gray-900 whitespace-nowrap text-center">
+                    <td className="py-3 lg:py-2 xl:py-2.5 2xl:py-3 px-4 lg:px-2 xl:px-3 2xl:px-4 text-sm lg:text-[10px] xl:text-xs 2xl:text-sm text-gray-900 whitespace-nowrap text-center min-w-[110px] lg:min-w-[90px] xl:min-w-[100px] 2xl:min-w-[110px]">
                       {log.timestamp}
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-900 whitespace-nowrap text-center">
+                    <td className="py-3 lg:py-2 xl:py-2.5 2xl:py-3 px-4 lg:px-2 xl:px-3 2xl:px-4 text-sm lg:text-[10px] xl:text-xs 2xl:text-sm text-gray-900 text-center max-w-[180px] lg:max-w-[110px] xl:max-w-[140px] 2xl:max-w-[180px]">
                       {log.system}
                     </td>
-                    <td className="py-3 px-4 text-sm whitespace-nowrap text-center">
+                    <td className="py-3 lg:py-2 xl:py-2.5 2xl:py-3 px-4 lg:px-2 xl:px-3 2xl:px-4 text-sm lg:text-[10px] xl:text-xs 2xl:text-sm text-center min-w-[100px] lg:min-w-[80px] xl:min-w-[90px] 2xl:min-w-[100px]">
                       {log.patientId !== 'N/A' && onViewPatientDetails ? (
                         <button
                           onClick={() => onViewPatientDetails(log.patientId)}
@@ -183,15 +183,15 @@ export function NotificationsTable({ logs, onViewPatientDetails, t }: Notificati
                         <span className="text-gray-900">{log.patientId}</span>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-600 whitespace-nowrap text-center">
+                    <td className="py-3 lg:py-2 xl:py-2.5 2xl:py-3 px-4 lg:px-2 xl:px-3 2xl:px-4 text-sm lg:text-[10px] xl:text-xs 2xl:text-sm text-gray-600 text-center max-w-[160px] lg:max-w-[100px] xl:max-w-[120px] 2xl:max-w-[160px]">
                       {log.category}
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-600 whitespace-nowrap font-mono text-center">
+                    <td className="py-3 lg:py-2 xl:py-2.5 2xl:py-3 px-4 lg:px-2 xl:px-3 2xl:px-4 text-sm lg:text-[9px] xl:text-xs 2xl:text-sm text-gray-600 font-mono text-center max-w-[120px] lg:max-w-[100px] xl:max-w-[110px] 2xl:max-w-[120px]">
                       {log.type}
                     </td>
-                    <td className="py-3 px-4 whitespace-nowrap text-center">
+                    <td className="py-3 lg:py-2 xl:py-2.5 2xl:py-3 px-4 lg:px-2 xl:px-3 2xl:px-4 whitespace-nowrap text-center min-w-[70px] lg:min-w-[55px] xl:min-w-[65px] 2xl:min-w-[70px]">
                       <span
-                        className={`px-2 py-1 rounded text-xs font-bold ${log.status === '성공'
+                        className={`px-2 lg:px-1.5 xl:px-1.5 2xl:px-2 py-1 lg:py-0.5 xl:py-0.5 2xl:py-1 rounded text-xs lg:text-[9px] xl:text-[10px] 2xl:text-xs font-bold ${log.status === '성공'
                           ? 'bg-green-100 text-green-700'
                           : 'bg-red-100 text-red-700'
                           }`}
@@ -201,7 +201,7 @@ export function NotificationsTable({ logs, onViewPatientDetails, t }: Notificati
                           : t('notifications.table.fail')}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-600 min-w-[260px] text-center">
+                    <td className="py-3 lg:py-2 xl:py-2.5 2xl:py-3 px-4 lg:px-2 xl:px-3 2xl:px-4 text-sm lg:text-[9px] xl:text-xs 2xl:text-sm text-gray-600 text-center max-w-[240px] lg:max-w-[130px] xl:max-w-[180px] 2xl:max-w-[280px]">
                       {log.details}
                     </td>
                   </tr>

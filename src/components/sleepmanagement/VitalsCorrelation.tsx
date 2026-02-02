@@ -95,13 +95,13 @@ export function VitalsCorrelation({
                     >
                         <div className="flex items-center justify-between">
                             <div className={isSmallScreen ? 'flex items-center gap-2 min-w-0' : 'flex items-center gap-2.5 min-w-0'}>
-                                <v.icon className={isSmallScreen ? `w-3.5 h-3.5 ${v.color} flex-shrink-0` : `w-4 h-4 ${v.color} flex-shrink-0`} />
-                                <span className={isSmallScreen ? 'text-[10px] font-bold text-gray-700 truncate' : 'text-[11px] font-bold text-gray-600 truncate'}>
+                                <v.icon className={isSmallScreen ? `w-3.5 h-3.5 ${v.color} shrink-0` : `w-4 h-4 ${v.color} shrink-0`} />
+                                <span className={isSmallScreen ? 'text-[10px] font-bold text-gray-700 wrap-break-word whitespace-normal' : 'text-[11px] font-bold text-gray-600 truncate'}>
                                     {v.label}
                                 </span>
                             </div>
 
-                            <div className="flex items-baseline gap-1 flex-shrink-0">
+                            <div className="flex items-baseline gap-1 shrink-0">
                                 <span className={isSmallScreen ? 'text-[13px] font-black text-gray-900 tracking-tight' : 'text-sm font-black text-gray-900 tracking-tight'}>
                                     {v.value}
                                 </span>

@@ -78,19 +78,19 @@ export function Navbar({
                 </div>
 
                 {/* DESKTOP NAV */}
-                <div className="hidden md:flex items-center gap-1">
+                <div className="hidden md:flex items-center gap-0.1 lg:gap-1.5 xl:gap-2">
                     {menuItems.map(item => (
                         <button
                             key={item.label}
                             onClick={() => onPageChange(item.label)}
-                            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition
+                            className={`flex items-center gap-0.5 lg:gap-2 px-1.5 lg:px-3 py-1.5 lg:py-2 rounded-xl text-[11px] lg:text-sm font-medium transition whitespace-nowrap
                 ${currentPage === item.label
                                     ? 'bg-blue-600 text-white'
                                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
                                 }`}
                         >
-                            <item.icon className="w-4 h-4" />
-                            {t(item.translationKey)}
+                            <item.icon className="w-3.5 h-3.5 lg:w-4 lg:h-4 shrink-0" />
+                            <span className="truncate">{t(item.translationKey)}</span>
                         </button>
                     ))}
                 </div>

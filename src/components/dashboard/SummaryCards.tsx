@@ -18,7 +18,7 @@ export function SummaryCards({
     t
 }: SummaryCardsProps) {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
             {[
                 { label: t('dashboard.totalPatients'), value: totalPatients, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
                 { label: t('dashboard.activeAlerts'), value: activeAlertsCount, icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50' },
@@ -28,7 +28,7 @@ export function SummaryCards({
                 <div key={idx} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 max-[374px]:p-3 sm:p-5 lg:p-6 min-w-0 flex flex-col justify-between group hover:shadow-md transition-all">
                     <div className="flex items-start justify-between gap-2 max-[374px]:gap-1">
                         <div className="min-w-0 flex-1">
-                            <p className="text-[10px] max-[374px]:text-[8px] lg:text-[25px] font-black text-gray-600 uppercase tracking-widest max-[374px]:tracking-tight mb-1 truncate">{card.label}</p>
+                            <p className="text-[10px] max-[374px]:text-[8px] lg:text-xs font-black text-gray-600 uppercase tracking-widest max-[374px]:tracking-tight mb-1 truncate">{card.label}</p>
                             <p className={`text-xl max-[374px]:text-lg sm:text-2xl lg:text-3xl font-black ${card.color} tracking-tight`}>{card.value}</p>
                         </div>
                         <div className={`w-8 h-8 max-[374px]:w-6 max-[374px]:h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 ${card.bg} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>

@@ -7,7 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { appendNotificationLog, formatTimestamp } from '../data/notificationLogStore';
 
 export function useSleepAnalytics(initialPatientId?: string | null) {
-    const { t, getLocalizedText } = useLanguage();
+    const { t, getLocalizedText, language } = useLanguage();
     const dispatch = useDispatch<AppDispatch>();
 
     const [selectedPatientId, setSelectedPatientId] = useState(initialPatientId || '');
@@ -100,10 +100,13 @@ export function useSleepAnalytics(initialPatientId?: string | null) {
         return Math.max(base, count * slot);
     }, [trendData, trendView, isSmallScreen]);
 
-    const selectedPatient = useMemo(() =>
-        allPatients.find(p => p.id === selectedPatientId),
-        [allPatients, selectedPatientId]
-    );
+    const selectedPatient = useMemo(() => {
+        if (!selectedPatientId) return null;
+        // The patient ID from the URL/initialPatientId might be the MongoDB ObjectId (_id)
+        // while the patients in the store might have 'id' as the human-readable ID or vice versa.
+        // We check for both 'id' and '_id' to be safe.
+        return allPatients.find(p => p.id === selectedPatientId || (p as any)._id === selectedPatientId);
+    }, [allPatients, selectedPatientId]);
 
     const patientName = useMemo(() => {
         if (selectedPatient) {
@@ -115,6 +118,42 @@ export function useSleepAnalytics(initialPatientId?: string | null) {
         }
         return '';
     }, [selectedPatient, getLocalizedText, analytics]);
+
+    const patientCode = useMemo(() => {
+        if (selectedPatient) {
+            return selectedPatient.patientCode;
+        }
+        return '';
+    }, [selectedPatient]);
+
+    const dateRangeString = useMemo(() => {
+        if (!analytics?.stageGraph || analytics.stageGraph.length < 2) return '';
+
+        try {
+            const firstPoint = analytics.stageGraph[0].time;
+            const lastPoint = analytics.stageGraph[analytics.stageGraph.length - 1].time;
+
+            const parseDate = (dateStr: string) => {
+                const d = new Date(dateStr.replace(' ', 'T'));
+                if (!isNaN(d.getTime())) return d;
+                const d2 = new Date(dateStr);
+                if (!isNaN(d2.getTime())) return d2;
+                return null;
+            };
+
+            const startDate = parseDate(firstPoint);
+            const endDate = parseDate(lastPoint);
+
+            if (!startDate || !endDate) return '';
+
+            const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+            const locale = language === 'ko' ? 'ko-KR' : (language === 'es' ? 'es-ES' : 'en-US');
+
+            return `${startDate.toLocaleDateString(locale, options)} - ${endDate.toLocaleDateString(locale, options)}`;
+        } catch (e) {
+            return '';
+        }
+    }, [analytics, language]);
 
     useEffect(() => {
         if (selectedPatientId && analytics && selectedPatient) {
@@ -149,6 +188,8 @@ export function useSleepAnalytics(initialPatientId?: string | null) {
         trendData,
         trendMinWidth,
         patientName,
+        patientCode,
+        dateRangeString,
         t,
         refresh
     };
