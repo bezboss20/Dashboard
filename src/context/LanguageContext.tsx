@@ -294,12 +294,12 @@ const dictionary: DictionaryEntry[] = [
   // Filter
   // ---------------------------------------------------------------------------
   { key: 'filter.allStatus', ko: '전체 상태', en: 'All Status', ja: '全状態', ch: '全部状态', es: 'Todos los Estados', },
-  { key: 'filter.active', ko: '활성', en: 'Active', ja: '有効', ch: '活跃', es: 'Activo', },
-  { key: 'filter.active.mobile', ko: '활성', en: 'Active', ja: '有効', ch: '活跃', es: 'Activo', },
-  { key: 'filter.discharged', ko: '퇴원', en: 'Discharged', ja: '退院済み', ch: '出院', es: 'Dado de Alta', },
+  { key: 'filter.active', ko: '입원중', en: 'Hospitalized', ja: '入院中', ch: '住院中', es: 'Hospitalizado', },
+  { key: 'filter.active.mobile', ko: '입원중', en: 'Hosp.', ja: '入院中', ch: '住院中', es: 'Hosp.', },
+  { key: 'filter.discharged', ko: '퇴원', en: 'Discharged', ja: '退院', ch: '出院', es: 'Dado de alta', },
   { key: 'filter.discharged.mobile', ko: '퇴원', en: 'Disc.', ja: '退院', ch: '出院', es: 'Alta', },
-  { key: 'filter.transferred', ko: '전원', en: 'Transferred', ja: '転員済み', ch: '转院', es: 'Transferido', },
-  { key: 'filter.transferred.mobile', ko: '전원', en: 'Trans.', ja: '転員', ch: '转院', es: 'Transf.', },
+  { key: 'filter.transferred', ko: '전원', en: 'Transferred', ja: '転院', ch: '转院', es: 'Trasladado', },
+  { key: 'filter.transferred.mobile', ko: '전원', en: 'Trans.', ja: '転院', ch: '转院', es: 'Traslad.', },
   { key: 'filter.searchPlaceholder', ko: '이름 또는 ID로 검색', en: 'Search by name or ID', ja: '名前またはIDで検索', ch: '按姓名或ID搜索', es: 'Buscar por nombre o ID', },
   { key: 'filter.statusActive', ko: 'ACTIVE', en: 'ACTIVE', ja: 'ACTIVE', ch: 'ACTIVE', es: 'ACTIVE', },
   { key: 'filter.statusDischarged', ko: 'DISCHARGED', en: 'DISCHARGED', ja: 'DISCHARGED', ch: 'DISCHARGED', es: 'DISCHARGED', },
@@ -314,9 +314,9 @@ const dictionary: DictionaryEntry[] = [
   // Patientstatus
   // ---------------------------------------------------------------------------
   { key: 'patientStatus.label', ko: '환자 상태', en: 'Patient Status', ja: '患者状態', ch: '患者状态', es: 'Estado del Paciente', },
-  { key: 'patientStatus.active', ko: '입원중', en: 'Admitted', ja: '入院中', ch: '住院中', es: 'Hospitalizado', },
-  { key: 'patientStatus.discharged', ko: '퇴원', en: 'Discharged', ja: '退院', ch: '出院', es: 'Dado de Alta', },
-  { key: 'patientStatus.transferred', ko: '전원', en: 'Transferred', ja: '転員', ch: '转院', es: 'Transferido', },
+  { key: 'patientStatus.active', ko: '입원중', en: 'Hospitalized', ja: '入院中', ch: '住院中', es: 'Hospitalizado', },
+  { key: 'patientStatus.discharged', ko: '퇴원', en: 'Discharged', ja: '退院', ch: '出院', es: 'Dado de alta', },
+  { key: 'patientStatus.transferred', ko: '전원', en: 'Transferred', ja: '転院', ch: '转院', es: 'Trasladado', },
   { key: 'patientStatus.updateSuccess', ko: '상태가 업데이트되었습니다', en: 'Status updated successfully', ja: '状態が更新されました', ch: '状态已更新', es: 'Estado actualizado correctamente', },
   // ---------------------------------------------------------------------------
   // Notifications

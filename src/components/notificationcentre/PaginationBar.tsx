@@ -29,35 +29,51 @@ export function PaginationBar({
                     {totalItems > 0 ? startIndex + 1 : 0}-{Math.min(startIndex + itemsPerPage, totalItems)} / {totalItems}
                 </span>
             </div>
-            <div className="flex items-center gap-2 max-[374px]:gap-1 order-1 sm:order-2">
+            <div className="flex items-center gap-1 sm:gap-2 max-[400px]:gap-0.5 order-1 sm:order-2 max-w-full overflow-hidden">
                 <button
                     onClick={() => onPageChange(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className="p-2 max-[374px]:p-1 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="p-1 max-[400px]:p-0.5 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
                 >
-                    <ChevronLeft className="w-4 h-4 text-gray-600" />
+                    <ChevronLeft className="w-3.5 h-3.5 max-[400px]:w-3 max-[400px]:h-3 text-gray-600" />
                 </button>
-                <div className="flex items-center gap-1 overflow-x-auto max-w-full">
+                <div className="flex items-center gap-0.5 max-[400px]:gap-0 sm:gap-1">
                     {(() => {
-                        // Reduce visible pages on very small screens
-                        const isVerySmallScreen = typeof window !== 'undefined' && window.innerWidth < 375;
-                        const maxVisiblePages = isVerySmallScreen ? 3 : 7;
+                        // Show minimal pages on mobile screens
+                        const isSmallScreen = typeof window !== 'undefined' && window.innerWidth < 640;
                         const pages: (number | string)[] = [];
 
-                        if (totalPages <= maxVisiblePages) {
-                            // Show all pages if total is small
+                        if (totalPages <= 3) {
+                            // Show all pages if total is 3 or less
                             for (let i = 1; i <= totalPages; i++) {
                                 pages.push(i);
                             }
+                        } else if (isSmallScreen) {
+                            // Mobile: Show first, current (if different), and last page
+                            pages.push(1);
+
+                            // Add current page if it's not first or last
+                            if (currentPage !== 1 && currentPage !== totalPages) {
+                                pages.push('...');
+                                pages.push(currentPage);
+                                pages.push('...');
+                            } else if (totalPages > 2) {
+                                // If on first or last page, just show ellipsis
+                                pages.push('...');
+                            }
+
+                            // Show last page if it's different from first
+                            if (totalPages > 1) {
+                                pages.push(totalPages);
+                            }
                         } else {
-                            // Always show first page
+                            // Desktop/tablet: Show more pages
                             pages.push(1);
 
                             if (currentPage > 3) {
                                 pages.push('...');
                             }
 
-                            // Show pages around current page
                             const start = Math.max(2, currentPage - 1);
                             const end = Math.min(totalPages - 1, currentPage + 1);
 
@@ -69,14 +85,13 @@ export function PaginationBar({
                                 pages.push('...');
                             }
 
-                            // Always show last page
                             pages.push(totalPages);
                         }
 
                         return pages.map((page, idx) => {
                             if (page === '...') {
                                 return (
-                                    <span key={`ellipsis-${idx}`} className="w-6 h-8 max-[374px]:w-5 flex items-center justify-center text-gray-400 flex-shrink-0">
+                                    <span key={`ellipsis-${idx}`} className="w-3 h-6 max-[400px]:w-2.5 flex items-center justify-center text-gray-400 shrink-0 text-[10px]">
                                         ...
                                     </span>
                                 );
@@ -86,7 +101,7 @@ export function PaginationBar({
                                 <button
                                     key={page}
                                     onClick={() => onPageChange(page as number)}
-                                    className={`w-8 h-8 max-[374px]:w-7 max-[374px]:h-7 lg:w-9 lg:h-9 rounded-lg text-xs lg:text-sm font-medium transition-colors flex-shrink-0 ${currentPage === page
+                                    className={`w-6 h-6 max-[400px]:w-5 max-[400px]:h-5 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-md sm:rounded-lg text-[10px] max-[400px]:text-[9px] sm:text-xs lg:text-sm font-medium transition-colors shrink-0 ${currentPage === page
                                         ? "bg-blue-600 text-white shadow-sm"
                                         : "border border-gray-300 text-gray-600 hover:bg-gray-50"
                                         }`}
@@ -102,9 +117,9 @@ export function PaginationBar({
                         onPageChange(Math.min(totalPages, currentPage + 1))
                     }
                     disabled={currentPage === totalPages || totalPages === 0}
-                    className="p-2 max-[374px]:p-1 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="p-1 max-[400px]:p-0.5 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
                 >
-                    <ChevronRight className="w-4 h-4 text-gray-600" />
+                    <ChevronRight className="w-3.5 h-3.5 max-[400px]:w-3 max-[400px]:h-3 text-gray-600" />
                 </button>
             </div>
         </div>

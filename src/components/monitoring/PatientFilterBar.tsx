@@ -325,8 +325,8 @@ export function PatientFilterBar({
             <div className="flex flex-col items-center justify-center text-center px-0.5 py-1 max-[374px]:py-0 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
               <UserX className={`w-3 h-3 max-[374px]:w-2.5 max-[374px]:h-2.5 sm:w-4 sm:h-4 transition-colors ${statusFilter === 'TRANSFERRED' ? 'text-orange-700' : 'text-orange-600'}`} />
               <div className="min-w-0">
-                <div className={`text-[9px] max-[374px]:text-[7px] max-[374px]:leading-[1] max-[374px]:tracking-tight sm:text-[10px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'TRANSFERRED' ? 'text-orange-700' : 'text-orange-600'}`}>
-                  <span className="hidden max-[425px]:inline">{t('filter.transferred')}</span>
+                <div className={`text-[8px] max-[374px]:text-[7px] max-[374px]:leading-[1] max-[374px]:tracking-tight sm:text-[9px] md:text-[10px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'TRANSFERRED' ? 'text-orange-700' : 'text-orange-600'}`}>
+                  <span className="hidden max-[425px]:inline">{t('filter.transferred.mobile')}</span>
                   <span className="max-[425px]:hidden">{t('filter.transferred')}</span>
                 </div>
                 <div className={`text-[12px] max-[374px]:text-[10px] sm:text-[13px] font-black leading-tight transition-colors ${statusFilter === 'TRANSFERRED' ? 'text-orange-800' : 'text-orange-700'}`}>

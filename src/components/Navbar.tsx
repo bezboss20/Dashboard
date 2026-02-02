@@ -69,12 +69,11 @@ export function Navbar({
     return (
         <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-100">
             {/* MAIN BAR */}
-            <div className="w-full h-16 flex items-center justify-between px-3 sm:px-4 overflow-x-hidden">
+            <div className="w-full h-16 flex items-center justify-between px-3 sm:px-4">
                 {/* LOGO SECTION */}
                 <div className="flex items-center gap-3 shrink-0">
-
-                    <div className="w-28 h-28 mt-21">
-                        <img src={Logo} alt="logo" />
+                    <div className="mt-2 w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-28 lg:h-28">
+                        <img src={Logo} alt="logo" className="w-full h-full object-contain" />
                     </div>
                 </div>
 
@@ -97,7 +96,7 @@ export function Navbar({
                 </div>
 
                 {/* RIGHT SIDE */}
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1 shrink-0">
                     {/* TIME – LARGE DESKTOP ONLY */}
                     <div className="hidden 2xl:flex items-center gap-4 text-xs text-gray-500 bg-gray-50 px-4 py-2 rounded-xl">
                         <div className="flex items-center gap-2">
@@ -110,6 +109,8 @@ export function Navbar({
                         </div>
                     </div>
 
+                    {/* LANGUAGE WRAPPER */}
+                    <div className="flex items-center ml-1 sm:ml-0 shrink-0"></div>
                     {/* LANGUAGE */}
                     <div className="flex items-center gap-0 bg-gray-50 rounded-full px-1 py-1 text-xs border">
                         <Globe className="w-3 h-3 text-gray-400" />

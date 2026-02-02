@@ -114,12 +114,19 @@ function MapController({
 
     useEffect(() => {
         if (!containerRef.current) return;
-        const observer = new ResizeObserver(() => {
+        const handleResize = () => {
             handleInvalidateSize();
             setTimeout(forceTileRedraw, 100);
-        });
+        };
+        const observer = new ResizeObserver(handleResize);
         observer.observe(containerRef.current);
-        return () => observer.disconnect();
+        window.addEventListener('orientationchange', handleResize);
+        window.addEventListener('resize', handleResize);
+        return () => {
+            observer.disconnect();
+            window.removeEventListener('orientationchange', handleResize);
+            window.removeEventListener('resize', handleResize);
+        };
     }, [containerRef, handleInvalidateSize, forceTileRedraw]);
 
     useEffect(() => {
@@ -184,7 +191,7 @@ export function GPSMap({
     }, [selectedDeviceId]);
 
     return (
-        <div ref={mapContainerRef} className="gps-map-wrapper h-[500px] max-[375px]:h-[320px] lg:h-[600px] 3xl:h-[720px] w-full relative bg-gray-100">
+        <div ref={mapContainerRef} className="gps-map-wrapper absolute inset-0 bg-gray-100">
             <MapContainer
                 center={initialCenter}
                 zoom={14}
@@ -215,13 +222,13 @@ export function GPSMap({
                 {userLocation && (
                     <Marker position={userLocation} icon={userLocationIcon}>
                         <Popup className="custom-popup">
-                            <div className="p-1">
-                                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest leading-none mb-1">{t('gps.userLocation')}</p>
-                                <div className="space-y-1">
-                                    <p className="text-[11px] font-bold text-gray-700">Lat: {userLocMeta?.lat.toFixed(6)}</p>
-                                    <p className="text-[11px] font-bold text-gray-700">Lng: {userLocMeta?.lng.toFixed(6)}</p>
+                            <div className="p-0.5 w-[140px] sm:w-[160px]">
+                                <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest leading-none mb-1.5">{t('gps.userLocation')}</p>
+                                <div className="space-y-0.5">
+                                    <p className="text-[10px] font-bold text-gray-700">Lat: {userLocMeta?.lat.toFixed(6)}</p>
+                                    <p className="text-[10px] font-bold text-gray-700">Lng: {userLocMeta?.lng.toFixed(6)}</p>
                                 </div>
-                                <p className="text-[9px] text-gray-400 font-bold mt-2 uppercase">Updated at {userLocMeta?.time}</p>
+                                <p className="text-[8px] text-gray-400 font-bold mt-2 uppercase">Updated at {userLocMeta?.time}</p>
                             </div>
                         </Popup>
                     </Marker>
@@ -237,29 +244,29 @@ export function GPSMap({
                         }}
                     >
                         <Popup className="custom-popup">
-                            <div className="p-0 w-[210px]">
-                                <div className="flex justify-between items-start gap-2 mb-2">
+                            <div className="p-0 w-[155px] sm:w-[210px]">
+                                <div className="flex justify-between items-start gap-1 mb-1">
                                     <div>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-wide leading-none mb-1 whitespace-nowrap">Device ID</p>
-                                        <p className="text-xs font-black text-gray-900 whitespace-nowrap">{device.deviceId}</p>
+                                        <p className="text-[7px] sm:text-[8px] font-black text-gray-400 uppercase tracking-wide leading-none mb-0.5 whitespace-nowrap">ID</p>
+                                        <p className="text-[9px] sm:text-xs font-black text-gray-900 whitespace-nowrap">{device.deviceId}</p>
                                     </div>
-                                    <div className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap shrink-0 ${device.status === 'online' ? 'bg-orange-50 text-green-600' : 'bg-gray-50 text-gray-500'}`}>
+                                    <div className={`px-1 py-0.5 rounded-full text-[6px] sm:text-[8px] font-black uppercase whitespace-nowrap shrink-0 ${device.status === 'online' ? 'bg-orange-50 text-green-600' : 'bg-gray-50 text-gray-500'}`}>
                                         {device.status}
                                     </div>
                                 </div>
 
                                 {device.patientName && (
-                                    <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-100">
-                                        <p className="text-[9px] font-bold text-gray-400 uppercase mb-0.5">{t('gps.assignedPatient')}</p>
-                                        <p className="text-[11px] font-black text-gray-900 wrap-break-word">
+                                    <div className="mb-1 p-1 sm:p-2 bg-gray-50 rounded-lg border border-gray-100">
+                                        <p className="text-[7px] sm:text-[8px] font-bold text-gray-400 uppercase mb-0.5 truncate">{t('gps.assignedPatient')}</p>
+                                        <p className="text-[8px] sm:text-[10px] font-black text-gray-900 wrap-break-word">
                                             {device.patientName} ({device.patientId})
                                         </p>
                                     </div>
                                 )}
 
-                                <div className="flex flex-col gap-2 mt-3">
-                                    <div className="text-[9px] text-gray-400 font-bold uppercase whitespace-nowrap">
-                                        Update: {device.lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                <div className="flex flex-col gap-1 mt-1.5">
+                                    <div className="text-[7px] sm:text-[8px] text-gray-400 font-bold uppercase whitespace-nowrap">
+                                        {device.lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </div>
                                     <button
                                         onClick={() => {
@@ -267,9 +274,9 @@ export function GPSMap({
                                             setFocusTrigger((prev: number) => prev + 1);
                                             setIsAutoTracking(false);
                                         }}
-                                        className="flex items-center justify-center gap-1.5 w-full px-2 py-1.5 bg-blue-600 text-white rounded-lg text-[10px] font-bold hover:bg-blue-700 transition-colors"
+                                        className="flex items-center justify-center gap-1 w-full px-1 py-1 bg-blue-600 text-white rounded-lg text-[8px] sm:text-[9px] font-bold hover:bg-blue-700 transition-colors"
                                     >
-                                        <Crosshair className="w-3 h-3 shrink-0" />
+                                        <Crosshair className="w-2.5 h-2.5 shrink-0" />
                                         <span>{t('gps.fixLocation')}</span>
                                     </button>
                                 </div>
