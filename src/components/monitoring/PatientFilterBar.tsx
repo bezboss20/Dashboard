@@ -109,11 +109,11 @@ export function PatientFilterBar({
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
         {/* Left Section: Search + Status Dropdown + Calendar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row xl:w-auto items-stretch sm:items-center gap-3 w-full">
           {/* Search Bar */}
-          <div className="relative min-w-0 sm:max-w-xs flex-1 sm:flex-none">
+          <div className="relative min-w-0 xl:max-w-xs flex-1 xl:flex-none">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
@@ -128,7 +128,7 @@ export function PatientFilterBar({
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full sm:w-auto flex items-center justify-between gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-all min-w-[140px]"
+              className="w-full sm:w-auto flex items-center justify-between gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-all min-w-[140px] whitespace-nowrap"
             >
               <span>{getStatusLabel(statusFilter)}</span>
               <ChevronDown
@@ -165,7 +165,7 @@ export function PatientFilterBar({
               onClick={() => setIsCalendarOpen(!isCalendarOpen)}
               className="w-full sm:w-auto flex items-center justify-between gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-all min-w-[140px]"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 whitespace-nowrap">
                 <Calendar className="w-4 h-4 text-gray-400" />
                 <span>{selectedDate || t('registration.registrationDate')}</span>
               </div>
@@ -269,7 +269,7 @@ export function PatientFilterBar({
         </div>
 
         {/* Right Section: Status Summary Cards */}
-        <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:flex xl:w-auto sm:items-center sm:gap-3 w-full justify-start lg:justify-center xl:justify-start">
           {/* Active */}
           <button
             onClick={() => onStatusChange(statusFilter === 'ACTIVE' ? 'ALL' : 'ACTIVE')}

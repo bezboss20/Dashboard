@@ -23,7 +23,7 @@ interface ResponsiveScaleShellProps {
 export function ResponsiveScaleShell({
     children,
     designWidth = 2560,
-    mobileMax = 1023, // Updated to 1023 to start scaling from 1024
+    mobileMax = 1024, // Updated to 1023 to start scaling from 1024
     minScale = 0.1,  // Reduced minScale to allow more aggressive scaling if needed
     maxScale = 1,
 }: ResponsiveScaleShellProps) {
