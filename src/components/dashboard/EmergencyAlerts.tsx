@@ -65,7 +65,7 @@ export function EmergencyAlerts({ alerts, onViewPatientDetails, onAcknowledge, o
                 <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">{alerts.length}</span>
             </div>
 
-            <div className="flex gap-3 lg:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory no-scrollbar -mx-1 px-1">
+            <div className="flex gap-3 lg:gap-4 overflow-x-auto pb-4 snap-x snap-mandatory custom-scrollbar -mx-1 px-1">
                 {displayAlerts.map((alert) => {
                     const isCritical = alert.severity === 'critical';
                     const isWarning = alert.severity === 'warning';
@@ -101,44 +101,50 @@ export function EmergencyAlerts({ alerts, onViewPatientDetails, onAcknowledge, o
                                     console.error(`Alert card clicked but no valid backend patientId found for: ${alert.patientName} (${alert.patientCode})`);
                                 }
                             }}
-                            className={`flex-shrink-0 w-[240px] xs:w-[260px] sm:w-[280px] lg:w-[320px] snap-center ${bgColor} border rounded-2xl p-3.5 lg:p-5 shadow-sm relative group transition-all hover:shadow-md ${patientId ? 'cursor-pointer' : 'cursor-default opacity-80'}`}
+                            className={`shrink-0 w-[240px] xs:w-[250px] sm:w-[260px] lg:w-[280px] snap-center ${bgColor} border rounded-2xl p-2.5 lg:p-3 shadow-sm relative group transition-all hover:shadow-md ${patientId ? 'cursor-pointer' : 'cursor-default opacity-80'}`}
                         >
-                            <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-start justify-between mb-1.5">
                                 <div className="flex items-center gap-1.5 lg:gap-2 min-w-0">
-                                    <div className={`w-2 h-2 ${badgeColor} rounded-full ${isCritical ? 'animate-pulse' : ''} flex-shrink-0`} />
-                                    <span className={`text-[9px] min-[380px]:text-[10px] lg:text-xs font-bold ${textColor} flex-shrink-0`}>{t(`status.${alert.severity}`).toUpperCase()}</span>
-                                    <span className="text-[9px] lg:text-[10px] text-gray-400 font-medium truncate">
+                                    <div className={`w-1.5 h-1.5 ${badgeColor} rounded-full ${isCritical ? 'animate-pulse' : ''} shrink-0`} />
+                                    <span className={`text-[9px] min-[380px]:text-[10px] lg:text-[11px] font-bold ${textColor} shrink-0`}>{t(`status.${alert.severity}`).toUpperCase()}</span>
+                                    <span className="text-[8px] lg:text-[9px] text-gray-400 font-medium truncate">
                                         | {displayType}
                                     </span>
                                 </div>
                                 <div
-                                    className="p-1 text-gray-400 group-hover:text-gray-600 flex-shrink-0 bg-gray-100 rounded-full transition-colors"
+                                    className="p-1 text-gray-400 group-hover:text-gray-600 shrink-0 bg-gray-50 rounded-full transition-colors"
                                     title={t('table.viewDetails')}
                                 >
-                                    <ChevronRight className="w-4 h-4" />
+                                    <ChevronRight className="w-3 h-3" />
                                 </div>
                             </div>
 
-                            <div className="w-full text-left space-y-0.5 lg:space-y-1 mb-3 lg:mb-4 group-hover:bg-black/5 p-1 -m-1 rounded-lg transition-colors">
-                                <p className="text-[10px] lg:text-xs text-gray-500 truncate">
-                                    {t('alerts.patient')}: {alert.patientName} {alert.patientCode ? `(${alert.patientCode})` : ''}
-                                </p>
-                                <p className="text-xs lg:text-sm font-bold text-gray-900 truncate flex items-center justify-between">
-                                    <span>{alert.value ? `${t('alerts.value')}: ${alert.value}` : displayType}</span>
-                                    <span className="text-[10px] text-blue-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                                        {t('table.viewDetails')} →
+                            <div className="w-full text-left mb-2 group-hover:bg-black/5 p-1 -m-1 rounded-lg transition-colors overflow-hidden">
+                                <div className="flex items-center justify-between mb-0.5">
+                                    <p className="text-[9px] lg:text-[10px] text-gray-500 truncate font-medium">
+                                        {alert.patientName} {alert.patientCode ? `(${alert.patientCode})` : ''}
+                                    </p>
+                                    <p className="text-[8px] lg:text-[9px] text-gray-400 shrink-0">{alert.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                </div>
+                                <p className="text-xs lg:text-[13px] font-bold text-gray-900">
+                                    <span className="line-clamp-2 leading-tight break-keep block">
+                                        {displayType}
                                     </span>
                                 </p>
-                                <p className="text-[9px] lg:text-[10px] text-gray-400">{alert.timestamp.toLocaleTimeString()}</p>
+                                <div className="flex justify-end h-3.5 mt-0.5">
+                                    <span className="text-[9px] text-blue-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                        {t('table.viewDetails')} →
+                                    </span>
+                                </div>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-1">
+                            <div className="grid grid-cols-1">
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         onAcknowledge(alert.id, '');
                                     }}
-                                    className="flex items-center justify-center gap-1 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-lg text-[9px] lg:text-[10px] font-bold hover:bg-gray-50 transition-colors uppercase truncate px-1"
+                                    className="flex items-center justify-center gap-1 py-1 bg-white border border-gray-200 text-gray-600 rounded-lg text-[9px] lg:text-[10px] font-bold hover:bg-gray-50 transition-colors uppercase truncate px-1"
                                 >
                                     <span className="truncate">{t('alerts.acknowledge')}</span>
                                 </button>

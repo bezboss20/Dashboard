@@ -55,6 +55,7 @@ export function useDashboardData() {
                 timestamp: a.createdAt ? new Date(a.createdAt) : (a.timestamp ? new Date(a.timestamp) : new Date()),
                 severity: a.severity?.toLowerCase() || 'caution',
                 status: a.status === 'NEW' ? 'active' : (a.status || 'active'),
+                value: a.currentValue || (a as any).value || '',
             };
         } catch (e) {
             return null;
@@ -106,6 +107,16 @@ export function useDashboardData() {
 
             if (type === 'hr') existing.heartRate = vital.value || 0;
             if (type === 'rr') existing.breathingRate = vital.value || 0;
+
+            // Re-calculate alertStatus based on updated vitals
+            const hrSev = getHeartRateSeverity(existing.heartRate);
+            const rrSev = getBreathingRateSeverity(existing.breathingRate);
+            const severityOrder = { 'critical': 3, 'warning': 2, 'caution': 1, 'normal': 0 };
+
+            let currentSev = existing.alertStatus as 'critical' | 'warning' | 'caution' | 'normal';
+            if (severityOrder[hrSev] > severityOrder[currentSev]) currentSev = hrSev;
+            if (severityOrder[rrSev] > severityOrder[currentSev]) currentSev = rrSev;
+            existing.alertStatus = currentSev;
 
             patientMap.set(pId, existing);
         };

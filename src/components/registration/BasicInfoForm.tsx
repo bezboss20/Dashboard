@@ -39,7 +39,7 @@ export function BasicInfoForm({ formData, language, t, onInputChange }: BasicInf
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 min-[2500px]:p-10 min-[2500px]:rounded-[24px]">
       <h3 className="mb-2 flex items-center gap-2 min-w-0 min-[2500px]:mb-8 min-[2500px]:gap-4">
-        <User className="w-3 h-3 text-blue-600 flex-shrink-0 min-[2500px]:w-6 min-[2500px]:h-6" />
+        <User className="w-3 h-3 text-blue-600 shrink-0 min-[2500px]:w-6 min-[2500px]:h-6" />
         <span className="text-[11px] sm:text-[12px] font-semibold text-gray-900 whitespace-nowrap truncate min-w-0 min-[2500px]:text-2xl">
           {t('registration.basicInfo')}
         </span>

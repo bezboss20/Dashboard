@@ -4,6 +4,7 @@ import { RootState, AppDispatch } from '../store/store';
 import { fetchPatientsAsync, Patient } from '../store/slices/monitoringSlice';
 import { useLanguage } from '../context/LanguageContext';
 import { DeviceLocation } from '../types/gps';
+import { getHeartRateSeverity, getBreathingRateSeverity } from '../utils/dashboardUtils';
 
 // Deterministic coordinate generation logic (moved from page)
 const generateStaticCoords = (id: string): [number, number] => {
@@ -53,11 +54,23 @@ export function useGPSTracking() {
                 ? getLocalizedText((p as any).fullName, (p as any).fullName.ko || p.patientCode || '')
                 : p.patientCode || '';
 
+            const hrVal = (p as any).latestHeartRate?.value || (p as any).heartRate || p.currentVitals?.heartRate?.value || 0;
+            const brVal = (p as any).latestRespiratoryRate?.value || (p as any).breathingRate || p.currentVitals?.respiratory?.value || 0;
+
             return {
                 deviceId: (p as any).deviceId || (p as any).devices?.[0]?.serialNumber || p.patientCode || 'NODE-' + pId.slice(-4),
                 lat,
                 lng,
                 status: (p as any).deviceStatus === 'online' || (p as any).devices?.[0]?.status === 'ONLINE' ? 'online' : 'offline',
+                healthStatus: (() => {
+                    const hrSev = getHeartRateSeverity(hrVal);
+                    const brSev = getBreathingRateSeverity(brVal);
+                    const severityOrder: Record<string, number> = { 'critical': 3, 'warning': 2, 'caution': 1, 'normal': 0 };
+                    let finalStatus = (((p as any).alertStatus?.toLowerCase() || 'normal') as 'normal' | 'caution' | 'warning' | 'critical');
+                    if (severityOrder[hrSev] > severityOrder[finalStatus]) finalStatus = hrSev;
+                    if (severityOrder[brSev] > severityOrder[finalStatus]) finalStatus = brSev;
+                    return finalStatus;
+                })(),
                 lastUpdated: new Date(),
                 patientId: p.patientCode,
                 patientName

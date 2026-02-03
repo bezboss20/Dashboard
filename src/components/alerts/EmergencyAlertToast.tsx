@@ -24,7 +24,7 @@ export const EmergencyAlertToast: React.FC<EmergencyAlertToastProps> = ({ alert,
             `}
         >
             {/* Minimal Icon */}
-            <div className="bg-white/20 p-2 rounded-xl text-white flex-shrink-0">
+            <div className="bg-white/20 p-2 rounded-xl text-white shrink-0">
                 <AlertTriangle className="w-6 h-6" />
             </div>
 
@@ -33,7 +33,7 @@ export const EmergencyAlertToast: React.FC<EmergencyAlertToastProps> = ({ alert,
                 <h3 className="text-white font-black text-sm uppercase tracking-wider truncate mb-0.5">
                     {alert.patientName}
                 </h3>
-                <p className="text-red-50 text-xs font-bold leading-tight break-words line-clamp-2">
+                <p className="text-red-50 text-xs font-bold leading-tight wrap-break-word line-clamp-2">
                     {alert.message}
                 </p>
             </div>

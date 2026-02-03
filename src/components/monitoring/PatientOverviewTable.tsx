@@ -15,13 +15,15 @@ import {
   UserCheck,
   UserMinus,
   UserX,
-  Calendar
+  Calendar,
+  Info
 } from 'lucide-react';
 import { MappedPatient } from '../../store/slices/monitoringSlice';
 import { useState, useEffect } from 'react';
 import { Sparkline } from './Sparkline';
 import { useLanguage } from '../../context/LanguageContext';
 import { deriveHealthStatus, getHealthStatusLabel, getHealthStatusClasses } from '../../utils/statusLabels';
+import { getHeartRateSeverity, getBreathingRateSeverity } from '../../utils/dashboardUtils';
 
 interface PatientOverviewTableProps {
   patients: MappedPatient[];
@@ -68,13 +70,15 @@ export function PatientOverviewTable({
   const getAlertIcon = (status: string) => {
     switch (status) {
       case 'critical':
-        return <AlertTriangle className="w-4 h-4 text-red-600" />;
+        return <AlertTriangle className="w-4 h-4 text-red-600 animate-pulse" />;
       case 'warning':
         return <AlertTriangle className="w-4 h-4 text-orange-500" />;
+      case 'caution':
+        return <AlertCircle className="w-4 h-4 text-yellow-600" />;
       case 'normal':
         return <CheckCircle className="w-4 h-4 text-green-600" />;
       default:
-        return null;
+        return <CheckCircle className="w-4 h-4 text-gray-300" />;
     }
   };
 
@@ -84,10 +88,12 @@ export function PatientOverviewTable({
         return { text: t('status.critical'), color: 'text-red-600', bg: 'bg-red-50' };
       case 'warning':
         return { text: t('status.warning'), color: 'text-orange-600', bg: 'bg-orange-50' };
+      case 'caution':
+        return { text: t('status.caution'), color: 'text-yellow-600', bg: 'bg-yellow-50' };
       case 'normal':
         return { text: t('status.normal'), color: 'text-green-600', bg: 'bg-green-50' };
       default:
-        return { text: 'Unknown', color: 'text-gray-600', bg: 'bg-gray-50' };
+        return { text: t('common.unknown'), color: 'text-gray-600', bg: 'bg-gray-50' };
     }
   };
 
@@ -174,14 +180,18 @@ export function PatientOverviewTable({
   };
 
   const getHeartRateColor = (hr: number) => {
-    if (hr < 60 || hr > 100) return 'text-red-600';
-    if (hr < 65 || hr > 85) return 'text-orange-500';
+    const severity = getHeartRateSeverity(hr);
+    if (severity === 'critical') return 'text-red-600';
+    if (severity === 'warning') return 'text-orange-500';
+    if (severity === 'caution') return 'text-yellow-600';
     return 'text-gray-900';
   };
 
   const getBreathingRateColor = (br: number) => {
-    if (br < 12 || br > 22) return 'text-red-600';
-    if (br < 14 || br > 20) return 'text-orange-500';
+    const severity = getBreathingRateSeverity(br);
+    if (severity === 'critical') return 'text-red-600';
+    if (severity === 'warning') return 'text-orange-500';
+    if (severity === 'caution') return 'text-yellow-600';
     return 'text-gray-900';
   };
 
@@ -242,9 +252,78 @@ export function PatientOverviewTable({
     <section className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div className="px-4 lg:px-6 py-4 border-b border-gray-200">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-gray-900 font-bold">{t('table.overview')}</h2>
-            <p className="text-xs lg:text-sm text-gray-500">{t('table.realTime')}</p>
+          <div className="flex items-center justify-between w-full">
+            <div>
+              <h2 className="text-gray-900 font-bold">{t('table.overview')}</h2>
+              <p className="text-xs lg:text-sm text-gray-500">{t('table.realTime')}</p>
+            </div>
+
+            {/* Status Legend Info Tooltip */}
+            <div className="relative group/info">
+              <button className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50">
+                <Info className="w-4 h-4" />
+              </button>
+
+              <div className="absolute right-0 top-full mt-2 w-64 sm:w-[480px] lg:w-[600px] bg-white border border-gray-200 rounded-2xl shadow-2xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all z-60 p-4 text-[10px] sm:text-[11px]">
+                <p className="font-bold text-gray-900 mb-3 border-b border-gray-100 pb-2 text-xs">{t('common.statusLegend')}</p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Health Icons - Severity */}
+                  <div className="space-y-2.5">
+                    <p className="text-[9px] uppercase tracking-wider text-gray-400 font-bold mb-1">{t('dashboard.vitals') || '생체 신호'}</p>
+                    <div className="flex flex-col gap-2 font-semibold">
+                      <div className="flex items-center gap-2.5">
+                        <AlertTriangle className="w-4 h-4 text-red-600 animate-pulse shrink-0" />
+                        <span className="text-gray-600">{t('status.critical')}</span>
+                      </div>
+                      <div className="flex items-center gap-2.5">
+                        <AlertTriangle className="w-4 h-4 text-orange-500 shrink-0" />
+                        <span className="text-gray-600">{t('status.warning')}</span>
+                      </div>
+                      <div className="flex items-center gap-2.5">
+                        <AlertCircle className="w-4 h-4 text-yellow-600 shrink-0" />
+                        <span className="text-gray-600">{t('status.caution')}</span>
+                      </div>
+                      <div className="flex items-center gap-2.5">
+                        <CheckCircle className="w-4 h-4 text-green-600 shrink-0" />
+                        <span className="text-gray-600">{t('status.normal')}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Header Icons - Context */}
+                  <div className="space-y-2.5">
+                    <p className="text-[9px] uppercase tracking-wider text-gray-400 font-bold mb-1">{t('common.headerIcons') || '헤더 아이콘'}</p>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 font-semibold">
+                      <div className="flex items-center gap-2">
+                        <Heart className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                        <span className="text-gray-600 truncate">{t('table.heartRate')}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Wind className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                        <span className="text-gray-600 truncate">{t('table.breathingRate')}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Moon className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                        <span className="text-gray-600 truncate">{t('table.sleepState')}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <UserCheck className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                        <span className="text-gray-600 truncate">{t('patientStatus.label')}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Wifi className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                        <span className="text-gray-600 truncate">{t('table.deviceStatus')}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                        <span className="text-gray-600 truncate">{t('table.registrationDate')}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -269,7 +348,8 @@ export function PatientOverviewTable({
                 {/* Header */}
                 <div className="px-4 py-3 bg-gray-50 border-b flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="text-sm font-bold text-gray-900 truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible">
+                    <div className="text-sm font-bold text-gray-900 truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible flex items-center gap-1.5">
+                      {getAlertIcon(patient.alertStatus)}
                       {getLocalizedText({ ko: patient.nameKorean, en: patient.nameEnglish }, patient.nameKorean)}
                     </div>
                     <div className="text-xs text-gray-500 truncate">{patient.patientCode}</div>
@@ -296,11 +376,10 @@ export function PatientOverviewTable({
                         <Sparkline
                           data={patient.heartRateHistory.oneMin.slice(-10).map((d: any) => d.value)}
                           color={
-                            patient.heartRate < 60 || patient.heartRate > 100
-                              ? '#dc2626'
-                              : patient.heartRate < 65 || patient.heartRate > 95
-                                ? '#f97316'
-                                : '#9ca3af'
+                            (() => {
+                              const s = getHeartRateSeverity(patient.heartRate);
+                              return s === 'critical' ? '#dc2626' : s === 'warning' ? '#f97316' : s === 'caution' ? '#eab308' : '#9ca3af';
+                            })()
                           }
                           width={60}
                           height={18}
@@ -322,11 +401,10 @@ export function PatientOverviewTable({
                         <Sparkline
                           data={patient.breathingRateHistory.oneMin.slice(-10).map((d: any) => d.value)}
                           color={
-                            patient.breathingRate < 12 || patient.breathingRate > 20
-                              ? '#dc2626'
-                              : patient.breathingRate < 14 || patient.breathingRate > 18
-                                ? '#f97316'
-                                : '#9ca3af'
+                            (() => {
+                              const s = getBreathingRateSeverity(patient.breathingRate);
+                              return s === 'critical' ? '#dc2626' : s === 'warning' ? '#f97316' : s === 'caution' ? '#eab308' : '#9ca3af';
+                            })()
                           }
                           width={60}
                           height={18}
@@ -403,59 +481,63 @@ export function PatientOverviewTable({
 
       {/* ================= "LARGER" (>= 768/1024/1440/2560): keep current table ================= */}
       <div className="hidden sm:block">
-        <div className="overflow-x-auto lg:overflow-x-hidden w-full">
+        <div className="overflow-x-auto w-full">
           <table className="w-full min-w-full md:table-fixed border-collapse">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="md:w-[16%] lg:w-[14%] px-1 md:px-0.5 lg:pl-6 xl:pl-8 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center lg:text-left text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                <th className="md:w-[12%] lg:w-[11%] px-1 md:px-0.5 lg:pl-4 xl:pl-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center lg:text-left text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
                   <span className="md:text-[9px] lg:text-[10px] whitespace-nowrap">{t('table.patientId')}</span>
                 </th>
-                <th className="md:w-[11%] lg:w-[11%] px-1 md:px-0.5 lg:px-1.5 xl:px-3 2xl:px-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-left lg:text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                <th className="md:w-[9%] lg:w-[10%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-left lg:text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
                   <div className="flex items-center justify-start lg:justify-center gap-0.5 lg:gap-1 xl:gap-1 2xl:gap-2">
                     <Heart className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4 text-red-500" />
-                    <span className="hidden xl:inline xl:text-xs whitespace-nowrap">{t('table.heartRate')}</span>
+                    <span className="inline xl:text-xs whitespace-nowrap">
+                      {t('table.heartRate')}
+                    </span>
                   </div>
                 </th>
-                <th className="md:w-[12%] lg:w-[11%] px-1 md:px-0.5 lg:px-1.5 xl:px-3 2xl:px-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-left lg:text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                <th className="md:w-[10%] lg:w-[11%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-left lg:text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
                   <div className="flex items-center justify-start lg:justify-center gap-0.5 lg:gap-1 xl:gap-1 2xl:gap-2">
-                    <Wind className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" />
-                    <span className="hidden xl:inline xl:text-xs whitespace-nowrap">{t('table.breathingRate')}</span>
+                    <Wind className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4 text-blue-500" />
+                    <span className="inline xl:text-xs whitespace-nowrap">
+                      {t('table.breathingRate')}
+                    </span>
                   </div>
                 </th>
-                <th className="hidden sm:table-cell md:w-[14%] lg:w-[13%] px-1 md:px-0.5 lg:px-2 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                <th className="hidden sm:table-cell md:w-[10%] lg:w-[13%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
                   <div className="flex items-center justify-center">
                     <Moon className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" />
-                    <span className="hidden xl:inline lg:whitespace-nowrap">{t('table.sleepState')}</span>
+                    <span className="hidden lg:inline lg:whitespace-normal leading-tight">{t('table.sleepState')}</span>
                   </div>
                 </th>
-                <th className="md:w-[10%] lg:w-[13%] px-1 md:px-0.5 lg:px-2 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                <th className="md:w-[9%] lg:w-[14%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
                   <div className="flex items-center justify-center">
                     <UserCheck className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" />
-                    <span className="hidden xl:inline lg:whitespace-nowrap">{t('patientStatus.label')}</span>
+                    <span className="hidden lg:inline lg:whitespace-normal leading-tight">{t('patientStatus.label')}</span>
                   </div>
                 </th>
-                <th className="md:w-[11%] lg:w-[13%] px-1 md:px-0.5 lg:px-2 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                <th className="md:w-[9%] lg:w-[14%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
                   <div className="flex items-center justify-center">
                     <Wifi className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" />
-                    <span className="hidden xl:inline lg:whitespace-nowrap">{t('table.deviceStatus')}</span>
+                    <span className="hidden lg:inline lg:whitespace-normal leading-tight">{t('table.deviceStatus')}</span>
                   </div>
                 </th>
-                <th className="md:w-[12%] lg:w-[13%] px-1 md:px-0.5 lg:px-2 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-center whitespace-nowrap">
+                <th className="md:w-[10%] lg:w-[10%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                  <div className="flex items-center justify-center">
                     <Calendar className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" />
-                    <span className="hidden xl:inline lg:whitespace-nowrap">{t('table.registrationDate')}</span>
+                    <span className="hidden lg:inline lg:whitespace-normal leading-tight">{t('table.registrationDate')}</span>
                   </div>
                 </th>
-                <th className="md:w-[6%] lg:w-[6%] px-1 md:px-0.5 lg:px-2 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                <th className="md:w-[13%] lg:w-[8%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
                   <div className="flex items-center justify-center">
                     <Moon className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-3.5 2xl:h-3.5 text-indigo-500" />
-                    <span className="hidden xl:inline lg:whitespace-nowrap">{t('table.sleep')}</span>
+                    <span className="hidden lg:inline lg:whitespace-normal leading-tight">{t('table.sleep')}</span>
                   </div>
                 </th>
-                <th className="md:w-[6%] lg:w-[6%] px-1 md:px-0.5 lg:pr-6 xl:pr-8 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center lg:text-right text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
+                <th className="md:w-[18%] lg:w-[9%] px-1 md:px-0.5 lg:pr-4 xl:pr-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center lg:text-right text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
                   <div className="flex items-center justify-center lg:justify-end">
                     <User className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-3.5 2xl:h-3.5 text-blue-500" />
-                    <span className="hidden xl:inline lg:whitespace-nowrap">{t('table.viewDetails')}</span>
+                    <span className="hidden lg:inline lg:whitespace-normal leading-tight">{t('table.viewDetails')}</span>
                   </div>
                 </th>
               </tr>
@@ -480,9 +562,12 @@ export function PatientOverviewTable({
                       <div className="flex items-center justify-center lg:justify-start w-full gap-0.5 lg:gap-2">
                         <div className={`w-1 h-8 lg:h-8 rounded shrink-0 lg:absolute lg:left-0 ${isSelected ? 'bg-blue-600' : 'bg-transparent'}`}></div>
                         <div className="flex flex-col text-center lg:text-left min-w-0">
-                          <span className="text-gray-900 font-medium text-xs md:text-[10px] lg:text-xs xl:text-xs 2xl:text-sm whitespace-nowrap truncate px-0.5">
-                            {getLocalizedText({ ko: patient.nameKorean, en: patient.nameEnglish }, patient.nameKorean)}
-                          </span>
+                          <div className="flex items-center justify-center lg:justify-start gap-1.5">
+                            {getAlertIcon(patient.alertStatus)}
+                            <span className="text-gray-900 font-medium text-xs md:text-[10px] lg:text-xs xl:text-xs 2xl:text-sm whitespace-nowrap truncate px-0.5">
+                              {getLocalizedText({ ko: patient.nameKorean, en: patient.nameEnglish }, patient.nameKorean)}
+                            </span>
+                          </div>
                           <span className="text-[10px] md:text-[8px] lg:text-[11px] xl:text-[11px] 2xl:text-sm text-gray-500 whitespace-nowrap">{patient.patientCode}</span>
                         </div>
                       </div>
@@ -498,11 +583,10 @@ export function PatientOverviewTable({
                           <Sparkline
                             data={patient.heartRateHistory.oneMin.slice(-10).map((d: any) => d.value)}
                             color={
-                              patient.heartRate < 60 || patient.heartRate > 100
-                                ? '#dc2626'
-                                : patient.heartRate < 65 || patient.heartRate > 95
-                                  ? '#f97316'
-                                  : '#9ca3af'
+                              (() => {
+                                const s = getHeartRateSeverity(patient.heartRate);
+                                return s === 'critical' ? '#dc2626' : s === 'warning' ? '#f97316' : s === 'caution' ? '#eab308' : '#9ca3af';
+                              })()
                             }
                             width={window.innerWidth < 1280 ? 40 : 60}
                             height={20}
@@ -523,11 +607,10 @@ export function PatientOverviewTable({
                           <Sparkline
                             data={patient.breathingRateHistory.oneMin.slice(-10).map((d: any) => d.value)}
                             color={
-                              patient.breathingRate < 12 || patient.breathingRate > 20
-                                ? '#dc2626'
-                                : patient.breathingRate < 14 || patient.breathingRate > 18
-                                  ? '#f97316'
-                                  : '#9ca3af'
+                              (() => {
+                                const s = getBreathingRateSeverity(patient.breathingRate);
+                                return s === 'critical' ? '#dc2626' : s === 'warning' ? '#f97316' : s === 'caution' ? '#eab308' : '#9ca3af';
+                              })()
                             }
                             width={window.innerWidth < 1024 ? 40 : 60}
                             height={20}

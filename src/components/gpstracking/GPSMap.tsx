@@ -6,9 +6,32 @@ import { Crosshair } from 'lucide-react';
 import { DeviceLocation } from '../../types/gps';
 
 // Custom Icons logic
-const createStatusIcon = (status: 'online' | 'offline', isSelected: boolean = false) => {
-    const color = status === 'online' ? '#f97316' : '#6b7280';
-    const shadowColor = status === 'online' ? 'rgba(249, 115, 22, 0.5)' : 'rgba(107, 114, 128, 0.4)';
+const createStatusIcon = (status: 'online' | 'offline', healthStatus: 'normal' | 'caution' | 'warning' | 'critical' = 'normal', isSelected: boolean = false) => {
+    let color = '#6b7280'; // Default gray for offline
+    let shadowColor = 'rgba(107, 114, 128, 0.4)';
+
+    if (status === 'online') {
+        switch (healthStatus) {
+            case 'critical':
+                color = '#dc2626'; // Red
+                shadowColor = 'rgba(220, 38, 38, 0.5)';
+                break;
+            case 'warning':
+                color = '#f97316'; // Orange
+                shadowColor = 'rgba(249, 115, 22, 0.5)';
+                break;
+            case 'caution':
+                color = '#eab308'; // Yellow/Gold
+                shadowColor = 'rgba(234, 179, 8, 0.5)';
+                break;
+            case 'normal':
+            default:
+                color = '#16a34a'; // Green
+                shadowColor = 'rgba(22, 163, 74, 0.4)';
+                break;
+        }
+    }
+
     const baseHtml = `<div style="background-color: ${color}; width: 18px; height: 18px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 8px ${shadowColor}, 0 2px 4px rgba(0,0,0,0.3); position: relative; z-index: 10;"></div>`;
 
     if (isSelected) {
@@ -238,7 +261,7 @@ export function GPSMap({
                     <Marker
                         key={device.deviceId}
                         position={[device.lat, device.lng]}
-                        icon={createStatusIcon(device.status, selectedDeviceId === device.deviceId)}
+                        icon={createStatusIcon(device.status, device.healthStatus, selectedDeviceId === device.deviceId)}
                         ref={(ref) => {
                             if (ref) markerRefs.current[device.deviceId] = ref;
                         }}

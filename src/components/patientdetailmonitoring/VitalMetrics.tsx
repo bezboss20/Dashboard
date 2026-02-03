@@ -54,19 +54,19 @@ function MetricCard({
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between h-full p-1.5 sm:p-4">
             <div className="min-w-0">
                 <div className="flex justify-between items-center gap-1.5 mb-1 sm:mb-2 min-w-0">
-                    <div className={`rounded-lg bg-opacity-10 flex-shrink-0 p-1.5 sm:p-2.5 ${colorClass}`}>
+                    <div className={`rounded-lg bg-opacity-10 shrink-0 p-1.5 sm:p-2.5 ${colorClass}`}>
                         <Icon className={`w-3 h-3 sm:w-4 sm:h-4 ${colorClass.replace('bg-', 'text-')}`} />
                     </div>
 
                     <span
-                        className={`font-bold rounded-full inline-flex items-center justify-center whitespace-nowrap leading-none flex-shrink-0 text-[8px] px-1.5 py-0.5 sm:text-[10px] sm:px-2.5 sm:py-0.5 max-w-[72px] truncate ${getStatusColors(statusKey)}`}
+                        className={`font-bold rounded-full inline-flex items-center justify-center whitespace-nowrap leading-none shrink-0 text-[8px] px-1.5 py-0.5 sm:text-[10px] sm:px-2.5 sm:py-0.5 max-w-[72px] truncate ${getStatusColors(statusKey)}`}
                         title={status}
                     >
                         {status}
                     </span>
                 </div>
 
-                <p className="text-[9px] sm:text-[11px] text-gray-500 font-semibold mb-0.5 sm:mb-1 leading-tight break-words">
+                <p className="text-[9px] sm:text-[11px] text-gray-500 font-semibold mb-0.5 sm:mb-1 leading-tight wrap-break-word">
                     {label}
                 </p>
 

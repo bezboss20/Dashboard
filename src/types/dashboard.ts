@@ -28,6 +28,8 @@ export interface AlertData {
     createdAt?: string;
     status?: 'active' | 'acknowledged' | 'resolved' | 'NEW';
     value?: string;
+    currentValue?: string;
+    thresholdValue?: string;
     acknowledgedAt?: string;
     acknowledgedBy?: string;
     resolvedAt?: string;

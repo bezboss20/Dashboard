@@ -53,7 +53,7 @@ export function useEmergencyAlertWatcher(onNewAlert: (alert: any) => void) {
                             timestamp: alert.createdAt || new Date().toISOString(),
                             status: alert.status || 'NEW',
                             type: alert.type || 'Alert',
-                            value: alert.value || ''
+                            value: alert.currentValue || alert.value || ''
                         };
 
                         onNewAlert(alertData);

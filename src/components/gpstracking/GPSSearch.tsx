@@ -53,7 +53,7 @@ export function GPSSearch({
 
                 {/* Search Dropdown */}
                 {isSearchFocused && filteredResults.length > 0 && (
-                    <div className="absolute top-full left-0 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-[1001] overflow-hidden max-h-[250px] overflow-y-auto">
+                    <div className="absolute top-full left-0 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-1001 overflow-hidden max-h-[250px] overflow-y-auto">
                         {filteredResults.map((result) => (
                             <button
                                 key={result.deviceId}
@@ -63,7 +63,7 @@ export function GPSSearch({
                                     setIsSearchFocused(false);
                                 }}
                             >
-                                <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${result.status === 'online' ? 'bg-orange-500' : 'bg-gray-400'}`} />
+                                <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${result.status === 'online' ? 'bg-orange-500' : 'bg-gray-400'}`} />
                                 <div className="flex-1 min-w-0">
                                     <p className="text-[11px] font-bold text-gray-900 truncate">
                                         {result.patientName || result.deviceId}
@@ -72,13 +72,13 @@ export function GPSSearch({
                                         {result.patientId ? `${result.patientId} • ` : ''}{result.deviceId}
                                     </p>
                                 </div>
-                                <MapPin className="w-3 h-3 text-blue-400 flex-shrink-0" />
+                                <MapPin className="w-3 h-3 text-blue-400 shrink-0" />
                             </button>
                         ))}
                     </div>
                 )}
                 {isSearchFocused && searchQuery && filteredResults.length === 0 && (
-                    <div className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-[1001] p-3 text-center">
+                    <div className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-1001 p-3 text-center">
                         <p className="text-[10px] text-gray-400 font-bold uppercase">{t('common.noResults') || 'No results found'}</p>
                     </div>
                 )}
@@ -87,7 +87,7 @@ export function GPSSearch({
             {/* Clickaway overlay */}
             {isSearchFocused && (
                 <div
-                    className="fixed inset-0 z-[1000] bg-transparent"
+                    className="fixed inset-0 z-1000 bg-transparent"
                     onClick={() => setIsSearchFocused(false)}
                 />
             )}

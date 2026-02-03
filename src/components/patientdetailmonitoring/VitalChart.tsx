@@ -179,7 +179,7 @@ export function VitalChart({
                 </p>
                 {baseline && (
                     <div className="flex items-center gap-1.5">
-                        <div className="w-4 sm:w-6 h-0.5 border-t-2 border-dashed border-slate-400 flex-shrink-0"></div>
+                        <div className="w-4 sm:w-6 h-0.5 border-t-2 border-dashed border-slate-400 shrink-0"></div>
                         <span className="text-[10px] sm:text-[11px] text-gray-500 font-semibold whitespace-nowrap">
                             {t('detail.baseline')}: {baseline} {unit}
                         </span>

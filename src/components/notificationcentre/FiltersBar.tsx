@@ -41,7 +41,7 @@ export function FiltersBar({
                                     language={language}
                                 />
 
-                                <span className="text-gray-400 flex-shrink-0 w-3 text-center">
+                                <span className="text-gray-400 shrink-0 w-3 text-center">
                                     -
                                 </span>
 
@@ -138,7 +138,7 @@ function CalendarInput({ value, onChange, t, language }: { value: string; onChan
                 className="w-full flex items-center justify-between gap-2 px-2 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-all text-xs lg:text-sm max-[374px]:text-[10px]"
             >
                 <span className="truncate">{value || 'Select Date'}</span>
-                <Calendar className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
             </button>
 
             {isOpen && (

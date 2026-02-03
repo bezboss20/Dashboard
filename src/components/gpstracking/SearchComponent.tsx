@@ -53,7 +53,7 @@ export function SearchComponent({
 
             {/* Search Dropdown */}
             {isSearchFocused && filteredResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-[1000] overflow-hidden">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-1000 overflow-hidden">
                     {filteredResults.map((result) => (
                         <button
                             key={result.deviceId}
@@ -75,13 +75,13 @@ export function SearchComponent({
                 </div>
             )}
             {isSearchFocused && searchQuery && filteredResults.length === 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-[1000] p-4 text-center">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-1000 p-4 text-center">
                     <p className="text-xs text-gray-400 font-bold uppercase">검색 결과가 없습니다</p>
                 </div>
             )}
             {isSearchFocused && (
                 <div
-                    className="fixed inset-0 z-[999]"
+                    className="fixed inset-0 z-999"
                     onClick={onSearchBlur}
                 />
             )}

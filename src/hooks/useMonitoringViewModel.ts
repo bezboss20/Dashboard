@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store/store';
 import { fetchPatientsAsync, Patient, MappedPatient, PatientStatus } from '../store/slices/monitoringSlice';
 import { useLanguage } from '../context/LanguageContext';
+import { getHeartRateSeverity, getBreathingRateSeverity } from '../utils/dashboardUtils';
 
 const mapPatientToDisplay = (patient: Patient): MappedPatient => {
     // API returns fullNameData, not fullName
@@ -42,7 +43,20 @@ const mapPatientToDisplay = (patient: Patient): MappedPatient => {
         lastUpdated: new Date().toISOString(),
         patientStatus: patient.status,
         sensorConnected: (patient as any).sensorConnected !== undefined ? (patient as any).sensorConnected : ((patient as any).devices?.[0]?.status === 'ONLINE' || patient.deviceStatus?.isConnected || false),
-        alertStatus: ((patient as any).alertStatus || patient.currentVitals?.heartRate?.status?.toLowerCase() || 'normal') as 'normal' | 'caution' | 'warning' | 'critical',
+        alertStatus: (() => {
+            const hrSev = getHeartRateSeverity(heartRateValue);
+            const brSev = getBreathingRateSeverity(breathingRateValue);
+            const severityOrder: Record<string, number> = { 'critical': 3, 'warning': 2, 'caution': 1, 'normal': 0 };
+
+            // Start with current status from API (if any)
+            let finalStatus = (((patient as any).alertStatus?.toLowerCase() || 'normal') as 'normal' | 'caution' | 'warning' | 'critical');
+
+            // Elevate if vitals are worse
+            if (severityOrder[hrSev] > severityOrder[finalStatus]) finalStatus = hrSev;
+            if (severityOrder[brSev] > severityOrder[finalStatus]) finalStatus = brSev;
+
+            return finalStatus;
+        })(),
         stressIndex: (patient as any).stressIndex || 0,
         sleepScore: (patient as any).sleepScore || (patient as any).latestSleepRecord?.score || patient.sleepRecord?.score || 0,
         radarDetection: true,
