@@ -60,6 +60,7 @@ const dictionary: DictionaryEntry[] = [
   { key: 'header.systemOffline', ko: '오프라인', en: 'Offline', ja: 'オフライン', ch: '离线', es: 'Desconectado', },
   { key: 'header.exportReport', ko: '보고서 내보내기', en: 'Export Report', ja: 'レポート出力', ch: '导出报告', es: 'Exportar Informe', },
   { key: 'header.liveMonitor', ko: '라이브 모니터', en: 'Live Monitor', ja: 'ライブモニター', ch: '实时监控', es: 'Monitor en Vivo', },
+  { key: 'header.realtime', ko: '실시간', en: 'Real-time', ja: 'リアルタイム', ch: '实时', es: 'Tiempo real', },
   // ---------------------------------------------------------------------------
   // Alerts
   // ---------------------------------------------------------------------------

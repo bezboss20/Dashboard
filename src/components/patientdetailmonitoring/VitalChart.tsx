@@ -28,6 +28,8 @@ interface VitalChartProps {
     color: string;
     unit: string;
     gradientId: string;
+    isUpdating?: boolean;
+    isManualSelection?: boolean;
 }
 
 function CustomTooltip({ active, payload, label, baseline, unit, t }: {
@@ -59,10 +61,12 @@ function CustomTooltip({ active, payload, label, baseline, unit, t }: {
 function TimeRangeSelector({
     current,
     onChange,
+    isManualSelection,
     t
 }: {
     current: TimeRange;
     onChange: (range: TimeRange) => void;
+    isManualSelection?: boolean;
     t: (key: string) => string;
 }) {
     const ranges: TimeRange[] = ['5분', '15분', '30분', '1시간', '6시간', '24시간'];
@@ -86,7 +90,7 @@ function TimeRangeSelector({
                     <button
                         key={range}
                         onClick={() => onChange(range)}
-                        className={`px-2 py-1 text-[10px] font-bold rounded-full transition-all duration-200 ${current === range ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                        className={`px-2 py-1 text-[10px] font-bold rounded-full transition-all duration-200 ${isManualSelection && current === range ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
                             }`}
                     >
                         {getRangeLabel(range)}
@@ -107,6 +111,8 @@ export function VitalChart({
     color,
     unit,
     gradientId,
+    isUpdating,
+    isManualSelection,
     t
 }: VitalChartProps & { t: (key: string) => string }) {
     const localizedRange = currentRange.includes('분')
@@ -114,14 +120,19 @@ export function VitalChart({
         : `${currentRange.replace('시간', '')}${t('time.hour')}`;
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-6 overflow-hidden">
+        <div className={`bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-6 overflow-hidden transition-opacity duration-300 ${isUpdating ? 'opacity-60' : 'opacity-100'}`}>
             <div className="mb-2.5 sm:mb-6">
                 <div className="flex gap-2 flex-col sm:flex-row sm:items-center sm:justify-between">
-                    <h3 className="text-[15px] sm:text-[17px] font-bold text-gray-900 leading-tight break-keep">
+                    <h3 className={`text-[15px] sm:text-[17px] font-bold text-gray-900 leading-tight break-keep ${isUpdating ? 'animate-pulse' : ''}`}>
                         {title}
                     </h3>
                     <div className="w-full sm:w-auto">
-                        <TimeRangeSelector current={currentRange} onChange={onRangeChange} t={t} />
+                        <TimeRangeSelector
+                            current={currentRange}
+                            onChange={onRangeChange}
+                            isManualSelection={isManualSelection}
+                            t={t}
+                        />
                     </div>
                 </div>
             </div>
@@ -175,7 +186,7 @@ export function VitalChart({
 
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:gap-4">
                 <p className="text-[11px] sm:text-[12px] text-gray-400 font-bold whitespace-nowrap">
-                    {t('detail.recent')} {localizedRange}
+                    {isManualSelection ? `${t('detail.recent')} ${localizedRange}` : t('header.realtime')}
                 </p>
                 {baseline && (
                     <div className="flex items-center gap-1.5">

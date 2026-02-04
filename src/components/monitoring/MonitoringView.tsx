@@ -23,6 +23,7 @@ export function MonitoringView({ model, onViewPatientDetails, onViewSleepPage }:
         selectedDate,
         setSelectedDate,
         refresh,
+        lastUpdated,
         t
     } = model;
 
@@ -77,6 +78,7 @@ export function MonitoringView({ model, onViewPatientDetails, onViewSleepPage }:
             {displayPatients.length > 0 && (
                 <PatientOverviewTable
                     patients={displayPatients}
+                    globalLastUpdated={lastUpdated || undefined}
                     selectedPatientId={selectedPatientId}
                     onSelectPatient={setSelectedPatientId}
                     onViewPatientDetails={onViewPatientDetails}

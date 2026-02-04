@@ -67,5 +67,7 @@ export interface OverviewResponse {
             heartRate: VitalData[];
             respiratoryRate: VitalData[];
         };
+        updated_at?: string;
     };
+    serverTime?: string | null;
 }

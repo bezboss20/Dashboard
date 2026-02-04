@@ -27,6 +27,7 @@ import { getHeartRateSeverity, getBreathingRateSeverity } from '../../utils/dash
 
 interface PatientOverviewTableProps {
   patients: MappedPatient[];
+  globalLastUpdated?: string | Date;
   selectedPatientId: string;
   onSelectPatient: (patientId: string) => void;
   onViewPatientDetails?: (patientId: string) => void;
@@ -36,6 +37,7 @@ interface PatientOverviewTableProps {
 
 export function PatientOverviewTable({
   patients,
+  globalLastUpdated,
   selectedPatientId,
   onSelectPatient,
   onViewPatientDetails,
@@ -46,6 +48,8 @@ export function PatientOverviewTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [showInfo, setShowInfo] = useState(false);
   const itemsPerPage = 10;
+
+  const syncTime = globalLastUpdated ? new Date(globalLastUpdated) : null;
 
   // Filter patients based on search query
   const filteredPatients = patients.filter(
@@ -205,7 +209,8 @@ export function PatientOverviewTable({
   };
 
   const formatTimeAgo = (date: Date) => {
-    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+    const referenceTime = new Date(); // Strictly use current real time as reference
+    const seconds = Math.floor((referenceTime.getTime() - date.getTime()) / 1000);
     if (seconds < 10) return t('time.justNow');
     if (seconds < 60) return `${seconds}${t('time.secondsAgo')}`;
     const minutes = Math.floor(seconds / 60);
@@ -361,8 +366,10 @@ export function PatientOverviewTable({
             const DeviceIcon = deviceStatus.icon;
             const StatusIcon = patientStatus.icon;
 
-            const lastUpdatedDate = new Date(patient.lastUpdated);
-            const isStale = Date.now() - lastUpdatedDate.getTime() > 5 * 60 * 1000;
+            const lastUpdatedDate = (patient.lastUpdated && new Date(patient.lastUpdated).getTime() > 0)
+              ? new Date(patient.lastUpdated)
+              : (syncTime || new Date());
+            const isStale = (Date.now() - lastUpdatedDate.getTime() > 5 * 60 * 1000);
             const timeAgo = formatTimeAgo(lastUpdatedDate);
 
             return (
@@ -376,7 +383,7 @@ export function PatientOverviewTable({
                 <div className="px-4 py-3 bg-gray-50 border-b flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="relative">
+                      <div className="relative shrink-0">
                         <StatusIcon className={`w-5 h-5 sm:w-6 sm:h-6 ${patientStatus.color.replace('bg-', 'text-')}`} />
                         {isStale && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white" />}
                       </div>
@@ -411,7 +418,7 @@ export function PatientOverviewTable({
                 {/* Body rows */}
                 <div className="px-4 py-3 space-y-2">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400">
+                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400 shrink-0">
                       <Heart className="w-4 h-4 text-red-500" />
                       <span>{t('table.heartRate')}</span>
                     </div>
@@ -436,7 +443,7 @@ export function PatientOverviewTable({
                   </div>
 
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400">
+                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400 shrink-0">
                       <Wind className="w-4 h-4 text-blue-500" />
                       <span>{t('table.breathingRate')}</span>
                     </div>
@@ -461,7 +468,7 @@ export function PatientOverviewTable({
                   </div>
 
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400">
+                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400 shrink-0">
                       <Moon className="w-4 h-4 text-indigo-500" />
                       <span>{t('table.sleepState')}</span>
                     </div>
@@ -471,7 +478,7 @@ export function PatientOverviewTable({
                   </div>
 
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400">
+                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400 shrink-0">
                       <DeviceIcon className={`w-4 h-4 ${deviceStatus.iconColor}`} />
                       <span>{t('table.deviceStatus')}</span>
                     </div>
@@ -481,7 +488,7 @@ export function PatientOverviewTable({
                   </div>
 
                   <div className="flex items-center justify-between gap-3 max-[374px]:gap-1">
-                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400">
+                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400 shrink-0">
                       <Calendar className="w-4 h-4 text-gray-400" />
                       <span className="max-[374px]:hidden">{t('table.registrationDate')}</span>
                       <span className="hidden max-[374px]:hidden">{t('notifications.table.date')}</span>
@@ -536,7 +543,7 @@ export function PatientOverviewTable({
                   <span className="md:text-[9px] lg:text-[10px] whitespace-nowrap">{t('table.patientId')}</span>
                 </th>
                 <th className="md:w-[9%] lg:w-[10%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-left lg:text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-start lg:justify-center gap-0.5 lg:gap-1 xl:gap-1 2xl:gap-2">
+                  <div className="flex items-center justify-start lg:justify-center gap-0.5 lg:gap-1 xl:gap-1 2xl:gap-2 shrink-0">
                     <Heart className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4 text-red-500" />
                     <span className="inline xl:text-xs whitespace-nowrap">
                       {t('table.heartRate')}
@@ -544,7 +551,7 @@ export function PatientOverviewTable({
                   </div>
                 </th>
                 <th className="md:w-[10%] lg:w-[11%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-left lg:text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-start lg:justify-center gap-0.5 lg:gap-1 xl:gap-1 2xl:gap-2">
+                  <div className="flex items-center justify-start lg:justify-center gap-0.5 lg:gap-1 xl:gap-1 2xl:gap-2 shrink-0">
                     <Wind className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4 text-blue-500" />
                     <span className="inline xl:text-xs whitespace-nowrap">
                       {t('table.breathingRate')}
@@ -552,37 +559,37 @@ export function PatientOverviewTable({
                   </div>
                 </th>
                 <th className="hidden sm:table-cell md:w-[10%] lg:w-[13%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-center">
+                  <div className="flex items-center justify-center shrink-0">
                     <Moon className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" />
                     <span className="hidden lg:inline lg:whitespace-normal leading-tight">{t('table.sleepState')}</span>
                   </div>
                 </th>
                 <th className="md:w-[9%] lg:w-[14%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-center">
+                  <div className="flex items-center justify-center shrink-0">
                     <UserCheck className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" />
                     <span className="hidden lg:inline lg:whitespace-normal leading-tight">{t('patientStatus.label')}</span>
                   </div>
                 </th>
                 <th className="md:w-[9%] lg:w-[14%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-center">
+                  <div className="flex items-center justify-center shrink-0">
                     <Wifi className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" />
                     <span className="hidden lg:inline lg:whitespace-normal leading-tight">{t('table.deviceStatus')}</span>
                   </div>
                 </th>
                 <th className="md:w-[10%] lg:w-[10%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-center">
+                  <div className="flex items-center justify-center shrink-0">
                     <Calendar className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-4 2xl:h-4" />
                     <span className="hidden lg:inline lg:whitespace-normal leading-tight">{t('table.registrationDate')}</span>
                   </div>
                 </th>
                 <th className="md:w-[13%] lg:w-[8%] px-1 md:px-0.5 lg:px-1 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-center">
+                  <div className="flex items-center justify-center shrink-0">
                     <Moon className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-3.5 2xl:h-3.5 text-indigo-500" />
                     <span className="hidden lg:inline lg:whitespace-normal leading-tight">{t('table.sleep')}</span>
                   </div>
                 </th>
                 <th className="md:w-[18%] lg:w-[9%] px-1 md:px-0.5 lg:pr-4 xl:pr-6 py-3 lg:py-2.5 xl:py-2.5 2xl:py-3 text-center lg:text-right text-[10px] lg:text-[9px] xl:text-[10px] 2xl:text-xs uppercase tracking-wider text-gray-600">
-                  <div className="flex items-center justify-center lg:justify-end">
+                  <div className="flex items-center justify-center lg:justify-end shrink-0">
                     <User className="w-3.5 h-3.5 lg:w-3 lg:h-3 xl:w-3 xl:h-3 2xl:w-3.5 2xl:h-3.5 text-blue-500" />
                     <span className="hidden lg:inline lg:whitespace-normal leading-tight">{t('table.viewDetails')}</span>
                   </div>
@@ -598,8 +605,10 @@ export function PatientOverviewTable({
                 const DeviceIcon = deviceStatus.icon;
                 const StatusIcon = patientStatus.icon;
 
-                const lastUpdatedDate = new Date(patient.lastUpdated);
-                const isStale = Date.now() - lastUpdatedDate.getTime() > 5 * 60 * 1000;
+                const lastUpdatedDate = (patient.lastUpdated && new Date(patient.lastUpdated).getTime() > 0)
+                  ? new Date(patient.lastUpdated)
+                  : (syncTime || new Date());
+                const isStale = (Date.now() - lastUpdatedDate.getTime() > 5 * 60 * 1000);
                 const timeAgo = formatTimeAgo(lastUpdatedDate);
 
                 return (
@@ -619,7 +628,7 @@ export function PatientOverviewTable({
                             </span>
                             {isStale && (
                               <span
-                                className="text-[7px] lg:text-[8px] bg-red-100 text-red-600 px-1 rounded font-black uppercase tracking-tighter cursor-help"
+                                className="text-[6px] lg:text-[7px] bg-red-100 text-red-600 px-1 rounded font-black uppercase tracking-tighter cursor-help"
                                 title={t('dashboard.usingCachedData')}
                               >
                                 DELAY
@@ -627,8 +636,14 @@ export function PatientOverviewTable({
                             )}
                           </div>
                           <div className="flex items-center justify-center lg:justify-start gap-2">
-                            <span className="text-[10px] md:text-[8px] lg:text-[11px] xl:text-[11px] 2xl:text-sm text-gray-500 whitespace-nowrap">{patient.patientCode}</span>
-                            <span className="text-[9px] md:text-[7px] lg:text-[9px] text-gray-400 font-medium">{timeAgo}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] md:text-[8px] lg:text-[11px] text-gray-400 font-bold whitespace-nowrap">
+                                {patient.patientCode || 'N/A'}
+                              </span>
+                              <span className="text-[6px] lg:text-[7px] text-gray-400 font-bold uppercase tracking-tight">
+                                {formatTimeAgo(lastUpdatedDate)}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -636,7 +651,7 @@ export function PatientOverviewTable({
 
                     <td className="px-3 md:px-1 lg:px-1.5 xl:px-3 2xl:px-6 py-4 lg:py-3 xl:py-3 2xl:py-4 text-left lg:text-center">
                       <div className="flex items-center justify-start lg:justify-center w-full gap-1 lg:gap-1 xl:gap-1.5 2xl:gap-2">
-                        <div className="flex items-center gap-1 lg:gap-1 xl:gap-1 2xl:gap-2">
+                        <div className="flex items-center gap-1 lg:gap-1 xl:gap-1 2xl:gap-2 shrink-0">
                           <Heart className="w-4 h-4 lg:w-3 lg:h-3 xl:w-3.5 xl:h-3.5 2xl:w-4 2xl:h-4 text-red-500" />
                           <span className={`whitespace-nowrap ${getHeartRateColor(patient.heartRate)} font-medium text-sm lg:text-xs xl:text-xs 2xl:text-sm`}>{patient.heartRate}</span>
                         </div>
@@ -658,7 +673,7 @@ export function PatientOverviewTable({
 
                     <td className="px-3 md:px-1 lg:px-1.5 xl:px-3 2xl:px-6 py-4 lg:py-3 xl:py-3 2xl:py-4 text-left lg:text-center">
                       <div className="flex items-center justify-start lg:justify-center w-full gap-1 lg:gap-1 xl:gap-1.5 2xl:gap-2">
-                        <div className="flex items-center gap-1 lg:gap-1 xl:gap-1 2xl:gap-2">
+                        <div className="flex items-center gap-1 lg:gap-1 xl:gap-1 2xl:gap-2 shrink-0">
                           <Wind className="w-4 h-4 lg:w-3 lg:h-3 xl:w-3.5 xl:h-3.5 2xl:w-4 2xl:h-4 text-blue-500" />
                           <span className={`whitespace-nowrap ${getBreathingRateColor(patient.breathingRate)} font-medium text-sm lg:text-xs xl:text-xs 2xl:text-sm`}>
                             {patient.breathingRate}
@@ -685,14 +700,14 @@ export function PatientOverviewTable({
                     </td>
 
                     <td className="px-1 md:px-0.5 lg:px-2.5 xl:px-3 2xl:px-6 py-4 lg:py-3 xl:py-3 2xl:py-4 text-center">
-                      <div className={`flex items-center md:justify-center lg:justify-center px-3 md:px-0 py-1 md:py-0 rounded-full md:bg-transparent ${patientStatus.bg}`}>
+                      <div className={`flex items-center md:justify-center lg:justify-center px-3 md:px-0 py-1 md:py-0 rounded-full md:bg-transparent ${patientStatus.bg} shrink-0`}>
                         <StatusIcon className={`w-4 h-4 md:w-5 md:h-5 ${patientStatus.color}`} />
                         <span className={`text-sm hidden xl:inline xl:text-[11px] 2xl:text-sm ${patientStatus.color}`}>{patientStatus.text}</span>
                       </div>
                     </td>
 
                     <td className="px-1 md:px-0.5 lg:px-2.5 xl:px-3 2xl:px-6 py-4 lg:py-3 xl:py-3 2xl:py-4 text-center">
-                      <div className={`flex items-center md:justify-center lg:justify-center px-3 md:px-0 py-1 md:py-0 rounded-full md:bg-transparent ${deviceStatus.bg}`}>
+                      <div className={`flex items-center md:justify-center lg:justify-center px-3 md:px-0 py-1 md:py-0 rounded-full md:bg-transparent ${deviceStatus.bg} shrink-0`}>
                         <DeviceIcon className={`w-4 h-4 md:w-5 md:h-5 ${deviceStatus.iconColor}`} />
                         <span className={`text-sm hidden xl:inline xl:text-[11px] 2xl:text-sm ${deviceStatus.color}`}>{deviceStatus.text}</span>
                       </div>

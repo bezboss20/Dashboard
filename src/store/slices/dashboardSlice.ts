@@ -88,7 +88,7 @@ const dashboardSlice = createSlice({
                 state.summary = action.payload.summary;
                 state.alerts = action.payload.alerts;
                 state.vitals = action.payload.vitals;
-                state.lastUpdated = new Date().toISOString();
+                state.lastUpdated = action.payload.serverTime || state.lastUpdated || new Date().toISOString();
             })
             .addCase(fetchOverviewAsync.rejected, (state, action) => {
                 state.loading = false;

@@ -87,11 +87,13 @@ function MetricCard({
 export function VitalMetrics({ vitals, deviceId, lastUpdated, t }: VitalMetricsProps) {
     const formatTime = (isoString?: string) => {
         if (!isoString) return '';
-        try {
-            return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        } catch {
-            return '';
+        const d = new Date(isoString);
+        if (isNaN(d.getTime())) {
+            return t(isoString);
         }
+        const diffMinutes = Math.floor((Date.now() - d.getTime()) / 60000);
+        if (diffMinutes < 1) return t('time.justNow');
+        return `${diffMinutes}${t('time.minutesAgo')}`;
     };
 
     return (
@@ -99,7 +101,7 @@ export function VitalMetrics({ vitals, deviceId, lastUpdated, t }: VitalMetricsP
             <div className="flex items-center justify-between px-1">
                 <h3 className="text-sm font-bold text-gray-700">{t('table.overview')}</h3>
                 {lastUpdated && (
-                    <span className="text-[10px] text-gray-400 font-medium bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
+                    <span className="text-[8px] sm:text-[9px] text-gray-400 font-bold bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100 uppercase tracking-tight">
                         {t('table.lastUpdated')}: {formatTime(lastUpdated)}
                     </span>
                 )}

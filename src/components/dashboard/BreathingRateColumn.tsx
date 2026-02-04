@@ -9,10 +9,12 @@ interface Patient {
     heartRate: number;
     breathingRate: number;
     alertStatus: 'normal' | 'caution' | 'warning' | 'critical';
+    lastUpdated?: string | Date;
 }
 
 interface BreathingRateColumnProps {
     patients: Patient[];
+    globalLastUpdated?: string | Date;
     language: string;
     t: (key: string) => string;
     onViewPatientDetails: (patientId: string) => void;
@@ -21,11 +23,15 @@ interface BreathingRateColumnProps {
 
 export function BreathingRateColumn({
     patients,
+    globalLastUpdated,
     language,
     t,
     onViewPatientDetails,
     getBreathingRateSeverity
 }: BreathingRateColumnProps) {
+    const syncTime = globalLastUpdated ? new Date(globalLastUpdated) : new Date();
+
+
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 lg:p-6 flex flex-col">
             <div className="flex items-center gap-2 lg:gap-3 mb-4">
@@ -39,6 +45,11 @@ export function BreathingRateColumn({
             </div>
             <div className="space-y-1.5 lg:space-y-2 overflow-y-auto" style={{ maxHeight: '500px' }}>
                 {patients.map((patient) => {
+                    const lastUpdatedDate = (patient.lastUpdated && new Date(patient.lastUpdated).getTime() > 0)
+                        ? new Date(patient.lastUpdated)
+                        : syncTime;
+                    const isStale = (Date.now() - lastUpdatedDate.getTime() > 5 * 60 * 1000);
+
                     const severity = getBreathingRateSeverity(patient.breathingRate);
                     const bgColor = severity === 'critical' ? 'bg-red-50 border-red-200' :
                         severity === 'warning' ? 'bg-orange-50 border-orange-200' :
@@ -54,13 +65,36 @@ export function BreathingRateColumn({
                                 'bg-green-100 text-green-700 font-bold';
 
                     return (
-                        <div key={patient.id} className={`p-2 lg:p-3 rounded-xl border ${bgColor} cursor-pointer hover:shadow-sm transition-shadow`} onClick={() => onViewPatientDetails(patient.patientId || patient.id)}>
+                        <div
+                            key={patient.id}
+                            className={`p-2 lg:p-3 rounded-xl border ${bgColor} cursor-pointer hover:shadow-sm transition-shadow ${isStale ? 'opacity-70' : ''}`}
+                            onClick={() => onViewPatientDetails(patient.patientId || patient.id)}
+                        >
                             <div className="flex items-center justify-between gap-1.5 min-w-0">
-                                <div className="flex items-center gap-1.5 min-w-0">
-                                    <div className={`px-1 py-0.5 rounded text-[8px] min-[380px]:text-[9px] font-mono ${badgeColor} shrink-0`}>
-                                        {patient.patientCode || 'N/A'}
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <div className="flex flex-col min-w-0">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-xs lg:text-sm font-bold text-gray-700 truncate">{patient.name}</span>
+                                            {isStale && (
+                                                <span
+                                                    className="text-[6px] bg-red-100 text-red-600 px-1 rounded font-black uppercase tracking-tighter"
+                                                    title={t('dashboard.usingCachedData')}
+                                                >
+                                                    DELAY
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-[10px] md:text-[8px] lg:text-[11px] text-gray-400 font-bold whitespace-nowrap">
+                                                {patient.patientCode || 'N/A'}
+                                            </span>
+                                            <span className="text-[6px] lg:text-[7px] text-gray-400 font-bold uppercase tracking-tight">
+                                                {Math.floor((Date.now() - lastUpdatedDate.getTime()) / 60000) === 0
+                                                    ? t('time.justNow')
+                                                    : `${Math.floor((Date.now() - lastUpdatedDate.getTime()) / 60000)}${t('time.minutesAgo')}`}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <span className="text-xs lg:text-sm font-bold text-gray-700 truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible shrink-0">{patient.name}</span>
                                 </div>
                                 <div className="flex items-baseline gap-1 shrink-0">
                                     <span className={`text-base lg:text-lg font-black ${textColor}`}>{patient.breathingRate}</span>

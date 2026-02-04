@@ -84,6 +84,8 @@ export function useDashboardData() {
         const hrVitals = vitals?.heartRate || [];
         const rrVitals = vitals?.respiratoryRate || [];
 
+        let maxVitalTimestamp: Date | null = null;
+
         const processVital = (vital: any, type: 'hr' | 'rr') => {
             if (!vital) return;
             const pId = getBestPatientId(vital);
@@ -102,18 +104,32 @@ export function useDashboardData() {
                 name: getLocalizedText(isNameObject ? nameData : { ko: nameKo, en: nameEn }, nameKo || vital.patientCode || ''),
                 heartRate: 0,
                 breathingRate: 0,
-                alertStatus: 'normal'
+                hrLastUpdated: null as Date | null,
+                rrLastUpdated: null as Date | null,
+                alertStatus: 'normal' as 'normal' | 'caution' | 'warning' | 'critical',
             };
 
-            if (type === 'hr') existing.heartRate = vital.value || 0;
-            if (type === 'rr') existing.breathingRate = vital.value || 0;
+            const vitalTimestamp = vital.timestamp || vital.createdAt || vital.updatedAt || vitalsObj.updated_at || (type === 'hr' ? vitalsObj.latestHeartRate?.timestamp : vitalsObj.latestRespiratoryRate?.timestamp);
+            const currentVitalDate = vitalTimestamp ? new Date(vitalTimestamp) : null;
+
+            if (currentVitalDate && (!maxVitalTimestamp || currentVitalDate > maxVitalTimestamp)) {
+                maxVitalTimestamp = currentVitalDate;
+            }
+
+            if (type === 'hr') {
+                existing.heartRate = vital.value || 0;
+                if (currentVitalDate) existing.hrLastUpdated = currentVitalDate;
+            } else if (type === 'rr') {
+                existing.breathingRate = vital.value || 0;
+                if (currentVitalDate) existing.rrLastUpdated = currentVitalDate;
+            }
 
             // Re-calculate alertStatus based on updated vitals
             const hrSev = getHeartRateSeverity(existing.heartRate);
             const rrSev = getBreathingRateSeverity(existing.breathingRate);
-            const severityOrder = { 'critical': 3, 'warning': 2, 'caution': 1, 'normal': 0 };
+            const severityOrder: Record<string, number> = { 'critical': 3, 'warning': 2, 'caution': 1, 'normal': 0 };
 
-            let currentSev = existing.alertStatus as 'critical' | 'warning' | 'caution' | 'normal';
+            let currentSev = existing.alertStatus;
             if (severityOrder[hrSev] > severityOrder[currentSev]) currentSev = hrSev;
             if (severityOrder[rrSev] > severityOrder[currentSev]) currentSev = rrSev;
             existing.alertStatus = currentSev;
@@ -124,12 +140,16 @@ export function useDashboardData() {
         hrVitals.forEach(hr => processVital(hr, 'hr'));
         rrVitals.forEach(rr => processVital(rr, 'rr'));
 
-        return Array.from(patientMap.values());
+        return { patients: Array.from(patientMap.values()), latestBatchTime: maxVitalTimestamp as Date | null };
     };
 
-    const allPatientsFromVitals = createPatientsFromVitals();
-    const patientsFromHeartRate = allPatientsFromVitals.filter((p: any) => (p.heartRate || 0) > 0);
-    const patientsFromBreathingRate = allPatientsFromVitals.filter((p: any) => (p.breathingRate || 0) > 0);
+    const { patients: allPatientsFromVitals, latestBatchTime } = createPatientsFromVitals();
+    const patientsFromHeartRate = allPatientsFromVitals
+        .filter((p: any) => (p.heartRate || 0) > 0)
+        .map((p: any) => ({ ...p, lastUpdated: p.hrLastUpdated || latestBatchTime || lastUpdated }));
+    const patientsFromBreathingRate = allPatientsFromVitals
+        .filter((p: any) => (p.breathingRate || 0) > 0)
+        .map((p: any) => ({ ...p, lastUpdated: p.rrLastUpdated || latestBatchTime || lastUpdated }));
 
     const getHeartRateUrgency = (hr: number) => (hr > 90 ? hr - 90 : hr < 60 ? 60 - hr : 0);
     const getBreathingRateUrgency = (br: number) => (br > 20 ? br - 20 : br < 12 ? 12 - br : 0);
@@ -178,7 +198,7 @@ export function useDashboardData() {
         patientsByBreathingRate,
         handleAcknowledgeAlert,
         handleResolveAlert,
-        lastUpdated,
+        lastUpdated: latestBatchTime?.toISOString() || lastUpdated,
         refetch: () => dispatch(fetchOverviewAsync())
     };
 }

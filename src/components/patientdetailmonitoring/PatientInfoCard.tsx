@@ -103,6 +103,17 @@ export function PatientInfoCard({ data, language, t, onStatusChange }: PatientIn
         }
     };
 
+    const formatTime = (isoString?: string) => {
+        if (!isoString) return '';
+        const d = new Date(isoString);
+        if (isNaN(d.getTime())) {
+            return t(isoString);
+        }
+        const diffMinutes = Math.floor((Date.now() - d.getTime()) / 60000);
+        if (diffMinutes < 1) return t('time.justNow');
+        return `${diffMinutes}${t('time.minutesAgo')}`;
+    };
+
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2 sm:p-6">
             <div className="mb-1.5 sm:mb-6">
@@ -114,8 +125,8 @@ export function PatientInfoCard({ data, language, t, onStatusChange }: PatientIn
             </div>
 
             <div className="text-center mb-3 sm:mb-8">
-                <p className="text-[9px] sm:text-[10px] text-gray-400 mb-2 sm:mb-4 leading-snug">
-                    {t('alerts.patient')} ID: {data.patientCode} | {t('table.lastUpdated')}: {t(data.lastUpdated)}
+                <p className="text-[9px] sm:text-[10px] text-gray-400 mb-2 sm:mb-4 leading-snug font-bold uppercase tracking-tight">
+                    {t('alerts.patient')} ID: {data.patientCode} | {t('table.lastUpdated')}: {formatTime(data.lastUpdated)}
                 </p>
 
                 <div className="w-[64px] h-[64px] sm:w-[100px] sm:h-[100px] bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4 border border-teal-100 shadow-sm">

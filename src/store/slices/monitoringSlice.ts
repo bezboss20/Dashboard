@@ -69,6 +69,7 @@ export interface PatientsResponse {
         patients: Patient[];
         total: number;
     };
+    updated_at?: string;
 }
 
 interface MonitoringState {
@@ -99,10 +100,10 @@ export const fetchPatientsAsync = createAsyncThunk(
     } = {}, { rejectWithValue }) => {
         try {
             // console.log('Monitoring API - Calling with params:', params);
-            const { patients, total } = await fetchPatients(params);
+            const { patients, total, serverTime } = await fetchPatients(params);
 
             // console.log('Monitoring API - Returned:', { patientsCount: patients.length, total });
-            return { patients, total };
+            return { patients, total, serverTime };
         } catch (error) {
             console.error('Monitoring API - Error caught:', error);
             return rejectWithValue(error instanceof Error ? error.message : 'An unexpected error occurred');
@@ -138,7 +139,7 @@ const monitoringSlice = createSlice({
                 state.loading = false;
                 state.patients = action.payload.patients;
                 state.total = action.payload.total;
-                state.lastUpdated = new Date().toISOString();
+                state.lastUpdated = action.payload.serverTime || state.lastUpdated || new Date().toISOString();
             })
             .addCase(fetchPatientsAsync.rejected, (state, action) => {
                 state.loading = false;

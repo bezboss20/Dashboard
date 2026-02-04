@@ -87,6 +87,7 @@ export function DashboardView({ data, onViewPatientDetails }: DashboardViewProps
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                 <HeartRateColumn
                     patients={patientsByHeartRate as any}
+                    globalLastUpdated={lastUpdated || undefined}
                     language={language}
                     t={t}
                     onViewPatientDetails={onViewPatientDetails}
@@ -95,6 +96,7 @@ export function DashboardView({ data, onViewPatientDetails }: DashboardViewProps
 
                 <BreathingRateColumn
                     patients={patientsByBreathingRate as any}
+                    globalLastUpdated={lastUpdated || undefined}
                     language={language}
                     t={t}
                     onViewPatientDetails={onViewPatientDetails}

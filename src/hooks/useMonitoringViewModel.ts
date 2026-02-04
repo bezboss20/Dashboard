@@ -118,7 +118,7 @@ export function useMonitoringViewModel() {
     const dispatch = useDispatch<AppDispatch>();
 
     // Get data from Redux store
-    const { patients: apiPatients, loading, error } = useSelector((state: RootState) => state.monitoring);
+    const { patients: apiPatients, loading, error, lastUpdated } = useSelector((state: RootState) => state.monitoring);
 
     const [selectedPatientId, setSelectedPatientId] = useState<string>('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -180,25 +180,26 @@ export function useMonitoringViewModel() {
     }, [dispatch, statusFilter, debouncedSearchQuery, selectedDate]);
 
     // Map API patients to display format once
-    const allMappedPatients = useMemo(() => {
-        if (!Array.isArray(apiPatients)) return [];
-        const batchTime = new Date().toISOString(); // Capture 'now' once per mapping batch
-        return apiPatients.map(patient => ({
-            ...mapPatientToDisplay(patient),
-            // Ensure patients without specific vital timestamps share the batch refresh time
-            // instead of individual milliseconds or registration dates
-            lastUpdated: (patient as any).lastUpdated ||
-                (patient as any).updatedAt ||
-                (patient as any).latestHeartRate?.timestamp ||
-                batchTime
-        }));
-    }, [apiPatients]);
+    const { allMappedPatients, calculatedLastUpdated } = useMemo(() => {
+        if (!Array.isArray(apiPatients)) return { allMappedPatients: [], calculatedLastUpdated: lastUpdated };
+
+        let maxTime: Date | null = null;
+        const mapped = apiPatients.map(patient => {
+            const mappedPatient = mapPatientToDisplay(patient);
+            const ts = mappedPatient.lastUpdated ? new Date(mappedPatient.lastUpdated) : null;
+            if (ts && (!maxTime || ts > maxTime)) {
+                maxTime = ts;
+            }
+            return mappedPatient;
+        });
+
+        return {
+            allMappedPatients: mapped,
+            calculatedLastUpdated: (maxTime ? (maxTime as Date).toISOString() : lastUpdated) as string | null
+        };
+    }, [apiPatients, lastUpdated]);
 
     // Apply filters locally (Single Source of Truth)
-    // FIX: Re-enable local STATUS filtering only.
-    // The API seems to return broad data or default data (e.g. Discharged) even when 'TRANSFERRED' is requested.
-    // To ensure the UI matches the selected tab, we must enforce the status filter locally.
-    // We do NOT filter by search/date locally to avoid the typing glitch (race condition).
     const displayPatients = useMemo(() => {
         let filtered = allMappedPatients;
 
@@ -234,6 +235,7 @@ export function useMonitoringViewModel() {
         selectedDate,
         setSelectedDate,
         refresh,
+        lastUpdated: calculatedLastUpdated,
         t
     };
 }

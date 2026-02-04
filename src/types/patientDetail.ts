@@ -53,6 +53,8 @@ export interface PatientDetail {
         connection: VitalMetric & { healthStatus: DeviceHealthStatus };
     };
     alerts: AlertEntry[];
+    hrHistory: MonitoringPoint[];
+    rrHistory: MonitoringPoint[];
     sleepRecord: {
         totalDuration: string;
         deep: { label: string; duration: string; pct: number };

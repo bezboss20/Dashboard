@@ -89,9 +89,11 @@ export function PatientDetailView({ model, onBack }: PatientDetailViewProps) {
                             baseline={hrBaseline}
                             currentRange={hrRange}
                             onRangeChange={setHrRange}
+                            isManualSelection={model.hrRangeSelected}
                             color="#EF4444"
                             unit="BPM"
                             gradientId="colorHr"
+                            isUpdating={model.updating}
                             t={t}
                         />
 
@@ -103,9 +105,11 @@ export function PatientDetailView({ model, onBack }: PatientDetailViewProps) {
                             baseline={rrBaseline}
                             currentRange={rrRange}
                             onRangeChange={setRrRange}
+                            isManualSelection={model.rrRangeSelected}
                             color="#10B981"
                             unit="RPM"
                             gradientId="colorRr"
+                            isUpdating={model.updating}
                             t={t}
                         />
 

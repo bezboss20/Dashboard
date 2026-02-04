@@ -41,6 +41,7 @@ export interface PatientsResponse {
         patients: Patient[];
         total: number;
     } | Patient[]; // API might return array directly or object
+    updated_at?: string;
 }
 
 export interface PatientsQueryParams {

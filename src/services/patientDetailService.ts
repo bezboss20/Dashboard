@@ -13,8 +13,10 @@ const getLocale = (lang: string) => {
     return map[lang] || 'en-US';
 };
 
-export const fetchPatientDetail = async (patientId: string, lang: string): Promise<PatientDetail> => {
-    const response = await apiClient.get<any>(`/getPatient/${patientId}`) as any;
+export const fetchPatientDetail = async (patientId: string, lang: string, range?: string): Promise<PatientDetail> => {
+    const response = await apiClient.get<any>(`/getPatient/${patientId}`, {
+        params: { range }
+    }) as any;
 
     if (!response || !response.success || !response.data) {
         throw new Error('Invalid API response');
@@ -50,6 +52,25 @@ export const fetchPatientDetail = async (patientId: string, lang: string): Promi
 
     const admissionDate = new Date(); // API default fallback
 
+    // Find latest vital timestamp for lastUpdated
+    const lastHrTime = apiData.heartRateMonitoring?.data?.length > 0
+        ? apiData.heartRateMonitoring.data[apiData.heartRateMonitoring.data.length - 1].timestamp
+        : null;
+    const lastRrTime = apiData.respiratoryMonitoring?.data?.length > 0
+        ? apiData.respiratoryMonitoring.data[apiData.respiratoryMonitoring.data.length - 1].timestamp
+        : null;
+
+    const latestTimestamp = [
+        lastHrTime,
+        lastRrTime,
+        currentVitals.heartRate?.timestamp,
+        currentVitals.respiratory?.timestamp,
+        apiData.deviceStatus?.updatedAt,
+        patient.updatedAt
+    ].filter(Boolean).sort((a: any, b: any) => new Date(b).getTime() - new Date(a).getTime())[0];
+
+    const lastUpdated = latestTimestamp ? new Date(latestTimestamp).toISOString() : patient.updatedAt || patient.createdAt || new Date(0).toISOString();
+
     return {
         mongoId: patient._id || patient.id,
         id: patient._id || patient.id,
@@ -61,7 +82,7 @@ export const fetchPatientDetail = async (patientId: string, lang: string): Promi
         room: `${patient.ward?.roomNumber || 0}`,
         status,
         statusLabel: status.toLowerCase(),
-        lastUpdated: 'time.justNow',
+        lastUpdated,
         bloodType: 'A+',
         deviceId: deviceStatus?.deviceCode || 'N/A',
         doctor: '김의사',
@@ -105,21 +126,6 @@ export const fetchPatientDetail = async (patientId: string, lang: string): Promi
         },
         alerts: recentAlerts.slice(0, 5).map((a: any) => {
             const rawMsg = a.message?.ko || a.message?.en || a.message || '';
-
-            // Note: Message translation key logic is kept in component/hook 
-            // or we return the raw key here and translate in UI.
-            // For now, returning raw or key is fine, translation layer usually handles mapping.
-            // We'll return the rawMsg here to be key-mapped in the hook or component if needed.
-            // Actually, better to map to keys here if we want the service to be pure data.
-            // But strict translation logic depends on `t` which is in hook.
-            // Let's return rawMsg and let hook handle mapping to `t` keys if standard strings.
-            // OR replicate the mapping logic here as "backend data prep".
-
-            // Let's simple return raw and let the hook map it, 
-            // OR duplicate the mapping logic for keys.
-            // The original code did mapping inside `getPatientDetail`.
-            // We will do it here to keep the object clean.
-
             let messageKey = rawMsg;
             if (rawMsg.includes('심박수가 임계치를 초과') || rawMsg.includes('Heart rate exceeded')) messageKey = 'alerts.msg.hrExceeded';
             else if (rawMsg.includes('호흡수가 정상 범위를 벗어') || rawMsg.includes('Respiratory rate out of normal')) messageKey = 'alerts.msg.rrOutOfRange';
@@ -135,6 +141,18 @@ export const fetchPatientDetail = async (patientId: string, lang: string): Promi
                 severity: mapSeverity(a.severity)
             } as AlertEntry;
         }),
+        hrHistory: (apiData.heartRateMonitoring?.data || []).map((p: any) => ({
+            time: new Date(p.timestamp).toLocaleTimeString(getLocale(lang), { hour: '2-digit', minute: '2-digit' }),
+            timestamp: new Date(p.timestamp).getTime(),
+            hr: p.value,
+            rr: 0
+        })),
+        rrHistory: (apiData.respiratoryMonitoring?.data || []).map((p: any) => ({
+            time: new Date(p.timestamp).toLocaleTimeString(getLocale(lang), { hour: '2-digit', minute: '2-digit' }),
+            timestamp: new Date(p.timestamp).getTime(),
+            hr: 0,
+            rr: p.value
+        })),
         sleepRecord: {
             totalDuration: sleepRecord?.totalSleep?.formatted || '0h 0m',
             deep: {

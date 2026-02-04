@@ -25,7 +25,8 @@ export const fetchDashboardOverview = async () => {
         return {
             summary: extractedData.summary as SummaryData,
             alerts: extractedData.alerts as AlertData[],
-            vitals: extractedData.vitals as { heartRate: VitalData[], respiratoryRate: VitalData[] }
+            vitals: extractedData.vitals as { heartRate: VitalData[], respiratoryRate: VitalData[] },
+            serverTime: responseData.updated_at || responseData.timestamp || extractedData.updated_at || extractedData.timestamp || extractedData.serverTime || null
         };
     }
 

@@ -1,7 +1,7 @@
 import { apiClient } from './apiClient';
 import { Patient, PatientsResponse, PatientsQueryParams } from '../types/patient';
 
-export const fetchPatients = async (params: PatientsQueryParams = {}): Promise<{ patients: Patient[], total: number }> => {
+export const fetchPatients = async (params: PatientsQueryParams = {}): Promise<{ patients: Patient[], total: number, serverTime?: string | null }> => {
     const queryParams = new URLSearchParams();
     queryParams.append('page', String(params.page || 1));
     queryParams.append('limit', String(params.limit || 100));
@@ -24,11 +24,12 @@ export const fetchPatients = async (params: PatientsQueryParams = {}): Promise<{
 
         if (responseData && responseData.success) {
             const data = responseData.data;
+            const serverTime = responseData.updated_at || (data as any)?.updated_at || null;
             if (Array.isArray(data)) {
-                return { patients: data, total: data.length };
+                return { patients: data, total: data.length, serverTime };
             }
             if (data && Array.isArray(data.patients)) {
-                return { patients: data.patients, total: data.total };
+                return { patients: data.patients, total: data.total, serverTime };
             }
         }
     } catch (error) {

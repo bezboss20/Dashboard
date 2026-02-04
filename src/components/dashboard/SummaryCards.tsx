@@ -22,7 +22,10 @@ export function SummaryCards({
     const formatRefreshTime = (isoString: string | null) => {
         if (!isoString) return '--:--';
         try {
-            return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const d = new Date(isoString);
+            const diffMinutes = Math.floor((Date.now() - d.getTime()) / 60000);
+            if (diffMinutes < 1) return t('time.justNow');
+            return `${diffMinutes}${t('time.minutesAgo')}`;
         } catch {
             return '--:--';
         }
@@ -31,7 +34,7 @@ export function SummaryCards({
     return (
         <div className="space-y-3">
             <div className="flex items-center justify-end px-1">
-                <p className="text-[10px] text-gray-400 font-medium">
+                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tight">
                     {t('dashboard.lastUpdated')}: {formatRefreshTime(lastUpdated)}
                 </p>
             </div>
@@ -48,7 +51,7 @@ export function SummaryCards({
                                 <p className="text-[10px] max-[374px]:text-[8px] lg:text-xs font-black text-gray-600 uppercase tracking-widest max-[374px]:tracking-tight mb-1 truncate">{card.label}</p>
                                 <p className={`text-xl max-[374px]:text-lg sm:text-2xl lg:text-3xl font-black ${card.color} tracking-tight`}>{card.value}</p>
                             </div>
-                            <div className={`w-8 h-8 max-[374px]:w-6 max-[374px]:h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 ${card.bg} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                            <div className={`w-8 h-8 max-[374px]:w-6 max-[374px]:h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 ${card.bg} rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
                                 <card.icon className={`w-4 h-4 max-[374px]:w-3 max-[374px]:h-3 sm:w-5 sm:h-5 lg:w-6 lg:h-6 ${card.color}`} />
                             </div>
                         </div>

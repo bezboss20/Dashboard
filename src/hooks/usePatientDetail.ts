@@ -52,41 +52,83 @@ export function usePatientDetail(patientId: string) {
     const { t, language } = useLanguage();
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
+    const [updating, setUpdating] = useState(false);
     const [data, setData] = useState<PatientDetail | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const [hrRange, setHrRange] = useState<TimeRange>('1시간');
     const [rrRange, setRrRange] = useState<TimeRange>('1시간');
+    const [hrRangeSelected, setHrRangeSelected] = useState(false);
+    const [rrRangeSelected, setRrRangeSelected] = useState(false);
 
-    const hrData = useMemo(() => generateMonitoringData(hrRange, language, patientId), [hrRange, language, patientId]);
-    const rrData = useMemo(() => generateMonitoringData(rrRange, language, patientId), [rrRange, language, patientId]);
+    const handleHrRangeChange = (range: TimeRange) => {
+        if (hrRange === range && hrRangeSelected) {
+            setHrRangeSelected(false);
+        } else {
+            setHrRange(range);
+            setHrRangeSelected(true);
+        }
+    };
+
+    const handleRrRangeChange = (range: TimeRange) => {
+        if (rrRange === range && rrRangeSelected) {
+            setRrRangeSelected(false);
+        } else {
+            setRrRange(range);
+            setRrRangeSelected(true);
+        }
+    };
+
+    const hrData = useMemo(() => {
+        if (data?.hrHistory && data.hrHistory.length > 0) {
+            return data.hrHistory;
+        }
+        return generateMonitoringData(hrRange, language, patientId);
+    }, [data?.hrHistory, hrRange, language, patientId]);
+
+    const rrData = useMemo(() => {
+        if (data?.rrHistory && data.rrHistory.length > 0) {
+            return data.rrHistory;
+        }
+        return generateMonitoringData(rrRange, language, patientId);
+    }, [data?.rrHistory, rrRange, language, patientId]);
 
     const hrBaseline = useMemo(() => {
-        if (hrData.length === 0) return null;
-        const avg = hrData.reduce((acc, curr) => acc + curr.hr, 0) / hrData.length;
+        if (!hrData || hrData.length === 0) return null;
+        const avg = hrData.reduce((acc, curr) => acc + (curr.hr || 0), 0) / hrData.length;
         return Math.round(avg);
     }, [hrData]);
 
     const rrBaseline = useMemo(() => {
-        if (rrData.length === 0) return null;
-        const avg = rrData.reduce((acc, curr) => acc + curr.rr, 0) / rrData.length;
+        if (!rrData || rrData.length === 0) return null;
+        const avg = rrData.reduce((acc, curr) => acc + (curr.rr || 0), 0) / rrData.length;
         return Number(avg.toFixed(1));
     }, [rrData]);
 
     useEffect(() => {
-        const loadData = async () => {
+        const loadData = async (isInitial: boolean) => {
             try {
-                setLoading(true);
-                const patientData = await fetchPatientDetail(patientId, language);
+                if (isInitial) setLoading(true);
+                else setUpdating(true);
+
+                const patientData = await fetchPatientDetail(patientId, language, hrRange);
                 setData(patientData);
             } catch (err) {
-                setError('error.loadingData');
+                if (isInitial) setError('error.loadingData');
             } finally {
-                setLoading(false);
+                if (isInitial) setLoading(false);
+                setUpdating(false);
             }
         };
-        loadData();
-    }, [patientId, language]);
+
+        loadData(!data); // Only show spinner if data is null
+
+        const interval = setInterval(() => {
+            loadData(false);
+        }, 10000);
+
+        return () => clearInterval(interval);
+    }, [patientId, language, hrRange, rrRange]);
 
     const handleStatusChange = async (newStatus: any) => {
         if (!data) return;
@@ -104,15 +146,18 @@ export function usePatientDetail(patientId: string) {
     return {
         data,
         loading,
+        updating,
         error,
         hrData,
         rrData,
         hrBaseline,
         rrBaseline,
         hrRange,
-        setHrRange,
+        setHrRange: handleHrRangeChange,
+        hrRangeSelected,
         rrRange,
-        setRrRange,
+        setRrRange: handleRrRangeChange,
+        rrRangeSelected,
         handleStatusChange,
         t,
         language
