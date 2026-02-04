@@ -37,18 +37,18 @@ const getPhoneConfig = (language: string) => {
 export function BasicInfoForm({ formData, language, t, onInputChange }: BasicInfoFormProps) {
   const phoneConfig = getPhoneConfig(language);
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 min-[2500px]:p-10 min-[2500px]:rounded-[24px]">
-      <h3 className="mb-2 flex items-center gap-2 min-w-0 min-[2500px]:mb-8 min-[2500px]:gap-4">
-        <User className="w-3 h-3 text-blue-600 shrink-0 min-[2500px]:w-6 min-[2500px]:h-6" />
-        <span className="text-[11px] sm:text-[12px] font-semibold text-gray-900 whitespace-nowrap truncate min-w-0 min-[2500px]:text-2xl">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 lg:p-6 lg:rounded-xl min-[2500px]:p-10 min-[2500px]:rounded-[24px]">
+      <h3 className="mb-2 flex items-center gap-2 min-w-0 lg:mb-4 min-[2500px]:mb-8 min-[2500px]:gap-4">
+        <User className="w-3 h-3 text-blue-600 shrink-0 lg:w-4 lg:h-4 min-[2500px]:w-6 min-[2500px]:h-6" />
+        <span className="text-[11px] sm:text-[12px] lg:text-sm font-semibold text-gray-900 whitespace-nowrap truncate min-w-0 min-[2500px]:text-2xl">
           {t('registration.basicInfo')}
         </span>
       </h3>
 
-      <div className="min-[2500px]:bg-gray-50 min-[2500px]:border min-[2500px]:border-gray-200 min-[2500px]:rounded-[20px] min-[2500px]:p-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 min-[2500px]:gap-10">
+      <div className="lg:bg-gray-50/50 lg:border lg:border-gray-100 lg:rounded-lg lg:p-6 min-[2500px]:bg-gray-50 min-[2500px]:border min-[2500px]:border-gray-200 min-[2500px]:rounded-[20px] min-[2500px]:p-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 lg:gap-6 min-[2500px]:gap-10">
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 lg:text-[11px] lg:mb-1.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
               {t('registration.patientName')} *
             </label>
             <input
@@ -57,13 +57,13 @@ export function BasicInfoForm({ formData, language, t, onInputChange }: BasicInf
               value={formData.patientNameKorean}
               onChange={onInputChange}
               required
-              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none min-[2500px]:px-5 min-[2500px]:py-4 min-[2500px]:text-xl min-[2500px]:rounded-xl"
+              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none lg:px-4 lg:py-2.5 lg:text-sm lg:rounded-lg min-[2500px]:px-5 min-[2500px]:py-4 min-[2500px]:text-xl min-[2500px]:rounded-xl"
               placeholder={language === 'ko' ? '홍길동' : 'John Doe'}
             />
           </div>
 
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 lg:text-[11px] lg:mb-1.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
               {t('registration.patientNameEn')}
             </label>
             <input
@@ -71,13 +71,13 @@ export function BasicInfoForm({ formData, language, t, onInputChange }: BasicInf
               name="patientNameEnglish"
               value={formData.patientNameEnglish}
               onChange={onInputChange}
-              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none min-[2500px]:px-5 min-[2500px]:py-4 min-[2500px]:text-xl min-[2500px]:rounded-xl"
+              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none lg:px-4 lg:py-2.5 lg:text-sm lg:rounded-lg min-[2500px]:px-5 min-[2500px]:py-4 min-[2500px]:text-xl min-[2500px]:rounded-xl"
               placeholder="John Doe"
             />
           </div>
 
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 lg:text-[11px] lg:mb-1.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
               {t('registration.patientCode')}
             </label>
             <input
@@ -85,13 +85,13 @@ export function BasicInfoForm({ formData, language, t, onInputChange }: BasicInf
               name="patientCode"
               value={formData.patientCode}
               onChange={onInputChange}
-              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none min-[2500px]:px-5 min-[2500px]:py-4 min-[2500px]:text-xl min-[2500px]:rounded-xl"
+              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none lg:px-4 lg:py-2.5 lg:text-sm lg:rounded-lg min-[2500px]:px-5 min-[2500px]:py-4 min-[2500px]:text-xl min-[2500px]:rounded-xl"
               placeholder="H12345"
             />
           </div>
 
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 lg:text-[11px] lg:mb-1.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
               {t('registration.dob')} *
             </label>
             <input
@@ -100,12 +100,12 @@ export function BasicInfoForm({ formData, language, t, onInputChange }: BasicInf
               value={formData.dateOfBirth}
               onChange={onInputChange}
               required
-              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none min-[2500px]:px-5 min-[2500px]:py-4 min-[2500px]:text-lg min-[2500px]:rounded-xl"
+              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none lg:px-4 lg:py-2.5 lg:text-sm lg:rounded-lg min-[2500px]:px-5 min-[2500px]:py-4 min-[2500px]:text-lg min-[2500px]:rounded-xl"
             />
           </div>
 
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 lg:text-[11px] lg:mb-1.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
               {t('registration.gender')} *
             </label>
             <select
@@ -113,7 +113,7 @@ export function BasicInfoForm({ formData, language, t, onInputChange }: BasicInf
               value={formData.gender}
               onChange={onInputChange}
               required
-              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none min-[2500px]:px-4 min-[2500px]:py-4 min-[2500px]:text-xl min-[2500px]:rounded-xl"
+              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none lg:px-2 lg:py-2.5 lg:text-sm lg:rounded-lg min-[2500px]:px-2 min-[2500px]:py-4 min-[2500px]:text-xl min-[2500px]:rounded-xl"
             >
               <option value="">{t('registration.select')}</option>
               <option value="Male">{t('registration.male')}</option>
@@ -122,7 +122,7 @@ export function BasicInfoForm({ formData, language, t, onInputChange }: BasicInf
           </div>
 
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 lg:text-[11px] lg:mb-1.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
               {t('registration.contact')}
             </label>
             <input
@@ -131,13 +131,13 @@ export function BasicInfoForm({ formData, language, t, onInputChange }: BasicInf
               value={formData.contactNumber}
               onChange={onInputChange}
               required
-              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none min-[2500px]:px-5 min-[2500px]:py-4 min-[2500px]:text-xl min-[2500px]:rounded-xl"
+              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none lg:px-4 lg:py-2.5 lg:text-sm lg:rounded-lg min-[2500px]:px-5 min-[2500px]:py-4 min-[2500px]:text-xl min-[2500px]:rounded-xl"
               placeholder={phoneConfig.placeholder}
             />
           </div>
 
           <div>
-            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
+            <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-0.5 lg:text-[11px] lg:mb-1.5 min-[2500px]:text-[14px] min-[2500px]:mb-3 font-semibold">
               {t('registration.emergencyPhone')}
             </label>
             <input
@@ -145,7 +145,7 @@ export function BasicInfoForm({ formData, language, t, onInputChange }: BasicInf
               name="emergencyPhone"
               value={formData.emergencyPhone}
               onChange={onInputChange}
-              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none min-[2500px]:px-5 min-[2500px]:py-4 min-[2500px]:text-xl min-[2500px]:rounded-xl"
+              className="w-full px-2 py-1 text-[13px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none lg:px-4 lg:py-2.5 lg:text-sm lg:rounded-lg min-[2500px]:px-5 min-[2500px]:py-4 min-[2500px]:text-xl min-[2500px]:rounded-xl"
               placeholder={phoneConfig.emergencyPlaceholder}
             />
           </div>

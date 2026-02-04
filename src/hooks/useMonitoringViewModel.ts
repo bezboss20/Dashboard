@@ -199,14 +199,14 @@ export function useMonitoringViewModel() {
         return filtered;
     }, [allMappedPatients, statusFilter]);
 
-    // Calculate patient counts
+    // Calculate patient counts from all available data (global counters)
     const patientCounts = useMemo(() => {
         return {
-            active: displayPatients.filter(p => p.patientStatus === 'ACTIVE').length,
-            discharged: displayPatients.filter(p => p.patientStatus === 'DISCHARGED').length,
-            transferred: displayPatients.filter(p => p.patientStatus === 'TRANSFERRED').length,
+            active: allMappedPatients.filter(p => p.patientStatus === 'ACTIVE').length,
+            discharged: allMappedPatients.filter(p => p.patientStatus === 'DISCHARGED').length,
+            transferred: allMappedPatients.filter(p => p.patientStatus === 'TRANSFERRED').length,
         };
-    }, [displayPatients]);
+    }, [allMappedPatients]);
 
     const refresh = () => dispatch(fetchPatientsAsync({}));
 

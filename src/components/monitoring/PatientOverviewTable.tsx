@@ -62,10 +62,18 @@ export function PatientOverviewTable({
   const endIndex = startIndex + itemsPerPage;
   const currentPatients = filteredPatients.slice(startIndex, endIndex);
 
-  // Reset to page 1 when search query or patients change
+  // Reset to page 1 only when search query changes
+  // Background data updates (e.g. vitals every 15s) should NOT reset pagination
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, patients]);
+  }, [searchQuery]);
+
+  // Ensure current page is valid when patients list changes (e.g. status filter changed in parent)
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
 
   const getAlertIcon = (status: string) => {
     switch (status) {

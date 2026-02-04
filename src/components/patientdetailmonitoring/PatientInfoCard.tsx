@@ -122,13 +122,31 @@ export function PatientInfoCard({ data, language, t, onStatusChange }: PatientIn
                     <User className="w-7 h-7 sm:w-10 sm:h-10 text-teal-600 opacity-40" />
                 </div>
 
-                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-50 mb-1.5 sm:mb-3 border border-green-100">
-                    <div className="w-2 h-2 rounded-full bg-green-500" />
-                    <span className="text-[10px] sm:text-[11px] font-bold text-green-600">
-                        {t('status.labelPrefix')}
-                        {t('status.' + data.statusLabel)}
-                    </span>
-                </div>
+                {/* Dynamic Status Badge */}
+                {(() => {
+                    const status = data.statusLabel?.toLowerCase() || '';
+                    const isCritical = status === 'critical';
+                    const isWarning = status === 'warning' || status === 'caution';
+
+                    const containerClasses = isCritical
+                        ? "bg-red-50 border-red-100"
+                        : isWarning
+                            ? "bg-orange-50 border-orange-100"
+                            : "bg-green-50 border-green-100";
+
+                    const dotClass = isCritical ? "bg-red-500" : isWarning ? "bg-orange-500" : "bg-green-500";
+                    const textClass = isCritical ? "text-red-600" : isWarning ? "text-orange-600" : "text-green-600";
+
+                    return (
+                        <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full mb-1.5 sm:mb-3 border ${containerClasses}`}>
+                            <div className={`w-2 h-2 rounded-full ${dotClass} ${isCritical ? 'animate-pulse' : ''}`} />
+                            <span className={`text-[10px] sm:text-[11px] font-bold ${textClass}`}>
+                                {t('status.labelPrefix')}
+                                {t('status.' + data.statusLabel)}
+                            </span>
+                        </div>
+                    );
+                })()}
 
                 <h2 className="text-[15px] sm:text-[20px] font-bold text-gray-900 mb-0.5 sm:mb-1">
                     {language === 'ko' ? data.name : data.englishName}
