@@ -35,3 +35,12 @@ export const getBreathingRateSeverity = (br: number): 'critical' | 'warning' | '
     if (br > 20 || br < 14) return 'caution';
     return 'normal';
 };
+
+export const statusColors = {
+    critical: '#dc2626', // red-600
+    warning: '#ea580c',  // orange-600
+    caution: '#ca8a04',  // yellow-600
+    normal: '#16a34a',   // green-600
+    stable: '#16a34a',   // green-600
+    gray: '#6b7280'      // gray-500 for neutral/offline
+};

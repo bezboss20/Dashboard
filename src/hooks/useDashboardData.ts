@@ -143,28 +143,47 @@ export function useDashboardData() {
         return { patients: Array.from(patientMap.values()), latestBatchTime: maxVitalTimestamp as Date | null };
     };
 
-    const { patients: allPatientsFromVitals, latestBatchTime } = createPatientsFromVitals();
+    const { patients: allPatientsFromVitals, latestBatchTime: dataMaxTime } = createPatientsFromVitals();
+
+    // Use the newest timestamp from the actual data records to drive the header,
+    // matching the Monitoring View's "Truthful" logic.
+    const calculatedLastUpdated = dataMaxTime
+        ? dataMaxTime.toISOString()
+        : (lastUpdated || new Date().toISOString());
+
     const patientsFromHeartRate = allPatientsFromVitals
         .filter((p: any) => (p.heartRate || 0) > 0)
-        .map((p: any) => ({ ...p, lastUpdated: p.hrLastUpdated || latestBatchTime || lastUpdated }));
+        .map((p: any) => ({ ...p, lastUpdated: p.hrLastUpdated || dataMaxTime || calculatedLastUpdated }));
     const patientsFromBreathingRate = allPatientsFromVitals
         .filter((p: any) => (p.breathingRate || 0) > 0)
-        .map((p: any) => ({ ...p, lastUpdated: p.rrLastUpdated || latestBatchTime || lastUpdated }));
+        .map((p: any) => ({ ...p, lastUpdated: p.rrLastUpdated || dataMaxTime || calculatedLastUpdated }));
 
-    const getHeartRateUrgency = (hr: number) => (hr > 90 ? hr - 90 : hr < 60 ? 60 - hr : 0);
-    const getBreathingRateUrgency = (br: number) => (br > 20 ? br - 20 : br < 12 ? 12 - br : 0);
+    const severityScore: Record<string, number> = { 'critical': 3, 'warning': 2, 'caution': 1, 'normal': 0 };
+
+    const getHeartRateUrgency = (hr: number) => {
+        const sev = getHeartRateSeverity(hr);
+        const tierBase = severityScore[sev] * 1000;
+        let distance = 0;
+        if (hr > 85) distance = hr - 85;
+        else if (hr < 65) distance = 65 - hr;
+        return tierBase + distance;
+    };
+
+    const getBreathingRateUrgency = (br: number) => {
+        const sev = getBreathingRateSeverity(br);
+        const tierBase = severityScore[sev] * 1000;
+        let distance = 0;
+        if (br > 20) distance = br - 20;
+        else if (br < 14) distance = 14 - br;
+        return tierBase + distance;
+    };
 
     const patientsByHeartRate = [...patientsFromHeartRate].sort((a: any, b: any) => {
-        const diff = getHeartRateUrgency(b.heartRate) - getHeartRateUrgency(a.heartRate);
-        if (diff !== 0) return diff;
-        // simplistic fallback sort
-        return 0;
+        return getHeartRateUrgency(b.heartRate) - getHeartRateUrgency(a.heartRate);
     });
 
     const patientsByBreathingRate = [...patientsFromBreathingRate].sort((a: any, b: any) => {
-        const diff = getBreathingRateUrgency(b.breathingRate) - getBreathingRateUrgency(a.breathingRate);
-        if (diff !== 0) return diff;
-        return 0;
+        return getBreathingRateUrgency(b.breathingRate) - getBreathingRateUrgency(a.breathingRate);
     });
 
     const handleAcknowledgeAlert = (alertId: string, note: string) => {
@@ -198,7 +217,7 @@ export function useDashboardData() {
         patientsByBreathingRate,
         handleAcknowledgeAlert,
         handleResolveAlert,
-        lastUpdated: latestBatchTime?.toISOString() || lastUpdated,
+        lastUpdated: calculatedLastUpdated,
         refetch: () => dispatch(fetchOverviewAsync())
     };
 }

@@ -146,7 +146,7 @@ export function PatientInfoCard({ data, language, t, onStatusChange }: PatientIn
                             : "bg-green-50 border-green-100";
 
                     const dotClass = isCritical ? "bg-red-500" : isWarning ? "bg-orange-500" : "bg-green-500";
-                    const textClass = isCritical ? "text-red-600" : isWarning ? "text-orange-600" : "text-green-600";
+                    const textClass = isCritical ? "text-red-700" : isWarning ? "text-orange-700" : "text-green-700";
 
                     return (
                         <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full mb-1.5 sm:mb-3 border ${containerClasses}`}>

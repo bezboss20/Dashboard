@@ -126,6 +126,31 @@ export function useSleepAnalytics(initialPatientId?: string | null) {
         return '';
     }, [selectedPatient]);
 
+    const getSleepStateText = (state: string) => {
+        const mapping: Record<string, string> = {
+            'AWAKE': t('detail.awake'),
+            'REM': t('detail.remSleep'),
+            'LIGHT': t('detail.lightSleep'),
+            'DEEP': t('detail.deepSleep'),
+            '정상 수면': t('status.normal'),
+            'REM 수면': t('detail.remSleep'),
+            '얕은 수면': t('detail.lightSleep'),
+            '깊은 수면': t('detail.deepSleep')
+        };
+        return mapping[state] || t('common.unknown');
+    };
+
+    const currentSleepState = useMemo(() => {
+        if (!selectedPatient) return '';
+
+        const sleepRecordStages = (selectedPatient as any).latestSleepRecord?.stages || [];
+        const stage = sleepRecordStages.length > 0
+            ? sleepRecordStages[sleepRecordStages.length - 1].type
+            : ((selectedPatient as any).sleepState || (selectedPatient as any).sleepRecord?.stage || 'Unknown');
+
+        return getSleepStateText(stage);
+    }, [selectedPatient, t]);
+
     const dateRangeString = useMemo(() => {
         if (!analytics?.stageGraph || analytics.stageGraph.length < 2) return '';
 
@@ -189,6 +214,7 @@ export function useSleepAnalytics(initialPatientId?: string | null) {
         trendMinWidth,
         patientName,
         patientCode,
+        currentSleepState,
         dateRangeString,
         t,
         refresh

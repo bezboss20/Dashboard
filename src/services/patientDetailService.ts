@@ -1,6 +1,7 @@
 import { apiClient } from './apiClient';
 import { deriveHealthStatus, DeviceHealthStatus } from '../utils/statusLabels';
 import { PatientDetail, AlertEntry } from '../types/patientDetail';
+import { getHeartRateSeverity, getBreathingRateSeverity } from '../utils/dashboardUtils';
 
 const getLocale = (lang: string) => {
     const map: Record<string, string> = {
@@ -29,13 +30,19 @@ export const fetchPatientDetail = async (patientId: string, lang: string, range?
     const recentAlerts = apiData.recentAlerts || [];
     const deviceStatus = apiData.deviceStatus;
 
-    // Determine status from vitals
-    let status: 'STABLE' | 'WARNING' | 'CRITICAL' = 'STABLE';
-    if (currentVitals.heartRate?.status?.includes('CRITICAL') || currentVitals.respiratory?.status?.includes('CRITICAL')) {
-        status = 'CRITICAL';
-    } else if (currentVitals.heartRate?.status?.includes('WARNING') || currentVitals.respiratory?.status?.includes('WARNING')) {
-        status = 'WARNING';
-    }
+    // Determine status from vitals using consistent frontend logic
+    const hrVal = currentVitals.heartRate?.value || 0;
+    const rrVal = currentVitals.respiratory?.value || 0;
+    const hrSev = getHeartRateSeverity(hrVal);
+    const rrSev = getBreathingRateSeverity(rrVal);
+
+    const severityOrder: Record<string, number> = { 'critical': 3, 'warning': 2, 'caution': 1, 'normal': 0 };
+    let highestSev: 'critical' | 'warning' | 'caution' | 'normal' = hrSev;
+    if (severityOrder[rrSev] > severityOrder[highestSev]) highestSev = rrSev;
+
+    // Preserve the exact severity string to match statusLabels and translations
+    const status = highestSev;
+    const statusLabel = highestSev; // 'critical' | 'warning' | 'caution' | 'normal'
 
     const mapSeverity = (severity: string): 'high' | 'medium' | 'low' => {
         if (severity === 'CRITICAL' || severity === 'HIGH') return 'high';
@@ -43,11 +50,8 @@ export const fetchPatientDetail = async (patientId: string, lang: string, range?
         return 'low';
     };
 
-    const mapVitalStatus = (apiStatus: string): string => {
-        if (apiStatus?.includes('CRITICAL')) return 'status.critical';
-        if (apiStatus?.includes('WARNING')) return 'status.warning';
-        if (apiStatus?.includes('CAUTION')) return 'status.caution';
-        return 'status.normal';
+    const mapVitalStatus = (severity: string): string => {
+        return `status.${severity}`;
     };
 
     const admissionDate = new Date(); // API default fallback
@@ -95,9 +99,9 @@ export const fetchPatientDetail = async (patientId: string, lang: string, range?
         patientStatus: patient.status === 'ACTIVE' ? 'ACTIVE' : 'DISCHARGED',
         vitals: {
             hr: {
-                value: currentVitals.heartRate?.value || 0,
-                status: mapVitalStatus(currentVitals.heartRate?.status),
-                isNormal: currentVitals.heartRate?.status === 'NORMAL'
+                value: hrVal,
+                status: mapVitalStatus(hrSev),
+                isNormal: hrSev === 'normal'
             },
             stressIndex: {
                 value: currentVitals.stressIndex?.value || 0,
@@ -105,9 +109,9 @@ export const fetchPatientDetail = async (patientId: string, lang: string, range?
                 isNormal: true
             },
             rr: {
-                value: currentVitals.respiratory?.value || 0,
-                status: mapVitalStatus(currentVitals.respiratory?.status),
-                isNormal: currentVitals.respiratory?.status === 'NORMAL'
+                value: rrVal,
+                status: mapVitalStatus(rrSev),
+                isNormal: rrSev === 'normal'
             },
             sleepIndex: {
                 value: sleepRecord?.score || 0,

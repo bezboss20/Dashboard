@@ -9,7 +9,7 @@ interface MapControlsProps {
 
 export function MapControls({ onZoomIn, onZoomOut, onLocateUser, onToggleLayer }: MapControlsProps) {
     return (
-        <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-[1000]">
+        <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-1000">
             <button
                 onClick={onZoomIn}
                 className="w-10 h-10 bg-white rounded-xl shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"

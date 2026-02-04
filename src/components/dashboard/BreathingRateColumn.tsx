@@ -55,19 +55,19 @@ export function BreathingRateColumn({
                         severity === 'warning' ? 'bg-orange-50 border-orange-200' :
                             severity === 'caution' ? 'bg-yellow-50 border-yellow-200' :
                                 'bg-green-50 border-green-200';
-                    const textColor = severity === 'critical' ? 'text-red-700' :
-                        severity === 'warning' ? 'text-orange-700' :
-                            severity === 'caution' ? 'text-yellow-700' :
-                                'text-green-700';
-                    const badgeColor = severity === 'critical' ? 'bg-red-100 text-red-700 font-bold' :
-                        severity === 'warning' ? 'bg-orange-100 text-orange-700 font-bold' :
-                            severity === 'caution' ? 'bg-yellow-100 text-yellow-700 font-bold' :
-                                'bg-green-100 text-green-700 font-bold';
+                    const textColor = severity === 'critical' ? 'text-red-600' :
+                        severity === 'warning' ? 'text-orange-600' :
+                            severity === 'caution' ? 'text-yellow-600' :
+                                'text-green-600';
+                    const badgeColor = severity === 'critical' ? 'bg-red-100 text-red-600 font-bold' :
+                        severity === 'warning' ? 'bg-orange-100 text-orange-600 font-bold' :
+                            severity === 'caution' ? 'bg-yellow-100 text-yellow-600 font-bold' :
+                                'bg-green-100 text-green-600 font-bold';
 
                     return (
                         <div
                             key={patient.id}
-                            className={`p-2 lg:p-3 rounded-xl border ${bgColor} cursor-pointer hover:shadow-sm transition-shadow ${isStale ? 'opacity-70' : ''}`}
+                            className={`p-2 lg:p-3 rounded-xl border ${bgColor} cursor-pointer hover:shadow-sm transition-shadow ${isStale ? 'opacity-85' : ''}`}
                             onClick={() => onViewPatientDetails(patient.patientId || patient.id)}
                         >
                             <div className="flex items-center justify-between gap-1.5 min-w-0">

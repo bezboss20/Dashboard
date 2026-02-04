@@ -174,7 +174,7 @@ export function useMonitoringViewModel() {
 
         const interval = setInterval(() => {
             dispatch(fetchPatientsAsync(params));
-        }, 15000);
+        }, 10000);
 
         return () => clearInterval(interval);
     }, [dispatch, statusFilter, debouncedSearchQuery, selectedDate]);
@@ -206,6 +206,14 @@ export function useMonitoringViewModel() {
         if (statusFilter !== 'ALL') {
             filtered = filtered.filter(p => p.patientStatus === statusFilter);
         }
+
+        // Sort by health severity (Critical > Warning > Caution > Normal)
+        const severityOrder: Record<string, number> = { 'critical': 3, 'warning': 2, 'caution': 1, 'normal': 0 };
+        filtered = [...filtered].sort((a, b) => {
+            const sevA = severityOrder[a.alertStatus] || 0;
+            const sevB = severityOrder[b.alertStatus] || 0;
+            return sevB - sevA;
+        });
 
         return filtered;
     }, [allMappedPatients, statusFilter]);

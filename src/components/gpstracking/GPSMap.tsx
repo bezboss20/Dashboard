@@ -4,32 +4,24 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Crosshair } from 'lucide-react';
 import { DeviceLocation } from '../../types/gps';
+import { statusColors } from '../../utils/dashboardUtils';
 
 // Custom Icons logic
 const createStatusIcon = (status: 'online' | 'offline', healthStatus: 'normal' | 'caution' | 'warning' | 'critical' = 'normal', isSelected: boolean = false) => {
-    let color = '#6b7280'; // Default gray for offline
+    let color = statusColors.gray; // Default gray for offline
     let shadowColor = 'rgba(107, 114, 128, 0.4)';
 
     if (status === 'online') {
-        switch (healthStatus) {
-            case 'critical':
-                color = '#dc2626'; // Red
-                shadowColor = 'rgba(220, 38, 38, 0.5)';
-                break;
-            case 'warning':
-                color = '#f97316'; // Orange
-                shadowColor = 'rgba(249, 115, 22, 0.5)';
-                break;
-            case 'caution':
-                color = '#eab308'; // Yellow/Gold
-                shadowColor = 'rgba(234, 179, 8, 0.5)';
-                break;
-            case 'normal':
-            default:
-                color = '#16a34a'; // Green
-                shadowColor = 'rgba(22, 163, 74, 0.4)';
-                break;
-        }
+        color = (statusColors as any)[healthStatus] || statusColors.normal;
+
+        // Define shadow colors based on statusColors
+        const shadowMap: Record<string, string> = {
+            'critical': 'rgba(220, 38, 38, 0.5)', // red-600
+            'warning': 'rgba(234, 88, 12, 0.5)',  // orange-600
+            'caution': 'rgba(202, 138, 4, 0.5)',  // yellow-600
+            'normal': 'rgba(22, 163, 74, 0.4)'    // green-600
+        };
+        shadowColor = shadowMap[healthStatus] || shadowMap.normal;
     }
 
     const baseHtml = `<div style="background-color: ${color}; width: 18px; height: 18px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 8px ${shadowColor}, 0 2px 4px rgba(0,0,0,0.3); position: relative; z-index: 10;"></div>`;

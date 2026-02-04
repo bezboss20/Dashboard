@@ -23,7 +23,7 @@ import { useState, useEffect } from 'react';
 import { Sparkline } from './Sparkline';
 import { useLanguage } from '../../context/LanguageContext';
 import { deriveHealthStatus, getHealthStatusLabel, getHealthStatusClasses } from '../../utils/statusLabels';
-import { getHeartRateSeverity, getBreathingRateSeverity } from '../../utils/dashboardUtils';
+import { getHeartRateSeverity, getBreathingRateSeverity, statusColors } from '../../utils/dashboardUtils';
 
 interface PatientOverviewTableProps {
   patients: MappedPatient[];
@@ -85,13 +85,13 @@ export function PatientOverviewTable({
       case 'critical':
         return <AlertTriangle className="w-4 h-4 text-red-600 animate-pulse" />;
       case 'warning':
-        return <AlertTriangle className="w-4 h-4 text-orange-500" />;
+        return <AlertTriangle className="w-4 h-4 text-orange-600" />;
       case 'caution':
         return <AlertCircle className="w-4 h-4 text-yellow-600" />;
       case 'normal':
         return <CheckCircle className="w-4 h-4 text-green-600" />;
       default:
-        return <CheckCircle className="w-4 h-4 text-gray-300" />;
+        return <CheckCircle className="w-4 h-4 text-gray-400" />;
     }
   };
 
@@ -195,7 +195,7 @@ export function PatientOverviewTable({
   const getHeartRateColor = (hr: number) => {
     const severity = getHeartRateSeverity(hr);
     if (severity === 'critical') return 'text-red-600';
-    if (severity === 'warning') return 'text-orange-500';
+    if (severity === 'warning') return 'text-orange-600';
     if (severity === 'caution') return 'text-yellow-600';
     return 'text-gray-900';
   };
@@ -203,7 +203,7 @@ export function PatientOverviewTable({
   const getBreathingRateColor = (br: number) => {
     const severity = getBreathingRateSeverity(br);
     if (severity === 'critical') return 'text-red-600';
-    if (severity === 'warning') return 'text-orange-500';
+    if (severity === 'warning') return 'text-orange-600';
     if (severity === 'caution') return 'text-yellow-600';
     return 'text-gray-900';
   };
@@ -269,7 +269,17 @@ export function PatientOverviewTable({
           <div className="flex items-center justify-between w-full">
             <div>
               <h2 className="text-gray-900 font-bold">{t('table.overview')}</h2>
-              <p className="text-xs lg:text-sm text-gray-500">{t('table.realTime')}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs lg:text-sm text-gray-500">{t('table.realTime')}</p>
+                {syncTime && (
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-50 rounded-full border border-gray-100">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-[9px] lg:text-[10px] text-gray-400 font-bold uppercase tracking-tight">
+                      {t('dashboard.lastUpdated')}: {formatTimeAgo(syncTime)}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Status Legend Info Tooltip */}
@@ -303,7 +313,7 @@ export function PatientOverviewTable({
                             <span className="text-gray-600">{t('status.critical')}</span>
                           </div>
                           <div className="flex items-center gap-2.5">
-                            <AlertTriangle className="w-4 h-4 text-orange-500 shrink-0" />
+                            <AlertTriangle className="w-4 h-4 text-orange-600 shrink-0" />
                             <span className="text-gray-600">{t('status.warning')}</span>
                           </div>
                           <div className="flex items-center gap-2.5">
@@ -377,7 +387,7 @@ export function PatientOverviewTable({
                 key={patient.id}
                 onClick={() => onSelectPatient(patient.id)}
                 className={`w-full text-left border rounded-xl shadow-sm overflow-hidden transition-colors ${isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white hover:bg-gray-50 border-gray-200'
-                  } ${isStale ? 'opacity-70' : ''}`}
+                  } ${isStale ? 'opacity-85' : ''}`}
               >
                 {/* Header */}
                 <div className="px-4 py-3 bg-gray-50 border-b flex items-start justify-between gap-3">
@@ -432,7 +442,7 @@ export function PatientOverviewTable({
                           color={
                             (() => {
                               const s = getHeartRateSeverity(patient.heartRate);
-                              return s === 'critical' ? '#dc2626' : s === 'warning' ? '#f97316' : s === 'caution' ? '#eab308' : '#9ca3af';
+                              return s === 'normal' ? '#9ca3af' : (statusColors as any)[s] || '#9ca3af';
                             })()
                           }
                           width={60}
@@ -457,7 +467,7 @@ export function PatientOverviewTable({
                           color={
                             (() => {
                               const s = getBreathingRateSeverity(patient.breathingRate);
-                              return s === 'critical' ? '#dc2626' : s === 'warning' ? '#f97316' : s === 'caution' ? '#eab308' : '#9ca3af';
+                              return s === 'normal' ? '#9ca3af' : (statusColors as any)[s] || '#9ca3af';
                             })()
                           }
                           width={60}
@@ -615,7 +625,7 @@ export function PatientOverviewTable({
                   <tr
                     key={patient.id}
                     onClick={() => onSelectPatient(patient.id)}
-                    className={`cursor-pointer transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'} ${isStale ? 'opacity-75' : ''}`}
+                    className={`cursor-pointer transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'} ${isStale ? 'opacity-85' : ''}`}
                   >
                     <td className="px-1 md:px-0.5 lg:pl-6 xl:pl-8 py-4 lg:py-3 xl:py-3 2xl:py-4 text-center lg:text-left relative">
                       <div className="flex items-center justify-center lg:justify-start w-full gap-0.5 lg:gap-2">
@@ -661,7 +671,7 @@ export function PatientOverviewTable({
                             color={
                               (() => {
                                 const s = getHeartRateSeverity(patient.heartRate);
-                                return s === 'critical' ? '#dc2626' : s === 'warning' ? '#f97316' : s === 'caution' ? '#eab308' : '#9ca3af';
+                                return s === 'normal' ? '#9ca3af' : (statusColors as any)[s] || '#9ca3af';
                               })()
                             }
                             width={window.innerWidth < 1280 ? 40 : 60}
@@ -685,7 +695,7 @@ export function PatientOverviewTable({
                             color={
                               (() => {
                                 const s = getBreathingRateSeverity(patient.breathingRate);
-                                return s === 'critical' ? '#dc2626' : s === 'warning' ? '#f97316' : s === 'caution' ? '#eab308' : '#9ca3af';
+                                return s === 'normal' ? '#9ca3af' : (statusColors as any)[s] || '#9ca3af';
                               })()
                             }
                             width={window.innerWidth < 1024 ? 40 : 60}

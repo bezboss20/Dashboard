@@ -4,7 +4,7 @@ import { SleepTimeInfo } from './SleepTimeInfo';
 import { WeeklyTrend } from './WeeklyTrend';
 import { VitalsCorrelation } from './VitalsCorrelation';
 import { useSleepAnalytics } from '../../hooks/useSleepAnalytics';
-import { User, Tag } from 'lucide-react';
+import { User, Tag, Moon } from 'lucide-react';
 
 interface SleepManagementViewProps {
     model: ReturnType<typeof useSleepAnalytics>;
@@ -115,6 +115,17 @@ export function SleepManagementView({ model, onBack }: SleepManagementViewProps)
                             <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
                             <span className="text-[10px] sm:text-xs font-bold tracking-tight whitespace-nowrap">ID: {patientCode || selectedPatientId || 'N/A'}</span>
                         </div>
+                    </div>
+                </div>
+
+                {/* Real-time Sleep State */}
+                <div className="flex flex-col items-end gap-1 shrink-0 px-1">
+                    <p className="text-[8px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-wider">{t('table.sleepState')}</p>
+                    <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 sm:px-4 sm:py-2 bg-indigo-50 border border-indigo-100 rounded-xl">
+                        <Moon className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-600" />
+                        <span className="text-[11px] sm:text-sm font-black text-indigo-700 whitespace-nowrap">
+                            {model.currentSleepState}
+                        </span>
                     </div>
                 </div>
             </div>

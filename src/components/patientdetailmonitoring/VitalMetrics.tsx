@@ -31,8 +31,7 @@ function MetricCard({
     unit,
     status,
     statusKey,
-    colorClass,
-    progressColor
+    defaultColor = 'blue'
 }: {
     icon: React.ElementType;
     label: string;
@@ -40,45 +39,73 @@ function MetricCard({
     unit?: string;
     status: string;
     statusKey?: string;
-    colorClass: string;
-    progressColor: string;
+    defaultColor?: string;
 }) {
-    const getStatusColors = (key?: string) => {
-        if (!key) return 'text-green-600 bg-green-50';
-        if (key.includes('critical')) return 'text-red-600 bg-red-50';
-        if (key.includes('warning')) return 'text-orange-600 bg-orange-50';
-        if (key.includes('caution')) return 'text-blue-600 bg-blue-50';
-        return 'text-green-600 bg-green-50';
+    const getSeverity = (key?: string): 'critical' | 'warning' | 'caution' | 'normal' => {
+        if (!key) return 'normal';
+        const k = key.toLowerCase();
+        if (k.includes('critical') || k.includes('abnormal')) return 'critical';
+        if (k.includes('warning')) return 'warning';
+        if (k.includes('caution')) return 'caution';
+        if (k.includes('normal')) return 'normal';
+        return 'normal';
     };
 
+    const severity = getSeverity(statusKey);
+
+    const getStatusColors = (sev: string) => {
+        switch (sev) {
+            case 'critical': return 'text-red-600 bg-red-50';
+            case 'warning': return 'text-orange-600 bg-orange-50';
+            case 'caution': return 'text-yellow-600 bg-yellow-50';
+            default: return 'text-green-600 bg-green-50';
+        }
+    };
+
+    const theme = {
+        critical: { iconBg: 'bg-red-100', iconText: 'text-red-600', progress: 'bg-red-500' },
+        warning: { iconBg: 'bg-orange-100', iconText: 'text-orange-600', progress: 'bg-orange-500' },
+        caution: { iconBg: 'bg-yellow-100', iconText: 'text-yellow-600', progress: 'bg-yellow-500' },
+        normal: {
+            blue: { iconBg: 'bg-blue-100', iconText: 'text-blue-600', progress: 'bg-blue-500' },
+            teal: { iconBg: 'bg-teal-100', iconText: 'text-teal-600', progress: 'bg-teal-500' },
+            green: { iconBg: 'bg-green-100', iconText: 'text-green-600', progress: 'bg-green-500' },
+            orange: { iconBg: 'bg-orange-100', iconText: 'text-orange-600', progress: 'bg-orange-500' },
+        }
+    };
+
+    const currentTheme = severity === 'normal'
+        ? (theme.normal as any)[defaultColor] || theme.normal.blue
+        : (theme as any)[severity];
+
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between h-full p-1.5 sm:p-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between h-full p-2.5 sm:p-4">
             <div className="min-w-0">
-                <div className="flex justify-between items-center gap-1.5 mb-1 sm:mb-2 min-w-0">
-                    <div className={`rounded-lg bg-opacity-10 shrink-0 p-1.5 sm:p-2.5 ${colorClass}`}>
-                        <Icon className={`w-3 h-3 sm:w-4 sm:h-4 ${colorClass.replace('bg-', 'text-')}`} />
+                <div className="flex justify-between items-center gap-1.5 mb-2 sm:mb-2.5 min-w-0">
+                    <div className={`rounded-lg shrink-0 p-1.5 sm:p-2.5 ${currentTheme.iconBg}`}>
+                        <Icon className={`w-3.5 h-3.5 sm:w-5 sm:h-5 ${currentTheme.iconText}`} />
                     </div>
 
                     <span
-                        className={`font-bold rounded-full inline-flex items-center justify-center whitespace-nowrap leading-none shrink-0 text-[8px] px-1.5 py-0.5 sm:text-[10px] sm:px-2.5 sm:py-0.5 max-w-[72px] truncate ${getStatusColors(statusKey)}`}
+                        className={`font-bold rounded-full inline-flex items-center justify-center whitespace-nowrap leading-none shrink-0 text-[9px] px-2 py-1 sm:text-[10px] sm:px-2.5 sm:py-0.5 max-w-[80px] truncate ${getStatusColors(severity)}`}
                         title={status}
                     >
                         {status}
                     </span>
                 </div>
 
-                <p className="text-[9px] sm:text-[11px] text-gray-500 font-semibold mb-0.5 sm:mb-1 leading-tight wrap-break-word">
+                <p className="text-[10px] sm:text-[12px] text-gray-500 font-bold mb-0.5 sm:mb-1 leading-tight wrap-break-word">
                     {label}
                 </p>
 
                 <div className="flex items-baseline gap-1 min-w-0">
-                    <span className="text-[16px] sm:text-2xl font-bold text-gray-900 leading-none">{value}</span>
-                    {unit && <span className="text-[9px] sm:text-[11px] text-gray-400 font-medium">{unit}</span>}
+                    <span className="text-[18px] sm:text-2xl font-black text-gray-900 leading-none">{value}</span>
+                    {unit && <span className="text-[10px] sm:text-[12px] text-gray-400 font-bold">{unit}</span>}
                 </div>
             </div>
 
-            <div className="mt-2 sm:mt-4 h-0.5 sm:h-1 w-full bg-gray-100 rounded-full overflow-hidden">
-                <div className={`h-full ${progressColor}`} style={{ width: '65%' }} />
+            <div className="mt-3 sm:mt-5 h-1 sm:h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                <div className={`h-full ${currentTheme.progress} transition-all duration-500`} style={{ width: '65%' }} />
             </div>
         </div>
     );
@@ -114,8 +141,7 @@ export function VitalMetrics({ vitals, deviceId, lastUpdated, t }: VitalMetricsP
                     unit={t('common.bpm')}
                     status={t(vitals.hr.status)}
                     statusKey={vitals.hr.status}
-                    colorClass="bg-red-300"
-                    progressColor="bg-red-300"
+                    defaultColor="red"
                 />
                 <MetricCard
                     icon={Activity}
@@ -123,8 +149,7 @@ export function VitalMetrics({ vitals, deviceId, lastUpdated, t }: VitalMetricsP
                     value={vitals.stressIndex.value}
                     status={t(vitals.stressIndex.status)}
                     statusKey={vitals.stressIndex.status}
-                    colorClass="bg-blue-300"
-                    progressColor="bg-blue-300"
+                    defaultColor="blue"
                 />
                 <MetricCard
                     icon={Wind}
@@ -133,8 +158,7 @@ export function VitalMetrics({ vitals, deviceId, lastUpdated, t }: VitalMetricsP
                     unit={t('common.rpm')}
                     status={t(vitals.rr.status)}
                     statusKey={vitals.rr.status}
-                    colorClass="bg-teal-300"
-                    progressColor="bg-teal-300"
+                    defaultColor="teal"
                 />
                 <MetricCard
                     icon={Moon}
@@ -142,8 +166,7 @@ export function VitalMetrics({ vitals, deviceId, lastUpdated, t }: VitalMetricsP
                     value={vitals.sleepIndex.value}
                     status={t(vitals.sleepIndex.status)}
                     statusKey={vitals.sleepIndex.status}
-                    colorClass="bg-orange-300"
-                    progressColor="bg-orange-300"
+                    defaultColor="orange"
                 />
             </div>
         </div>

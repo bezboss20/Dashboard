@@ -32,7 +32,7 @@ export interface PatientDetail {
     age: number;
     gender: string;
     room: string;
-    status: 'STABLE' | 'WARNING' | 'CRITICAL';
+    status: 'normal' | 'caution' | 'warning' | 'critical' | 'STABLE' | 'WARNING' | 'CRITICAL';
     statusLabel: string;
     lastUpdated: string;
     bloodType: string;

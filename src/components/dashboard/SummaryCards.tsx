@@ -33,10 +33,13 @@ export function SummaryCards({
 
     return (
         <div className="space-y-3">
-            <div className="flex items-center justify-end px-1">
-                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tight">
-                    {t('dashboard.lastUpdated')}: {formatRefreshTime(lastUpdated)}
-                </p>
+            <div className="flex items-center justify-end px-1 gap-2">
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-50 rounded-full border border-gray-100">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                    <p className="text-[9px] min-[380px]:text-[10px] text-gray-400 font-bold uppercase tracking-tight">
+                        {t('dashboard.lastUpdated')}: {formatRefreshTime(lastUpdated)}
+                    </p>
+                </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
                 {[

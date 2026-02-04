@@ -88,9 +88,9 @@ export function EmergencyAlerts({ alerts, onViewPatientDetails, onAcknowledge, o
                     const isCritical = alert.severity === 'critical';
                     const isWarning = alert.severity === 'warning';
 
-                    const bgColor = isCritical ? 'bg-red-50 border-red-100' : isWarning ? 'bg-orange-50 border-orange-100' : 'bg-yellow-50 border-yellow-100';
-                    const textColor = isCritical ? 'text-red-700' : isWarning ? 'text-orange-700' : 'text-yellow-700';
-                    const badgeColor = isCritical ? 'bg-red-600' : isWarning ? 'bg-orange-600' : 'bg-yellow-600';
+                    const bgColor = isCritical ? 'bg-red-50 border-red-200' : isWarning ? 'bg-orange-50 border-orange-200' : 'bg-yellow-50 border-yellow-200';
+                    const textColor = isCritical ? 'text-red-600' : isWarning ? 'text-orange-600' : 'text-yellow-600';
+                    const badgeColor = isCritical ? 'bg-red-500' : isWarning ? 'bg-orange-500' : 'bg-yellow-500';
 
                     // Get patient identifier - use patientCode or patientId
                     const patientIdentifier = alert.patientCode || alert.patientId || 'Unknown';
