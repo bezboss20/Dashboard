@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { MonitoringPage } from './pages/monitoring/MonitoringPage';
@@ -27,17 +27,55 @@ export default function App() {
   const [sleepPatientId, setSleepPatientId] = useState<string | null>(null);
   const [systemOnline, setSystemOnline] = useState(true);
 
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state;
+      if (state) {
+        setCurrentPage(state.page || '통합 대시보드');
+        setSelectedPatientId(state.patientId || null);
+        setSleepPatientId(state.sleepPatientId || null);
+      } else {
+        setCurrentPage('통합 대시보드');
+        setSelectedPatientId(null);
+        setSleepPatientId(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    // Set initial state
+    if (!window.history.state) {
+      window.history.replaceState({ page: currentPage, patientId: selectedPatientId, sleepPatientId }, '');
+    }
+
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const handlePageChange = (page: MenuItem) => {
+    if (page === currentPage && !selectedPatientId && !sleepPatientId) return;
+    setCurrentPage(page);
+    setSelectedPatientId(null);
+    setSleepPatientId(null);
+    window.history.pushState({ page, patientId: null, sleepPatientId: null }, '');
+  };
+
   const handleViewPatientDetails = (testId: string) => {
     setSelectedPatientId(testId);
+    window.history.pushState({ page: currentPage, patientId: testId, sleepPatientId }, '');
   };
 
   const handleBackFromPatientDetails = () => {
-    setSelectedPatientId(null);
+    if (window.history.state?.patientId) {
+      window.history.back();
+    } else {
+      setSelectedPatientId(null);
+    }
   };
 
   const handleViewSleepPage = (patientId: string) => {
     setSleepPatientId(patientId);
     setCurrentPage('수면 관리');
+    window.history.pushState({ page: '수면 관리', patientId: null, sleepPatientId: patientId }, '');
   };
 
   return (
@@ -47,11 +85,7 @@ export default function App() {
           <div className="min-h-screen bg-gray-50 flex flex-col overflow-x-hidden relative">
             <Navbar
               currentPage={currentPage}
-              onPageChange={(page: MenuItem) => {
-                setCurrentPage(page);
-                setSelectedPatientId(null);
-                setSleepPatientId(null);
-              }}
+              onPageChange={handlePageChange}
               systemOnline={systemOnline}
               onToggleSystem={() => setSystemOnline(!systemOnline)}
             />
@@ -89,7 +123,13 @@ export default function App() {
                     {currentPage === '수면 관리' && (
                       <SleepManagementPage
                         initialPatientId={sleepPatientId}
-                        onBack={() => setCurrentPage('환자 목록')}
+                        onBack={() => {
+                          if (window.history.state?.page === '환자 목록') {
+                            window.history.back();
+                          } else {
+                            handlePageChange('환자 목록');
+                          }
+                        }}
                       />
                     )}
 

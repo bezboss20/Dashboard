@@ -71,7 +71,10 @@ export function Navbar({
             {/* MAIN BAR */}
             <div className="w-full h-16 flex items-center justify-between px-3 sm:px-4">
                 {/* LOGO SECTION */}
-                <div className="flex items-center gap-3 shrink-0">
+                <div
+                    className="flex items-center gap-3 shrink-0 cursor-pointer"
+                    onClick={() => onPageChange('통합 대시보드')}
+                >
                     <div className="mt-2 w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-28 lg:h-28">
                         <img src={Logo} alt="logo" className="w-full h-full object-contain" />
                     </div>
