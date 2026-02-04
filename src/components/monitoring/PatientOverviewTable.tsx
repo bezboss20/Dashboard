@@ -257,7 +257,7 @@ export function PatientOverviewTable({
   };
 
   return (
-    <section className="bg-black rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <section className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div className="px-4 lg:px-6 py-4 border-b border-gray-200">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center justify-between w-full">
