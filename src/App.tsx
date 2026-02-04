@@ -21,61 +21,115 @@ export type MenuItem =
   | 'GPS 위치 추적'
   | '설정';
 
+const MENU_SLUGS: Record<MenuItem, string> = {
+  '통합 대시보드': 'dashboard',
+  '환자 목록': 'patients',
+  '알림 기록': 'notifications',
+  '수면 관리': 'sleep',
+  '환자 등록': 'registration',
+  'GPS 위치 추적': 'gps',
+  '설정': 'settings'
+};
+
+const getPageFromHash = (hash: string): MenuItem => {
+  const h = hash.replace('#/', '');
+  for (const [page, slug] of Object.entries(MENU_SLUGS)) {
+    if (h.startsWith(slug)) return page as MenuItem;
+  }
+  return '통합 대시보드';
+};
+
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<MenuItem>('통합 대시보드');
-  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
-  const [sleepPatientId, setSleepPatientId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<MenuItem>(() => getPageFromHash(window.location.hash));
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(() => {
+    const h = window.location.hash;
+    if (h.includes('patient/')) return h.split('patient/')[1];
+    return null;
+  });
+  const [sleepPatientId, setSleepPatientId] = useState<string | null>(() => {
+    const h = window.location.hash;
+    if (h.startsWith('#/sleep/') && h.split('sleep/')[1]) return h.split('sleep/')[1];
+    return null;
+  });
   const [systemOnline, setSystemOnline] = useState(true);
 
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
       const state = event.state;
+      const hash = window.location.hash;
+
       if (state) {
         setCurrentPage(state.page || '통합 대시보드');
         setSelectedPatientId(state.patientId || null);
         setSleepPatientId(state.sleepPatientId || null);
       } else {
-        setCurrentPage('통합 대시보드');
-        setSelectedPatientId(null);
-        setSleepPatientId(null);
+        // Fallback to hash if state is missing
+        setCurrentPage(getPageFromHash(hash));
+        if (hash.includes('patient/')) {
+          setSelectedPatientId(hash.split('patient/')[1]);
+        } else {
+          setSelectedPatientId(null);
+        }
+
+        if (hash.startsWith('#/sleep/')) {
+          setSleepPatientId(hash.split('sleep/')[1]);
+        } else {
+          setSleepPatientId(null);
+        }
       }
     };
 
     window.addEventListener('popstate', handlePopState);
 
-    // Set initial state
+    // Ensure we have a history stack that allows "Back" to work even on fresh landings
     if (!window.history.state) {
-      window.history.replaceState({ page: currentPage, patientId: selectedPatientId, sleepPatientId }, '');
+      const isInitialDashboard = currentPage === '통합 대시보드' && !selectedPatientId && !sleepPatientId;
+
+      if (isInitialDashboard) {
+        window.history.replaceState({ page: '통합 대시보드', patientId: null, sleepPatientId: null }, '', '#/dashboard');
+      } else {
+        // We landed on a sub-page, so we inject a dashboard entry BEFORE the current one
+        // so that the browser's "back" button takes us to the dashboard.
+        window.history.replaceState({ page: '통합 대시보드', patientId: null, sleepPatientId: null }, '', '#/dashboard');
+        window.history.pushState(
+          { page: currentPage, patientId: selectedPatientId, sleepPatientId },
+          '',
+          window.location.hash
+        );
+      }
     }
 
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [currentPage, selectedPatientId, sleepPatientId]);
 
   const handlePageChange = (page: MenuItem) => {
     if (page === currentPage && !selectedPatientId && !sleepPatientId) return;
     setCurrentPage(page);
     setSelectedPatientId(null);
     setSleepPatientId(null);
-    window.history.pushState({ page, patientId: null, sleepPatientId: null }, '');
+    const slug = MENU_SLUGS[page];
+    window.history.pushState({ page, patientId: null, sleepPatientId: null }, '', `#/${slug}`);
   };
 
   const handleViewPatientDetails = (testId: string) => {
     setSelectedPatientId(testId);
-    window.history.pushState({ page: currentPage, patientId: testId, sleepPatientId }, '');
+    window.history.pushState({ page: currentPage, patientId: testId, sleepPatientId }, '', `#/patient/${testId}`);
   };
 
   const handleBackFromPatientDetails = () => {
-    if (window.history.state?.patientId) {
+    // If the previous history entry has no patientId, or we're at the start, use back()
+    if (window.history.length > 1) {
       window.history.back();
     } else {
       setSelectedPatientId(null);
+      window.history.pushState({ page: currentPage, patientId: null, sleepPatientId: null }, '', `#/${MENU_SLUGS[currentPage]}`);
     }
   };
 
   const handleViewSleepPage = (patientId: string) => {
     setSleepPatientId(patientId);
     setCurrentPage('수면 관리');
-    window.history.pushState({ page: '수면 관리', patientId: null, sleepPatientId: patientId }, '');
+    window.history.pushState({ page: '수면 관리', patientId: null, sleepPatientId: patientId }, '', `#/sleep/${patientId}`);
   };
 
   return (
