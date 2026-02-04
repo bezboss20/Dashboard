@@ -8,7 +8,7 @@ import { getBestPatientId, getHeartRateSeverity, getBreathingRateSeverity } from
 
 export function useDashboardData() {
     const dispatch = useDispatch<AppDispatch>();
-    const { summary, alerts, vitals, loading, error } = useSelector((state: RootState) => state.dashboard);
+    const { summary, alerts, vitals, loading, error, lastUpdated } = useSelector((state: RootState) => state.dashboard);
     const { getLocalizedText } = useLanguage();
 
     useEffect(() => {
@@ -178,6 +178,7 @@ export function useDashboardData() {
         patientsByBreathingRate,
         handleAcknowledgeAlert,
         handleResolveAlert,
+        lastUpdated,
         refetch: () => dispatch(fetchOverviewAsync())
     };
 }

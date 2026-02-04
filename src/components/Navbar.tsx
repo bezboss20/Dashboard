@@ -133,6 +133,7 @@ export function Navbar({
                     {/* SYSTEM STATUS */}
                     <button
                         onClick={onToggleSystem}
+                        title={systemOnline ? t('notifications.details.sysNormal') : t('header.systemOffline')}
                         className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border
               ${systemOnline
                                 ? 'bg-green-50 text-green-700 border-green-100'

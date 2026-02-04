@@ -57,6 +57,24 @@ export function EmergencyAlerts({ alerts, onViewPatientDetails, onAcknowledge, o
     // Increase display limit so all active alerts are visible (e.g. 20+)
     const displayAlerts = alerts.slice(0, 50);
 
+    if (alerts.length === 0) {
+        return (
+            <div className="bg-green-50 border border-green-100 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 text-center animate-fade-in-up">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <Check className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                    <h3 className="text-green-800 font-bold text-lg leading-tight">
+                        {t('notifications.details.sysNormal')}
+                    </h3>
+                    <p className="text-green-600 text-xs mt-1 font-medium">
+                        {t('table.realTime')}
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-4">
             <div className="flex items-center gap-2 text-red-600">

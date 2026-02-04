@@ -22,6 +22,7 @@ export function DashboardView({ data, onViewPatientDetails }: DashboardViewProps
         patientsByBreathingRate,
         handleAcknowledgeAlert,
         handleResolveAlert,
+        lastUpdated,
         refetch
     } = data;
 
@@ -72,17 +73,16 @@ export function DashboardView({ data, onViewPatientDetails }: DashboardViewProps
                 criticalCount={criticalCount}
                 connectedDevices={connectedDevices}
                 totalDevices={totalDevices}
+                lastUpdated={lastUpdated}
                 t={t}
             />
 
-            {sortedActiveAlerts.length > 0 && (
-                <EmergencyAlerts
-                    alerts={sortedActiveAlerts as any}
-                    onViewPatientDetails={onViewPatientDetails}
-                    onAcknowledge={handleAcknowledgeAlert}
-                    onResolve={handleResolveAlert}
-                />
-            )}
+            <EmergencyAlerts
+                alerts={sortedActiveAlerts as any}
+                onViewPatientDetails={onViewPatientDetails}
+                onAcknowledge={handleAcknowledgeAlert}
+                onResolve={handleResolveAlert}
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                 <HeartRateColumn

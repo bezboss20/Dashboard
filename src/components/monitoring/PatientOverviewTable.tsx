@@ -361,21 +361,45 @@ export function PatientOverviewTable({
             const DeviceIcon = deviceStatus.icon;
             const StatusIcon = patientStatus.icon;
 
+            const lastUpdatedDate = new Date(patient.lastUpdated);
+            const isStale = Date.now() - lastUpdatedDate.getTime() > 5 * 60 * 1000;
+            const timeAgo = formatTimeAgo(lastUpdatedDate);
+
             return (
               <button
                 key={patient.id}
                 onClick={() => onSelectPatient(patient.id)}
                 className={`w-full text-left border rounded-xl shadow-sm overflow-hidden transition-colors ${isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white hover:bg-gray-50 border-gray-200'
-                  }`}
+                  } ${isStale ? 'opacity-70' : ''}`}
               >
                 {/* Header */}
                 <div className="px-4 py-3 bg-gray-50 border-b flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="text-sm font-bold text-gray-900 truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible flex items-center gap-1.5">
-                      {getAlertIcon(patient.alertStatus)}
-                      {getLocalizedText({ ko: patient.nameKorean, en: patient.nameEnglish }, patient.nameKorean)}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="relative">
+                        <StatusIcon className={`w-5 h-5 sm:w-6 sm:h-6 ${patientStatus.color.replace('bg-', 'text-')}`} />
+                        {isStale && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white" />}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <h4 className="font-bold text-gray-900 truncate text-[13px] sm:text-[15px]">
+                            {getLocalizedText({ ko: patient.nameKorean, en: patient.nameEnglish }, patient.nameKorean)}
+                          </h4>
+                          {isStale && (
+                            <span
+                              className="text-[8px] bg-red-100 text-red-600 px-1 rounded font-black uppercase cursor-help"
+                              title={t('dashboard.usingCachedData')}
+                            >
+                              Stale
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-gray-500 font-medium">{patient.patientCode}</span>
+                          <span className="text-[9px] text-gray-400 font-medium">• {timeAgo}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-500 truncate">{patient.patientCode}</div>
                   </div>
 
                   <div className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full ${patientStatus.bg}`}>
@@ -573,25 +597,39 @@ export function PatientOverviewTable({
                 const isSelected = patient.id === selectedPatientId;
                 const DeviceIcon = deviceStatus.icon;
                 const StatusIcon = patientStatus.icon;
-                console.log("patientdata", patient);
+
+                const lastUpdatedDate = new Date(patient.lastUpdated);
+                const isStale = Date.now() - lastUpdatedDate.getTime() > 5 * 60 * 1000;
+                const timeAgo = formatTimeAgo(lastUpdatedDate);
 
                 return (
                   <tr
                     key={patient.id}
                     onClick={() => onSelectPatient(patient.id)}
-                    className={`cursor-pointer transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                    className={`cursor-pointer transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'} ${isStale ? 'opacity-75' : ''}`}
                   >
                     <td className="px-1 md:px-0.5 lg:pl-6 xl:pl-8 py-4 lg:py-3 xl:py-3 2xl:py-4 text-center lg:text-left relative">
                       <div className="flex items-center justify-center lg:justify-start w-full gap-0.5 lg:gap-2">
-                        <div className={`w-1 h-8 lg:h-8 rounded shrink-0 lg:absolute lg:left-0 ${isSelected ? 'bg-blue-600' : 'bg-transparent'}`}></div>
+                        <div className={`w-1 h-8 lg:h-8 rounded shrink-0 lg:absolute lg:left-0 ${isSelected ? 'bg-blue-600' : (isStale ? 'bg-red-400' : 'bg-transparent')}`}></div>
                         <div className="flex flex-col text-center lg:text-left min-w-0">
                           <div className="flex items-center justify-center lg:justify-start gap-1.5">
                             {getAlertIcon(patient.alertStatus)}
                             <span className="text-gray-900 font-medium text-xs md:text-[10px] lg:text-xs xl:text-xs 2xl:text-sm whitespace-nowrap truncate px-0.5">
                               {getLocalizedText({ ko: patient.nameKorean, en: patient.nameEnglish }, patient.nameKorean)}
                             </span>
+                            {isStale && (
+                              <span
+                                className="text-[7px] lg:text-[8px] bg-red-100 text-red-600 px-1 rounded font-black uppercase tracking-tighter cursor-help"
+                                title={t('dashboard.usingCachedData')}
+                              >
+                                DELAY
+                              </span>
+                            )}
                           </div>
-                          <span className="text-[10px] md:text-[8px] lg:text-[11px] xl:text-[11px] 2xl:text-sm text-gray-500 whitespace-nowrap">{patient.patientCode}</span>
+                          <div className="flex items-center justify-center lg:justify-start gap-2">
+                            <span className="text-[10px] md:text-[8px] lg:text-[11px] xl:text-[11px] 2xl:text-sm text-gray-500 whitespace-nowrap">{patient.patientCode}</span>
+                            <span className="text-[9px] md:text-[7px] lg:text-[9px] text-gray-400 font-medium">{timeAgo}</span>
+                          </div>
                         </div>
                       </div>
                     </td>

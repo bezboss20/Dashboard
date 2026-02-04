@@ -79,7 +79,7 @@ export function PatientDetailView({ model, onBack }: PatientDetailViewProps) {
 
                     {/* RIGHT */}
                     <div className="space-y-4 sm:space-y-6 min-w-0">
-                        <VitalMetrics vitals={data.vitals} deviceId={data.deviceId} t={t} />
+                        <VitalMetrics vitals={data.vitals} deviceId={data.deviceId} lastUpdated={data.lastUpdated} t={t} />
 
                         {/* HR */}
                         <VitalChart

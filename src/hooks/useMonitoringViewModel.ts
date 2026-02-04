@@ -40,7 +40,12 @@ const mapPatientToDisplay = (patient: Patient): MappedPatient => {
         sleepState: currentSleepStage,
         deviceStatus: (patient as any).deviceStatus || ((patient as any).devices?.[0]?.status?.toLowerCase() || 'offline'),
         deviceId: (patient as any).deviceId || (patient as any).devices?.[0]?.serialNumber || patient.deviceStatus?.deviceCode || 'N/A',
-        lastUpdated: new Date().toISOString(),
+        lastUpdated: (patient as any).lastUpdated ||
+            (patient as any).updatedAt ||
+            (patient as any).updated_at ||
+            (patient as any).latestHeartRate?.timestamp ||
+            (patient as any).latestRespiratoryRate?.timestamp ||
+            new Date().toISOString(),
         patientStatus: patient.status,
         sensorConnected: (patient as any).sensorConnected !== undefined ? (patient as any).sensorConnected : ((patient as any).devices?.[0]?.status === 'ONLINE' || patient.deviceStatus?.isConnected || false),
         alertStatus: (() => {
@@ -177,13 +182,18 @@ export function useMonitoringViewModel() {
     // Map API patients to display format once
     const allMappedPatients = useMemo(() => {
         if (!Array.isArray(apiPatients)) return [];
-        return apiPatients.map(patient => mapPatientToDisplay(patient));
+        const batchTime = new Date().toISOString(); // Capture 'now' once per mapping batch
+        return apiPatients.map(patient => ({
+            ...mapPatientToDisplay(patient),
+            // Ensure patients without specific vital timestamps share the batch refresh time
+            // instead of individual milliseconds or registration dates
+            lastUpdated: (patient as any).lastUpdated ||
+                (patient as any).updatedAt ||
+                (patient as any).latestHeartRate?.timestamp ||
+                batchTime
+        }));
     }, [apiPatients]);
 
-    // Apply filters locally (Single Source of Truth)
-    // FIX: Trust the API response to already be filtered. 
-    // Double-filtering locally caused glitches because local 'searchQuery' updated instantly 
-    // while 'apiPatients' was still stale (waiting for debounce + network).
     // Apply filters locally (Single Source of Truth)
     // FIX: Re-enable local STATUS filtering only.
     // The API seems to return broad data or default data (e.g. Discharged) even when 'TRANSFERRED' is requested.

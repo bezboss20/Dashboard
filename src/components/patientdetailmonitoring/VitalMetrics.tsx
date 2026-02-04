@@ -20,6 +20,7 @@ interface VitalMetricsProps {
         connection: VitalMetric & { healthStatus: DeviceHealthStatus };
     };
     deviceId: string;
+    lastUpdated?: string;
     t: (key: string) => string;
 }
 
@@ -83,86 +84,66 @@ function MetricCard({
     );
 }
 
-export function VitalMetrics({ vitals, deviceId, t }: VitalMetricsProps) {
+export function VitalMetrics({ vitals, deviceId, lastUpdated, t }: VitalMetricsProps) {
+    const formatTime = (isoString?: string) => {
+        if (!isoString) return '';
+        try {
+            return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } catch {
+            return '';
+        }
+    };
+
     return (
-        <div className="grid gap-2 sm:gap-3 lg:gap-4 grid-cols-[repeat(auto-fit,minmax(120px,1fr))]">
-            <MetricCard
-                icon={Heart}
-                label={t('detail.hr')}
-                value={vitals.hr.value}
-                unit={t('common.bpm')}
-                status={t(vitals.hr.status)}
-                statusKey={vitals.hr.status}
-                colorClass="bg-red-300"
-                progressColor="bg-red-300"
-            />
-            <MetricCard
-                icon={Activity}
-                label={t('detail.stress')}
-                value={vitals.stressIndex.value}
-                status={t(vitals.stressIndex.status)}
-                statusKey={vitals.stressIndex.status}
-                colorClass="bg-blue-300"
-                progressColor="bg-blue-300"
-            />
-            <MetricCard
-                icon={Wind}
-                label={t('detail.rr')}
-                value={vitals.rr.value}
-                unit={t('common.rpm')}
-                status={t(vitals.rr.status)}
-                statusKey={vitals.rr.status}
-                colorClass="bg-teal-300"
-                progressColor="bg-teal-300"
-            />
-            <MetricCard
-                icon={Moon}
-                label={t('detail.sleepEfficiency')}
-                value={vitals.sleepIndex.value}
-                status={t(vitals.sleepIndex.status)}
-                statusKey={vitals.sleepIndex.status}
-                colorClass="bg-orange-300"
-                progressColor="bg-orange-300"
-            />
-
-            {/* Connection card */}
-            {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-1.5 sm:p-4 flex flex-col justify-between">
-                <div className="min-w-0">
-                    <div className="flex justify-between items-center gap-1.5 mb-1 sm:mb-2 min-w-0">
-                        <div className="p-1.5 sm:p-2.5 rounded-lg bg-blue-200 bg-opacity-10 flex-shrink-0">
-                            <Link2 className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
-                        </div>
-                        <span
-                            className={`text-[8px] sm:text-[10px] font-bold whitespace-nowrap leading-none ${getHealthStatusClasses(
-                                vitals.connection.healthStatus
-                            )} px-1.5 sm:px-2.5 py-0.5 rounded-full flex-shrink-0 max-w-[72px] truncate`}
-                            title={getHealthStatusLabel(vitals.connection.healthStatus)}
-                        >
-                            {getHealthStatusLabel(vitals.connection.healthStatus)}
-                        </span>
-                    </div>
-
-                    <p className="text-[9px] sm:text-[11px] text-gray-500 font-semibold mb-0.5 sm:mb-1 break-words">
-                        {t('detail.connection')}
-                    </p>
-                    <p className="text-[12px] sm:text-[15px] font-bold text-green-600 mb-0.5 sm:mb-1 break-words">
-                        {t(String(vitals.connection.value))}
-                    </p>
-                    <p className="text-[8px] sm:text-[10px] text-gray-400 font-medium break-words">
-                        S/N: {deviceId}
-                    </p>
-                </div>
-
-                <div className="mt-2 sm:mt-4 flex items-center gap-1.5 min-w-0">
-                    <div
-                        className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0 ${vitals.connection.isNormal ? 'bg-green-500 animate-pulse' : 'bg-red-500'
-                            }`}
-                    />
-                    <span className="text-[8px] sm:text-[10px] text-gray-400 font-medium truncate">
-                        {t(vitals.connection.isNormal ? 'status.online' : 'status.offline')}
+        <div className="space-y-3">
+            <div className="flex items-center justify-between px-1">
+                <h3 className="text-sm font-bold text-gray-700">{t('table.overview')}</h3>
+                {lastUpdated && (
+                    <span className="text-[10px] text-gray-400 font-medium bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
+                        {t('table.lastUpdated')}: {formatTime(lastUpdated)}
                     </span>
-                </div>
-            </div> */}
+                )}
+            </div>
+            <div className="grid gap-2 sm:gap-3 lg:gap-4 grid-cols-[repeat(auto-fit,minmax(120px,1fr))]">
+                <MetricCard
+                    icon={Heart}
+                    label={t('detail.hr')}
+                    value={vitals.hr.value}
+                    unit={t('common.bpm')}
+                    status={t(vitals.hr.status)}
+                    statusKey={vitals.hr.status}
+                    colorClass="bg-red-300"
+                    progressColor="bg-red-300"
+                />
+                <MetricCard
+                    icon={Activity}
+                    label={t('detail.stress')}
+                    value={vitals.stressIndex.value}
+                    status={t(vitals.stressIndex.status)}
+                    statusKey={vitals.stressIndex.status}
+                    colorClass="bg-blue-300"
+                    progressColor="bg-blue-300"
+                />
+                <MetricCard
+                    icon={Wind}
+                    label={t('detail.rr')}
+                    value={vitals.rr.value}
+                    unit={t('common.rpm')}
+                    status={t(vitals.rr.status)}
+                    statusKey={vitals.rr.status}
+                    colorClass="bg-teal-300"
+                    progressColor="bg-teal-300"
+                />
+                <MetricCard
+                    icon={Moon}
+                    label={t('detail.sleepEfficiency')}
+                    value={vitals.sleepIndex.value}
+                    status={t(vitals.sleepIndex.status)}
+                    statusKey={vitals.sleepIndex.status}
+                    colorClass="bg-orange-300"
+                    progressColor="bg-orange-300"
+                />
+            </div>
         </div>
     );
 }
