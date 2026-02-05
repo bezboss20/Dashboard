@@ -7,4 +7,6 @@ export type DeviceLocation = {
     lastUpdated: Date;
     patientId?: string;
     patientName?: string;
+    rssi?: number; // Signal strength in dBm (-30 to -90)
+    accuracy?: number; // GPS Accuracy in meters
 };

@@ -271,6 +271,7 @@ const dictionary: DictionaryEntry[] = [
   { key: 'common.collapse', ko: '접기', en: 'Collapse', ja: '折りたたむ', ch: '折叠', es: 'Contraer', },
   { key: 'common.bpm', ko: 'BPM', en: 'BPM', ja: 'BPM', ch: 'BPM', es: 'BPM', },
   { key: 'common.rpm', ko: 'RPM', en: 'RPM', ja: 'RPM', ch: 'RPM', es: 'RPM', },
+  { key: 'common.close', ko: '창 닫기', en: 'Close View', ja: '閉じる', ch: '关闭', es: 'Cerrar', },
   // ---------------------------------------------------------------------------
   // Error
   // ---------------------------------------------------------------------------
@@ -386,6 +387,9 @@ const dictionary: DictionaryEntry[] = [
   { key: 'gps.uptime', ko: '가동 시간', en: 'System Uptime', ja: '稼働時間', ch: '运行时间', es: 'Tiempo de Actividad', },
   { key: 'gps.horizontalPrecision', ko: '수평 정밀도', en: 'Horizontal precision', ja: '水平精度', ch: '水平精度', es: 'Precisión horizontal', },
   { key: 'gps.monitoring247', ko: '24/7 모니터링', en: '24/7 Monitoring', ja: '24時間監視', ch: '24/7 监控', es: 'Monitoreo 24/7', },
+  { key: 'gps.signalDetails', ko: '장비별 신호 보기', en: 'View Device Signals', ja: 'デバイスの信号を表示', ch: '查看设备信号', es: 'Ver señales de dispositivos', },
+  { key: 'gps.signalDetailsTitle', ko: '네트워크 상태 진단', en: 'Network Diagnostics', ja: 'ネットワーク診断', ch: '网络状态诊断', es: 'Diagnósticos de Red', },
+  { key: 'gps.connectedNodes', ko: '활성 노드', en: 'Active Nodes', ja: 'アクティブノード', ch: '活动节点', es: 'Nodos Activos', },
   // ---------------------------------------------------------------------------
   // Common
   // ---------------------------------------------------------------------------

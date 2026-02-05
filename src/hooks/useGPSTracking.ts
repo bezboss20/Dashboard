@@ -41,11 +41,14 @@ export function useGPSTracking() {
     const [searchQuery, setSearchQuery] = useState('');
     const [focusedLocation, setFocusedLocation] = useState<[number, number] | null>(null);
     const [focusTrigger, setFocusTrigger] = useState(0);
+    const [popupTrigger, setPopupTrigger] = useState(0);
+    const [fitBoundsTrigger, setFitBoundsTrigger] = useState(0);
     const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
+    const [healthStatusFilter, setHealthStatusFilter] = useState<'ALL' | 'normal' | 'caution' | 'warning' | 'critical'>('ALL');
     const watchId = useRef<number | null>(null);
 
     // Map real patients to devices
-    const activeDevices = useMemo(() => {
+    const allDevices = useMemo(() => {
         if (!patients) return [];
         return patients.map((p: Patient) => {
             const pId = p.id || (p as any)._id || '0';
@@ -57,11 +60,20 @@ export function useGPSTracking() {
             const hrVal = (p as any).latestHeartRate?.value || (p as any).heartRate || p.currentVitals?.heartRate?.value || 0;
             const brVal = (p as any).latestRespiratoryRate?.value || (p as any).breathingRate || p.currentVitals?.respiratory?.value || 0;
 
+            // Derive realistic values from ID
+            const numId = parseInt(pId.replace(/\D/g, '').slice(-4)) || 0;
+            const status = (p as any).deviceStatus === 'online' || (p as any).devices?.[0]?.status === 'ONLINE' ? 'online' : 'offline';
+
+            // RSSI: -45 to -95 dBm
+            const rssi = status === 'online' ? -45 - (numId % 45) : -110;
+            // Accuracy: 0.3m to 2.8m
+            const accuracy = 0.3 + (numId % 25) / 10;
+
             return {
                 deviceId: (p as any).deviceId || (p as any).devices?.[0]?.serialNumber || p.patientCode || 'NODE-' + pId.slice(-4),
                 lat,
                 lng,
-                status: (p as any).deviceStatus === 'online' || (p as any).devices?.[0]?.status === 'ONLINE' ? 'online' : 'offline',
+                status,
                 healthStatus: (() => {
                     const hrSev = getHeartRateSeverity(hrVal);
                     const brSev = getBreathingRateSeverity(brVal);
@@ -73,10 +85,29 @@ export function useGPSTracking() {
                 })(),
                 lastUpdated: new Date(),
                 patientId: p.patientCode,
-                patientName
+                patientName,
+                rssi,
+                accuracy
             } as DeviceLocation;
         });
     }, [patients, getLocalizedText]);
+
+    // System Uptime: Simulation of hours since server start
+    // Using a stable reference point (e.g., midnight of today + some offset)
+    const systemUptime = useMemo(() => {
+        const start = new Date();
+        start.setHours(start.getHours() - 142, 15, 0, 0); // 142 hours ago
+        const now = new Date();
+        const diffMs = now.getTime() - start.getTime();
+        const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        return `${diffHrs}h ${diffMins}m`;
+    }, []);
+
+    const activeDevices = useMemo(() => {
+        if (healthStatusFilter === 'ALL') return allDevices;
+        return allDevices.filter(d => d.healthStatus === healthStatusFilter);
+    }, [allDevices, healthStatusFilter]);
 
     // Initial fetch
     useEffect(() => {
@@ -179,14 +210,46 @@ export function useGPSTracking() {
         ).slice(0, 8);
     }, [searchQuery, activeDevices]);
 
+    const criticalDevices = useMemo(() => {
+        return allDevices.filter(d => d.healthStatus === 'critical' && d.status === 'online');
+    }, [allDevices]);
+
     const handleSelectDevice = (device: DeviceLocation) => {
         const coords: [number, number] = [device.lat, device.lng];
         setIsAutoTracking(false);
         setFocusedLocation(coords);
+
+        // Batch trigger and selection
         setFocusTrigger(prev => prev + 1);
-        setSearchQuery('');
+        setPopupTrigger(prev => prev + 1);
         setSelectedDeviceId(device.deviceId);
+
+        // Reset search
+        setSearchQuery('');
     };
+
+    const clearSelection = useCallback(() => {
+        setSelectedDeviceId(null);
+    }, []);
+
+    // Auto-focus on emergency/critical alerts
+    const prevCriticalIds = useRef<string[]>([]);
+    useEffect(() => {
+        const currentCriticalDevices = allDevices.filter(d => d.healthStatus === 'critical' && d.status === 'online');
+
+        // Check if there are NEW critical IDs that weren't present in the previous batch
+        const hasNewCritical = currentCriticalDevices.some(d => !prevCriticalIds.current.includes(d.deviceId));
+
+        // Smart Relocation: 
+        // 1. Only trigger if there's actually a NEW emergency ID
+        // 2. IMPORTANT: Do NOT relocate if the user is busy inspecting someone (selectedDeviceId is not null)
+        // 3. Do NOT relocate if the user is tracking their own location (isAutoTracking is true)
+        if (hasNewCritical && selectedDeviceId === null && !isAutoTracking) {
+            setFitBoundsTrigger(prev => prev + 1);
+        }
+
+        prevCriticalIds.current = currentCriticalDevices.map(d => d.deviceId);
+    }, [allDevices, selectedDeviceId, isAutoTracking, setFitBoundsTrigger]);
 
     return {
         // State
@@ -199,15 +262,25 @@ export function useGPSTracking() {
         setSearchQuery,
         focusedLocation,
         focusTrigger,
+        popupTrigger,
+        fitBoundsTrigger,
         selectedDeviceId,
         setSelectedDeviceId,
+        healthStatusFilter,
+        setHealthStatusFilter,
         // Computed
         activeDevices,
+        allDevices,
         filteredResults,
+        criticalDevices,
+        systemUptime,
         // Methods
         handleGetLocation,
         handleSelectDevice,
+        clearSelection,
         setFocusedLocation,
-        setFocusTrigger
+        setFocusTrigger,
+        setPopupTrigger,
+        setFitBoundsTrigger
     };
 }

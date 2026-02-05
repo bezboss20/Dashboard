@@ -64,12 +64,16 @@ function MapController({
     userLocation,
     isAutoTracking,
     focusTrigger,
+    fitBoundsTrigger,
+    activeDevices,
     containerRef
 }: {
     focusedLocation: [number, number] | null,
     userLocation: [number, number] | null,
     isAutoTracking: boolean,
     focusTrigger: number,
+    fitBoundsTrigger: number,
+    activeDevices: DeviceLocation[],
     containerRef: React.RefObject<HTMLDivElement | null>
 }) {
     const map = useMap();
@@ -159,6 +163,16 @@ function MapController({
         }
     }, [focusedLocation, focusTrigger, map]);
 
+    useEffect(() => {
+        if (fitBoundsTrigger > 0) {
+            const criticals = activeDevices.filter(d => d.healthStatus === 'critical' && d.status === 'online');
+            if (criticals.length > 0) {
+                const bounds = L.latLngBounds(criticals.map(d => [d.lat, d.lng] as [number, number]));
+                map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+            }
+        }
+    }, [fitBoundsTrigger, map, activeDevices]);
+
     return null;
 }
 
@@ -170,10 +184,14 @@ interface GPSMapProps {
     isAutoTracking: boolean;
     focusedLocation: [number, number] | null;
     focusTrigger: number;
+    fitBoundsTrigger: number;
+    popupTrigger: number;
     selectedDeviceId: string | null;
     setFocusedLocation: (loc: [number, number]) => void;
     setFocusTrigger: (cb: (prev: number) => number) => void;
     setIsAutoTracking: (val: boolean) => void;
+    onSelectDevice: (device: DeviceLocation) => void;
+    clearSelection: () => void;
     t: (key: string) => string;
 }
 
@@ -185,10 +203,14 @@ export function GPSMap({
     isAutoTracking,
     focusedLocation,
     focusTrigger,
+    fitBoundsTrigger,
+    popupTrigger,
     selectedDeviceId,
     setFocusedLocation,
     setFocusTrigger,
     setIsAutoTracking,
+    onSelectDevice,
+    clearSelection,
     t
 }: GPSMapProps) {
     const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -197,13 +219,17 @@ export function GPSMap({
     // Handle marker popup opening when selected from external logic
     useEffect(() => {
         if (selectedDeviceId && markerRefs.current[selectedDeviceId]) {
-            // We might need to expose this via prop or context if strictly needed, 
-            // but the parent logic usually just sets focus. 
-            // If we need to open the popup, we can do it here if selectedDeviceId changes.
             const marker = markerRefs.current[selectedDeviceId];
-            if (marker) setTimeout(() => marker.openPopup(), 300);
+            if (marker) {
+                // We use a slightly longer timeout to ensure the map transition 
+                // and MapController's closePopup() have finished.
+                const timeout = setTimeout(() => {
+                    marker.openPopup();
+                }, 400);
+                return () => clearTimeout(timeout);
+            }
         }
-    }, [selectedDeviceId]);
+    }, [selectedDeviceId, popupTrigger]);
 
     return (
         <div ref={mapContainerRef} className="gps-map-wrapper absolute inset-0 bg-gray-100">
@@ -231,6 +257,8 @@ export function GPSMap({
                     userLocation={userLocation}
                     isAutoTracking={isAutoTracking}
                     focusTrigger={focusTrigger}
+                    fitBoundsTrigger={fitBoundsTrigger}
+                    activeDevices={activeDevices}
                     containerRef={mapContainerRef}
                 />
 
@@ -256,6 +284,16 @@ export function GPSMap({
                         icon={createStatusIcon(device.status, device.healthStatus, selectedDeviceId === device.deviceId)}
                         ref={(ref) => {
                             if (ref) markerRefs.current[device.deviceId] = ref;
+                        }}
+                        eventHandlers={{
+                            click: () => {
+                                onSelectDevice(device);
+                            },
+                            popupclose: () => {
+                                if (selectedDeviceId === device.deviceId) {
+                                    clearSelection();
+                                }
+                            }
                         }}
                     >
                         <Popup className="custom-popup">
@@ -288,12 +326,15 @@ export function GPSMap({
                                             setFocusedLocation([device.lat, device.lng]);
                                             setFocusTrigger((prev: number) => prev + 1);
                                             setIsAutoTracking(false);
+                                            // Explicitly close the popup when fixing location
+                                            markerRefs.current[device.deviceId]?.closePopup();
                                         }}
                                         className="flex items-center justify-center gap-1 w-full px-1 py-1 bg-blue-600 text-white rounded-lg text-[8px] sm:text-[9px] font-bold hover:bg-blue-700 transition-colors"
                                     >
                                         <Crosshair className="w-2.5 h-2.5 shrink-0" />
                                         <span>{t('gps.fixLocation')}</span>
                                     </button>
+
                                 </div>
                             </div>
                         </Popup>
