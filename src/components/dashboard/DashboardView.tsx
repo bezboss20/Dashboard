@@ -23,6 +23,7 @@ export function DashboardView({ data, onViewPatientDetails }: DashboardViewProps
         handleAcknowledgeAlert,
         handleResolveAlert,
         lastUpdated,
+        criticalCountFromVitals,
         refetch
     } = data;
 
@@ -57,7 +58,8 @@ export function DashboardView({ data, onViewPatientDetails }: DashboardViewProps
 
     const summaryData = summary || {};
     const totalPatients = summaryData.totalPatients || 0;
-    const criticalCount = summaryData.criticalPatients || 0;
+    // Use ONLY our calculated count from vitals to ensure it matches the columns perfectly
+    const criticalCount = criticalCountFromVitals || 0;
     const connectedDevices = typeof summaryData.connectedDevices === 'object'
         ? summaryData.connectedDevices?.connected || 0
         : (summaryData.connectedDevices || 0);

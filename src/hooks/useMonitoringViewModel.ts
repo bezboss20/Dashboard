@@ -113,6 +113,8 @@ const mapPatientToDisplay = (patient: Patient): MappedPatient => {
     };
 };
 
+export type FilterStatus = PatientStatus | 'ALL' | 'CRITICAL';
+
 export function useMonitoringViewModel() {
     const { t, getLocalizedText } = useLanguage();
     const dispatch = useDispatch<AppDispatch>();
@@ -122,7 +124,7 @@ export function useMonitoringViewModel() {
 
     const [selectedPatientId, setSelectedPatientId] = useState<string>('');
     const [searchQuery, setSearchQuery] = useState('');
-    const [statusFilter, setStatusFilter] = useState<PatientStatus | 'ALL'>('ALL');
+    const [statusFilter, setStatusFilter] = useState<FilterStatus>('ALL');
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
     // Calculate patient counts
@@ -165,7 +167,7 @@ export function useMonitoringViewModel() {
         const params = {
             page: 1,
             limit: 100,
-            patientStatus: statusFilter !== 'ALL' ? statusFilter : undefined,
+            patientStatus: (statusFilter !== 'ALL' && statusFilter !== 'CRITICAL') ? statusFilter : undefined,
             search: debouncedSearchQuery || undefined,
             date: selectedDate || undefined
         };
@@ -204,7 +206,11 @@ export function useMonitoringViewModel() {
         let filtered = allMappedPatients;
 
         if (statusFilter !== 'ALL') {
-            filtered = filtered.filter(p => p.patientStatus === statusFilter);
+            if (statusFilter === 'CRITICAL') {
+                filtered = filtered.filter(p => p.alertStatus === 'critical');
+            } else {
+                filtered = filtered.filter(p => p.patientStatus === statusFilter);
+            }
         }
 
         // Sort by health severity (Critical > Warning > Caution > Normal)
@@ -224,6 +230,8 @@ export function useMonitoringViewModel() {
             active: allMappedPatients.filter(p => p.patientStatus === 'ACTIVE').length,
             discharged: allMappedPatients.filter(p => p.patientStatus === 'DISCHARGED').length,
             transferred: allMappedPatients.filter(p => p.patientStatus === 'TRANSFERRED').length,
+            critical: allMappedPatients.filter(p => p.alertStatus === 'critical').length,
+            total: allMappedPatients.length,
         };
     }, [allMappedPatients]);
 

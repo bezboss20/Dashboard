@@ -88,8 +88,13 @@ export function useDashboardData() {
 
         const processVital = (vital: any, type: 'hr' | 'rr') => {
             if (!vital) return;
+
+            // Prefer patientCode as the stable unique identifier for aggregation
+            const pCode = vital.patientCode;
             const pId = getBestPatientId(vital);
-            if (!pId) return;
+            const key = pCode || pId;
+
+            if (!key) return;
 
             const vitalsObj = vital as any;
             const nameData = vitalsObj.name || vitalsObj.fullNameData || vitalsObj.fullName || vitalsObj.nameData || vitalsObj.patientNameData;
@@ -97,11 +102,11 @@ export function useDashboardData() {
             const nameKo = isNameObject ? nameData.ko : (vital.patientName || vitalsObj.nameKorean || '');
             const nameEn = isNameObject ? nameData.en : (vital.patientNameEnglish || vitalsObj.nameEnglish || '');
 
-            const existing = patientMap.get(pId) || {
-                id: pId,
-                patientId: pId,
-                patientCode: vital.patientCode || '',
-                name: getLocalizedText(isNameObject ? nameData : { ko: nameKo, en: nameEn }, nameKo || vital.patientCode || ''),
+            const existing = patientMap.get(key) || {
+                id: pId || key,
+                patientId: pId || key,
+                patientCode: pCode || '',
+                name: getLocalizedText(isNameObject ? nameData : { ko: nameKo, en: nameEn }, nameKo || pCode || ''),
                 heartRate: 0,
                 breathingRate: 0,
                 hrLastUpdated: null as Date | null,
@@ -134,7 +139,7 @@ export function useDashboardData() {
             if (severityOrder[rrSev] > severityOrder[currentSev]) currentSev = rrSev;
             existing.alertStatus = currentSev;
 
-            patientMap.set(pId, existing);
+            patientMap.set(key, existing);
         };
 
         hrVitals.forEach(hr => processVital(hr, 'hr'));
@@ -208,6 +213,17 @@ export function useDashboardData() {
         }));
     };
 
+    // Final Evaluation for the Summary Card:
+    // Match the user's logic exactly: A patient is critical if:
+    // (HR > 100 OR HR < 50 AND HR > 0) OR (BR > 25 OR BR < 10 AND BR > 0)
+    const criticalCountFromVitals = allPatientsFromVitals.filter(p => {
+        const hr = p.heartRate || 0;
+        const br = p.breathingRate || 0;
+        const isHrCritical = hr > 0 && (hr > 100 || hr < 50);
+        const isBrCritical = br > 0 && (br > 25 || br < 10);
+        return isHrCritical || isBrCritical;
+    }).length;
+
     return {
         summary,
         loading,
@@ -218,6 +234,7 @@ export function useDashboardData() {
         handleAcknowledgeAlert,
         handleResolveAlert,
         lastUpdated: calculatedLastUpdated,
+        criticalCountFromVitals,
         refetch: () => dispatch(fetchOverviewAsync())
     };
 }

@@ -1,19 +1,22 @@
-import { Search, ChevronDown, UserCheck, UserMinus, UserX, Calendar } from 'lucide-react';
+import { Search, ChevronDown, UserCheck, UserMinus, UserX, Calendar, AlertTriangle } from 'lucide-react';
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { PatientStatus } from '../../store/slices/monitoringSlice';
+import { FilterStatus } from '../../hooks/useMonitoringViewModel';
 
 interface PatientFilterBarProps {
   searchQuery: string;
-  onSearchChange: (value: string) => void;
-  statusFilter: PatientStatus | 'ALL';
-  onStatusChange: (status: PatientStatus | 'ALL') => void;
+  onSearchChange: (query: string) => void;
+  statusFilter: FilterStatus;
+  onStatusChange: (status: FilterStatus) => void;
   selectedDate: string | null;
   onDateChange: (date: string | null) => void;
   patientCounts: {
     active: number;
     discharged: number;
     transferred: number;
+    critical: number;
+    total: number;
   };
   t: (key: string) => string;
 }
@@ -51,14 +54,15 @@ export function PatientFilterBar({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const statusOptions: { value: PatientStatus | 'ALL'; label: string }[] = [
+  const statusOptions: { value: FilterStatus; label: string }[] = [
     { value: 'ALL', label: t('filter.allStatus') },
     { value: 'ACTIVE', label: t('filter.active') },
+    { value: 'CRITICAL', label: t('dashboard.criticalPatients') },
     { value: 'DISCHARGED', label: t('filter.discharged') },
     { value: 'TRANSFERRED', label: t('filter.transferred') }
   ];
 
-  const getStatusLabel = (status: PatientStatus | 'ALL') => {
+  const getStatusLabel = (status: FilterStatus) => {
     const option = statusOptions.find((opt) => opt.value === status);
     return option?.label || t('filter.allStatus');
   };
@@ -269,11 +273,32 @@ export function PatientFilterBar({
         </div>
 
         {/* Right Section: Status Summary Cards */}
-        <div className="grid grid-cols-3 gap-2 sm:flex xl:w-auto sm:items-center sm:gap-3 w-full justify-start lg:justify-center xl:justify-start">
+        <div className="grid grid-cols-5 gap-2 sm:flex xl:w-auto sm:items-center sm:gap-3 w-full justify-start lg:justify-center xl:justify-start">
+          {/* Total */}
+          <button
+            onClick={() => onStatusChange('ALL')}
+            className={`group min-w-0 w-full sm:w-auto sm:min-w-[70px] bg-gray-50 border transition-all rounded-lg text-left ${statusFilter === 'ALL'
+              ? 'border-gray-500 ring-2 ring-gray-200 bg-gray-100 shadow-sm'
+              : 'border-gray-200 hover:border-gray-400 hover:bg-gray-100 hover:shadow-xs'
+              }`}
+          >
+            <div className="flex flex-col items-center justify-center text-center px-0.5 py-1 max-[374px]:py-0 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
+              <Search className={`w-3 h-3 max-[374px]:w-2.5 max-[374px]:h-2.5 sm:w-4 sm:h-4 transition-colors ${statusFilter === 'ALL' ? 'text-gray-700' : 'text-gray-600'}`} />
+              <div className="min-w-0">
+                <div className={`text-[8px] max-[374px]:text-[7px] max-[374px]:leading-none max-[374px]:tracking-tight sm:text-[9px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'ALL' ? 'text-gray-700' : 'text-gray-600'}`}>
+                  {t('filter.allStatus')}
+                </div>
+                <div className={`text-[12px] max-[374px]:text-[10px] sm:text-[13px] font-black leading-tight transition-colors ${statusFilter === 'ALL' ? 'text-gray-800' : 'text-gray-700'}`}>
+                  {patientCounts.total}
+                </div>
+              </div>
+            </div>
+          </button>
+
           {/* Active */}
           <button
             onClick={() => onStatusChange(statusFilter === 'ACTIVE' ? 'ALL' : 'ACTIVE')}
-            className={`group min-w-0 w-full sm:w-auto sm:min-w-[90px] bg-green-50 border transition-all rounded-lg text-left ${statusFilter === 'ACTIVE'
+            className={`group min-w-0 w-full sm:w-auto sm:min-w-[70px] bg-green-50 border transition-all rounded-lg text-left ${statusFilter === 'ACTIVE'
               ? 'border-green-500 ring-2 ring-green-200 bg-green-100 shadow-sm'
               : 'border-green-200 hover:border-green-400 hover:bg-green-100 hover:shadow-xs'
               }`}
@@ -281,9 +306,8 @@ export function PatientFilterBar({
             <div className="flex flex-col items-center justify-center text-center px-0.5 py-1 max-[374px]:py-0 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
               <UserCheck className={`w-3 h-3 max-[374px]:w-2.5 max-[374px]:h-2.5 sm:w-4 sm:h-4 transition-colors ${statusFilter === 'ACTIVE' ? 'text-green-700' : 'text-green-600'}`} />
               <div className="min-w-0">
-                <div className={`text-[9px] max-[374px]:text-[7px] max-[374px]:leading-none max-[374px]:tracking-tight sm:text-[10px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'ACTIVE' ? 'text-green-700' : 'text-green-600'}`}>
-                  <span className="hidden max-[425px]:inline">{t('filter.active.mobile')}</span>
-                  <span className="max-[425px]:hidden">{t('filter.active')}</span>
+                <div className={`text-[8px] max-[374px]:text-[7px] max-[374px]:leading-none max-[374px]:tracking-tight sm:text-[9px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'ACTIVE' ? 'text-green-700' : 'text-green-600'}`}>
+                  {t('filter.active')}
                 </div>
                 <div className={`text-[12px] max-[374px]:text-[10px] sm:text-[13px] font-black leading-tight transition-colors ${statusFilter === 'ACTIVE' ? 'text-green-800' : 'text-green-700'}`}>
                   {patientCounts.active}
@@ -292,10 +316,31 @@ export function PatientFilterBar({
             </div>
           </button>
 
+          {/* Critical */}
+          <button
+            onClick={() => onStatusChange(statusFilter === 'CRITICAL' ? 'ALL' : 'CRITICAL')}
+            className={`group min-w-0 w-full sm:w-auto sm:min-w-[70px] bg-red-50 border transition-all rounded-lg text-left ${statusFilter === 'CRITICAL'
+              ? 'border-red-500 ring-2 ring-red-200 bg-red-100 shadow-sm'
+              : 'border-red-200 hover:border-red-400 hover:bg-red-100 hover:shadow-xs'
+              }`}
+          >
+            <div className="flex flex-col items-center justify-center text-center px-0.5 py-1 max-[374px]:py-0 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
+              <AlertTriangle className={`w-3 h-3 max-[374px]:w-2.5 max-[374px]:h-2.5 sm:w-4 sm:h-4 animate-pulse transition-colors ${statusFilter === 'CRITICAL' ? 'text-red-700' : 'text-red-600'}`} />
+              <div className="min-w-0">
+                <div className={`text-[8px] max-[374px]:text-[7px] max-[374px]:leading-none max-[374px]:tracking-tight sm:text-[9px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'CRITICAL' ? 'text-red-700' : 'text-red-600'}`}>
+                  {t('status.critical')}
+                </div>
+                <div className={`text-[12px] max-[374px]:text-[10px] sm:text-[13px] font-black leading-tight transition-colors ${statusFilter === 'CRITICAL' ? 'text-red-800' : 'text-red-700'}`}>
+                  {patientCounts.critical}
+                </div>
+              </div>
+            </div>
+          </button>
+
           {/* Discharged */}
           <button
             onClick={() => onStatusChange(statusFilter === 'DISCHARGED' ? 'ALL' : 'DISCHARGED')}
-            className={`group min-w-0 w-full sm:w-auto sm:min-w-[90px] bg-blue-50 border transition-all rounded-lg text-left ${statusFilter === 'DISCHARGED'
+            className={`group min-w-0 w-full sm:w-auto sm:min-w-[70px] bg-blue-50 border transition-all rounded-lg text-left ${statusFilter === 'DISCHARGED'
               ? 'border-blue-500 ring-2 ring-blue-200 bg-blue-100 shadow-sm'
               : 'border-blue-200 hover:border-blue-400 hover:bg-blue-100 hover:shadow-xs'
               }`}
@@ -303,9 +348,8 @@ export function PatientFilterBar({
             <div className="flex flex-col items-center justify-center text-center px-0.5 py-1 max-[374px]:py-0 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
               <UserMinus className={`w-3 h-3 max-[374px]:w-2.5 max-[374px]:h-2.5 sm:w-4 sm:h-4 transition-colors ${statusFilter === 'DISCHARGED' ? 'text-blue-700' : 'text-blue-600'}`} />
               <div className="min-w-0">
-                <div className={`text-[9px] max-[374px]:text-[7px] max-[374px]:leading-none max-[374px]:tracking-tight sm:text-[10px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'DISCHARGED' ? 'text-blue-700' : 'text-blue-600'}`}>
-                  <span className="hidden max-[425px]:inline">{t('filter.discharged.mobile')}</span>
-                  <span className="max-[425px]:hidden">{t('filter.discharged')}</span>
+                <div className={`text-[8px] max-[374px]:text-[7px] max-[374px]:leading-none max-[374px]:tracking-tight sm:text-[9px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'DISCHARGED' ? 'text-blue-700' : 'text-blue-600'}`}>
+                  {t('filter.discharged')}
                 </div>
                 <div className={`text-[12px] max-[374px]:text-[10px] sm:text-[13px] font-black leading-tight transition-colors ${statusFilter === 'DISCHARGED' ? 'text-blue-800' : 'text-blue-700'}`}>
                   {patientCounts.discharged}
@@ -317,7 +361,7 @@ export function PatientFilterBar({
           {/* Transferred */}
           <button
             onClick={() => onStatusChange(statusFilter === 'TRANSFERRED' ? 'ALL' : 'TRANSFERRED')}
-            className={`group min-w-0 w-full sm:w-auto sm:min-w-[90px] bg-orange-50 border transition-all rounded-lg text-left ${statusFilter === 'TRANSFERRED'
+            className={`group min-w-0 w-full sm:w-auto sm:min-w-[70px] bg-orange-50 border transition-all rounded-lg text-left ${statusFilter === 'TRANSFERRED'
               ? 'border-orange-500 ring-2 ring-orange-200 bg-orange-100 shadow-sm'
               : 'border-orange-200 hover:border-orange-400 hover:bg-orange-100 hover:shadow-xs'
               }`}
@@ -325,9 +369,8 @@ export function PatientFilterBar({
             <div className="flex flex-col items-center justify-center text-center px-0.5 py-1 max-[374px]:py-0 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
               <UserX className={`w-3 h-3 max-[374px]:w-2.5 max-[374px]:h-2.5 sm:w-4 sm:h-4 transition-colors ${statusFilter === 'TRANSFERRED' ? 'text-orange-700' : 'text-orange-600'}`} />
               <div className="min-w-0">
-                <div className={`text-[8px] max-[374px]:text-[7px] max-[374px]:leading-none max-[374px]:tracking-tight sm:text-[9px] md:text-[10px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'TRANSFERRED' ? 'text-orange-700' : 'text-orange-600'}`}>
-                  <span className="hidden max-[425px]:inline">{t('filter.transferred.mobile')}</span>
-                  <span className="max-[425px]:hidden">{t('filter.transferred')}</span>
+                <div className={`text-[8px] max-[374px]:text-[7px] max-[374px]:leading-none max-[374px]:tracking-tight sm:text-[9px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'TRANSFERRED' ? 'text-orange-700' : 'text-orange-600'}`}>
+                  {t('filter.transferred')}
                 </div>
                 <div className={`text-[12px] max-[374px]:text-[10px] sm:text-[13px] font-black leading-tight transition-colors ${statusFilter === 'TRANSFERRED' ? 'text-orange-800' : 'text-orange-700'}`}>
                   {patientCounts.transferred}

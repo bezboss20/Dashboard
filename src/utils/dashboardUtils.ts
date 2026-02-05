@@ -23,6 +23,7 @@ export const getBestPatientId = (item: any): string => {
 };
 
 export const getHeartRateSeverity = (hr: number): 'critical' | 'warning' | 'caution' | 'normal' => {
+    if (!hr || hr <= 0) return 'normal';
     if (hr > 100 || hr < 50) return 'critical';
     if (hr > 90 || hr < 60) return 'warning';
     if (hr > 85 || hr < 65) return 'caution';
@@ -30,6 +31,7 @@ export const getHeartRateSeverity = (hr: number): 'critical' | 'warning' | 'caut
 };
 
 export const getBreathingRateSeverity = (br: number): 'critical' | 'warning' | 'caution' | 'normal' => {
+    if (!br || br <= 0) return 'normal';
     if (br > 25 || br < 10) return 'critical';
     if (br > 22 || br < 12) return 'warning';
     if (br > 20 || br < 14) return 'caution';
