@@ -103,32 +103,7 @@ export function getNotificationLogs(): NotificationLog[] {
     return [...notificationLogs];
 }
 
-// Seed the logs with system logs only
-const initialLogs: NotificationLog[] = [
-    {
-        id: "SYS-001",
-        timestamp: formatTimestamp(new Date(Date.now() - 3600000)),
-        system: "시스템 상태 점검",
-        patientId: "N/A",
-        category: "시스템 관리/상태 확인",
-        type: "시스템_상태_점검",
-        status: "성공",
-        details: "모든 시스템 정상 작동 중",
-        patientName: "",
-        fullName: undefined
-    },
-    {
-        id: "SYS-002",
-        timestamp: formatTimestamp(new Date(Date.now() - 7200000)),
-        system: "데이터 백업 서비스",
-        patientId: "N/A",
-        category: "시스템 관리/백업",
-        type: "데이터_백업",
-        status: "실패",
-        details: "백업 실패 - 연결 시간 초과",
-        patientName: "",
-        fullName: undefined
-    }
-];
+// Initial logs should be empty for production
+const initialLogs: NotificationLog[] = [];
 
-notificationLogs = initialLogs.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+notificationLogs = initialLogs;

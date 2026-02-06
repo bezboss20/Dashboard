@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useLanguage } from '../context/LanguageContext';
 import { appendNotificationLog, formatTimestamp } from '../data/notificationLogStore';
 
-const API_BASE_URL = 'https://kaleidoscopically-prorailroad-kris.ngrok-free.dev';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://kaleidoscopically-prorailroad-kris.ngrok-free.dev';
 
 export function useRegistration() {
     const { t, language } = useLanguage();

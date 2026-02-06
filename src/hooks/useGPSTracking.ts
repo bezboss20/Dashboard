@@ -6,28 +6,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { DeviceLocation } from '../types/gps';
 import { getHeartRateSeverity, getBreathingRateSeverity } from '../utils/dashboardUtils';
 
-// Deterministic coordinate generation logic (moved from page)
-const generateStaticCoords = (id: string): [number, number] => {
-    const baseLat = 37.5665;
-    const baseLng = 126.9780;
+// Coordinates should come from the backend. Static generation removed for production.
 
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-        hash = ((hash << 5) - hash) + id.charCodeAt(i);
-        hash |= 0;
-    }
-
-    let hash2 = 0;
-    for (let i = id.length - 1; i >= 0; i--) {
-        hash2 = ((hash2 << 7) - hash2) + id.charCodeAt(i) * (i + 1);
-        hash2 |= 0;
-    }
-
-    const latOffset = ((Math.abs(hash) % 2000) / 2000) * 0.2 - 0.1;
-    const lngOffset = ((Math.abs(hash2) % 2000) / 2000) * 0.25 - 0.125;
-
-    return [baseLat + latOffset, baseLng + lngOffset];
-};
 
 export function useGPSTracking() {
     const { t, getLocalizedText } = useLanguage();
@@ -52,7 +32,8 @@ export function useGPSTracking() {
         if (!patients) return [];
         return patients.map((p: Patient) => {
             const pId = p.id || (p as any)._id || '0';
-            const [lat, lng] = generateStaticCoords(pId);
+            const lat = (p as any).lat || 0;
+            const lng = (p as any).lng || 0;
             const patientName = (p as any).fullName
                 ? getLocalizedText((p as any).fullName, (p as any).fullName.ko || p.patientCode || '')
                 : p.patientCode || '';
@@ -60,14 +41,12 @@ export function useGPSTracking() {
             const hrVal = (p as any).latestHeartRate?.value || (p as any).heartRate || p.currentVitals?.heartRate?.value || 0;
             const brVal = (p as any).latestRespiratoryRate?.value || (p as any).breathingRate || p.currentVitals?.respiratory?.value || 0;
 
-            // Derive realistic values from ID
-            const numId = parseInt(pId.replace(/\D/g, '').slice(-4)) || 0;
             const status = (p as any).deviceStatus === 'online' || (p as any).devices?.[0]?.status === 'ONLINE' ? 'online' : 'offline';
 
-            // RSSI: -45 to -95 dBm
-            const rssi = status === 'online' ? -45 - (numId % 45) : -110;
-            // Accuracy: 0.3m to 2.8m
-            const accuracy = 0.3 + (numId % 25) / 10;
+            // Real values should come from backend. Using fallbacks of 0/default.
+            const rssi = (p as any).rssi || (status === 'online' ? -60 : -110);
+            const accuracy = (p as any).accuracy || 0;
+
 
             return {
                 deviceId: (p as any).deviceId || (p as any).devices?.[0]?.serialNumber || p.patientCode || 'NODE-' + pId.slice(-4),
@@ -92,17 +71,8 @@ export function useGPSTracking() {
         });
     }, [patients, getLocalizedText]);
 
-    // System Uptime: Simulation of hours since server start
-    // Using a stable reference point (e.g., midnight of today + some offset)
-    const systemUptime = useMemo(() => {
-        const start = new Date();
-        start.setHours(start.getHours() - 142, 15, 0, 0); // 142 hours ago
-        const now = new Date();
-        const diffMs = now.getTime() - start.getTime();
-        const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-        const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        return `${diffHrs}h ${diffMins}m`;
-    }, []);
+    const systemUptime = (patients?.[0] as any)?.systemUptime || "--:--";
+
 
     const activeDevices = useMemo(() => {
         if (healthStatusFilter === 'ALL') return allDevices;

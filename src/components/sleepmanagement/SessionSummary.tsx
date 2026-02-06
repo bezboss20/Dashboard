@@ -111,8 +111,7 @@ export function SessionSummary({
                 if (dateRangeSuffix) return dateRangeSuffix;
                 try {
                   if (!timeInfo?.bedIn || !timeInfo?.wakeUp) {
-                    console.log('SessionSummary - Missing timeInfo:', timeInfo);
-                    return 'Oct 12 - Oct 13';
+                    return '--';
                   }
 
                   // Try to parse the dates
@@ -128,8 +127,7 @@ export function SessionSummary({
                   const wakeUpDate = parseDate(timeInfo.wakeUp);
 
                   if (!bedInDate || !wakeUpDate) {
-                    console.log('SessionSummary - Parse failed for:', timeInfo);
-                    return `${timeInfo.bedIn.split(' ')[0]} - ${timeInfo.wakeUp.split(' ')[0]}` || 'Oct 12 - Oct 13';
+                    return `${timeInfo.bedIn.split(' ')[0]} - ${timeInfo.wakeUp.split(' ')[0]}` || '--';
                   }
 
                   const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
@@ -140,9 +138,9 @@ export function SessionSummary({
 
                   return `${start} - ${end}`;
                 } catch (e) {
-                  console.error('SessionSummary - Date calculation error:', e);
-                  return 'Oct 12 - Oct 13';
+                  return '--';
                 }
+
               })()}
             </p>
           </div>

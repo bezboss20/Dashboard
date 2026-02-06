@@ -32,9 +32,8 @@ export function StatusCards({ totalDevices, activeDevices, uptime, selectedDevic
             <div className="bg-white p-5 max-[374px]:p-3 rounded-2xl border border-gray-200 shadow-sm flex items-start justify-between group hover:border-blue-200 transition-colors min-w-0">
                 <div className="min-w-0 flex-1">
                     <p className="text-[10px] max-[374px]:text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1 truncate">{t('gps.accuracy')}</p>
-                    <p className="text-xl max-[374px]:text-lg font-black text-blue-600 tracking-tight">
-                        {selectedDeviceAccuracy ? `${selectedDeviceAccuracy.toFixed(1)}m` : '0.8m'}
-                    </p>
+                    {selectedDeviceAccuracy ? `${selectedDeviceAccuracy.toFixed(1)}m` : '--m'}
+
                     <p className="text-[10px] max-[374px]:text-[8px] text-gray-400 font-bold mt-1 uppercase leading-none truncate">
                         {selectedDeviceName ? `${selectedDeviceName}` : t('gps.horizontalPrecision')}
                     </p>

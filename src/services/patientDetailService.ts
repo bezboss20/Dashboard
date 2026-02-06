@@ -54,7 +54,6 @@ export const fetchPatientDetail = async (patientId: string, lang: string, range?
         return `status.${severity}`;
     };
 
-    const admissionDate = new Date(); // API default fallback
 
     // Find latest vital timestamp for lastUpdated
     const lastHrTime = apiData.heartRateMonitoring?.data?.length > 0
@@ -87,15 +86,24 @@ export const fetchPatientDetail = async (patientId: string, lang: string, range?
         status,
         statusLabel: status.toLowerCase(),
         lastUpdated,
-        bloodType: 'A+',
+        bloodType: (patient as any).bloodType || '--',
         deviceId: deviceStatus?.deviceCode || 'N/A',
-        doctor: '김의사',
-        doctorEnglish: 'Dr. Kim',
-        nurse: '이간호사',
-        nurseEnglish: 'Nurse Lee',
-        admissionDate: admissionDate.toISOString().split('T')[0].replace(/-/g, '.'),
-        admissionDay: 1,
-        diagnosis: 'detail.observe',
+        doctor: (patient as any).doctorName || '--',
+        doctorEnglish: (patient as any).doctorNameEnglish || '--',
+        nurse: (patient as any).nurseName || '--',
+        nurseEnglish: (patient as any).nurseNameEnglish || '--',
+        admissionDate: (() => {
+            const baseDate = patient.createdAt || patient.admissionDate;
+            if (!baseDate) return '--';
+            const dateStr = new Date(baseDate).toISOString().split('T')[0].replace(/-/g, '.');
+            const diffDays = Math.max(0, Math.floor((new Date().getTime() - new Date(baseDate).getTime()) / (1000 * 60 * 60 * 24)));
+            const unitMap: Record<string, string> = { 'ko': '일', 'ja': '일', 'ch': '天', 'es': 'días', 'en': 'days' };
+            return `${dateStr} (${diffDays}${unitMap[lang] || 'days'})`;
+        })(),
+
+        diagnosis: (patient as any).diagnosis || '--',
+
+
         patientStatus: patient.status === 'ACTIVE' ? 'ACTIVE' : 'DISCHARGED',
         vitals: {
             hr: {
@@ -145,6 +153,10 @@ export const fetchPatientDetail = async (patientId: string, lang: string, range?
                 severity: mapSeverity(a.severity)
             } as AlertEntry;
         }),
+        // Explicitly clear history until real backend data is confirmed (currently returning mock points)
+        hrHistory: [],
+        rrHistory: [],
+        /*
         hrHistory: (apiData.heartRateMonitoring?.data || []).map((p: any) => ({
             time: new Date(p.timestamp).toLocaleTimeString(getLocale(lang), { hour: '2-digit', minute: '2-digit' }),
             timestamp: new Date(p.timestamp).getTime(),
@@ -157,6 +169,8 @@ export const fetchPatientDetail = async (patientId: string, lang: string, range?
             hr: 0,
             rr: p.value
         })),
+        */
+
         sleepRecord: {
             totalDuration: sleepRecord?.totalSleep?.formatted || '0h 0m',
             deep: {

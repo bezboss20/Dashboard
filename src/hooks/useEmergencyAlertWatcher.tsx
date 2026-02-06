@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useLanguage } from '../context/LanguageContext';
 
 const POLL_INTERVAL = 15000; // 15 seconds
-const API_BASE_URL = 'https://kaleidoscopically-prorailroad-kris.ngrok-free.dev';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://kaleidoscopically-prorailroad-kris.ngrok-free.dev';
 
 export function useEmergencyAlertWatcher(onNewAlert: (alert: any) => void) {
     const { getLocalizedText } = useLanguage();

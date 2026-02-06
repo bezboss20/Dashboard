@@ -90,7 +90,6 @@ export const fetchAlertsAsync = createAsyncThunk(
         endDate?: string;
     } = {}, { rejectWithValue }) => {
         try {
-            // Build query parameters
             const queryParams = new URLSearchParams();
             queryParams.append('page', String(params.page || 1));
             queryParams.append('limit', String(params.limit = 10));
@@ -104,8 +103,8 @@ export const fetchAlertsAsync = createAsyncThunk(
                 queryParams.append('endDate', params.endDate);
             }
 
-            const apiUrl = `https://kaleidoscopically-prorailroad-kris.ngrok-free.dev/getAll-alerts?${queryParams.toString()}`;
-            console.log('Alerts API - Calling:', apiUrl);
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://kaleidoscopically-prorailroad-kris.ngrok-free.dev';
+            const apiUrl = `${baseUrl}/getAll-alerts?${queryParams.toString()}`;
 
             const response = await axios.get<AlertsResponse>(
                 apiUrl,
@@ -115,8 +114,6 @@ export const fetchAlertsAsync = createAsyncThunk(
                     }
                 }
             );
-
-            console.log('Alerts API Response:', response.data);
 
             if (response.data.success) {
                 const apiData = response.data.data;
@@ -128,20 +125,16 @@ export const fetchAlertsAsync = createAsyncThunk(
                     limit: apiData.limit,
                     totalPages: apiData.totalPages
                 };
-                console.log('Alerts API - Returning:', normalizedData);
                 return normalizedData;
             }
-            console.error('Alerts API - Success was false');
             return rejectWithValue('API returned unsuccessful response');
         } catch (error) {
-            console.error('Alerts API - Error caught:', error);
             if (axios.isAxiosError(error)) {
-                console.error('Alerts API - Axios Error:', error.response?.status, error.response?.data);
                 return rejectWithValue(error.message);
             }
-            console.error('Alerts API - Unknown error:', error);
             return rejectWithValue('An unexpected error occurred');
         }
+
     }
 );
 

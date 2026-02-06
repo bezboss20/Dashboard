@@ -15,7 +15,6 @@ interface PatientInfoCardProps {
         lastUpdated: string;
         bloodType: string;
         admissionDate: string;
-        admissionDay: number;
         diagnosis: string;
         patientStatus?: PatientStatus;
     };
@@ -164,12 +163,7 @@ export function PatientInfoCard({ data, language, t, onStatusChange }: PatientIn
                 </h2>
 
                 <p className="text-[11px] sm:text-[12px] text-gray-500 font-medium leading-snug mb-3 sm:mb-4">
-                    🎂 1965.05.20 ({data.age}
-                    {t('detail.yearsOld')}) |{' '}
-                    {data.gender === 'FEMALE' ? t('gender.female') : t('gender.male')} |{' '}
-                    {['ko', 'ja', 'ch'].includes(language)
-                        ? `${data.room.replace('호', '')}${t('detail.roomUnit')}`
-                        : `${t('detail.roomUnit')} ${data.room.replace('호', '')}`}
+                    🎂 1965.05.20 ({data.age}{t('detail.yearsOld')})
                 </p>
 
                 {/* Patient Status Dropdown */}
@@ -213,13 +207,23 @@ export function PatientInfoCard({ data, language, t, onStatusChange }: PatientIn
             </div>
 
             <div className="space-y-0 text-gray-700">
-                <InfoRow compact={true} label={t('table.bloodType') || 'Blood Type'} value={data.bloodType} />
+                <InfoRow
+                    compact={true}
+                    label={t('detail.gender')}
+                    value={data.gender === 'FEMALE' ? t('gender.female') : t('gender.male')}
+                />
                 <InfoRow
                     compact={true}
                     label={t('detail.admissionDate')}
-                    value={`${data.admissionDate} (${data.admissionDay}${t('detail.days')})`}
+                    value={data.admissionDate}
                 />
-                <InfoRow compact={true} label={t('detail.diagnosis')} value={t(data.diagnosis)} />
+                <InfoRow
+                    compact={true}
+                    label={t('detail.room')}
+                    value={['ko', 'ja', 'ch'].includes(language)
+                        ? `${data.room.replace('호', '')}${t('detail.roomUnit')}`
+                        : `${t('detail.roomUnit')} ${data.room.replace('호', '')}`}
+                />
             </div>
         </div>
     );

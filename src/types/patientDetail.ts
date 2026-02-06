@@ -42,7 +42,6 @@ export interface PatientDetail {
     nurse: string;
     nurseEnglish: string;
     admissionDate: string;
-    admissionDay: number;
     diagnosis: string;
     patientStatus: 'ACTIVE' | 'DISCHARGED' | 'TRANSFERRED';
     vitals: {

@@ -76,8 +76,8 @@ export const fetchSleepAnalyticsAsync = createAsyncThunk(
     'sleep/fetchSleepAnalyticsAsync',
     async (patientId: string, { rejectWithValue }) => {
         try {
-            const apiUrl = `https://kaleidoscopically-prorailroad-kris.ngrok-free.dev/analytics/${patientId}`;
-            console.log('Sleep API - Calling:', apiUrl);
+            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://kaleidoscopically-prorailroad-kris.ngrok-free.dev';
+            const apiUrl = `${baseUrl}/analytics/${patientId}`;
 
             const response = await axios.get<SleepAnalyticsResponse>(
                 apiUrl,
@@ -88,19 +88,17 @@ export const fetchSleepAnalyticsAsync = createAsyncThunk(
                 }
             );
 
-            console.log('Sleep API Response:', response.data);
-
             if (response.data.success) {
                 return response.data.data;
             }
             return rejectWithValue('API returned unsuccessful response');
         } catch (error) {
-            console.error('Sleep API - Error caught:', error);
             if (axios.isAxiosError(error)) {
                 return rejectWithValue(error.response?.data?.message || error.message);
             }
             return rejectWithValue('An unexpected error occurred');
         }
+
     }
 );
 

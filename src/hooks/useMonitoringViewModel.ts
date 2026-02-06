@@ -64,25 +64,14 @@ const mapPatientToDisplay = (patient: Patient): MappedPatient => {
         })(),
         stressIndex: (patient as any).stressIndex || 0,
         sleepScore: (patient as any).sleepScore || (patient as any).latestSleepRecord?.score || patient.sleepRecord?.score || 0,
-        radarDetection: true,
-        heartRateHistory: (patient as any).heartRateHistory || {
-            oneMin: [{ value: heartRateValue }],
-            fiveMin: [{ value: heartRateValue }],
-            fifteenMin: [{ value: heartRateValue }],
-            thirtyMin: [{ value: heartRateValue }],
-            oneHour: [{ value: heartRateValue }],
-            sixHours: [{ value: heartRateValue }],
-            twentyFourHours: [{ value: heartRateValue }]
+        radarDetection: (patient as any).radarDetection !== undefined ? (patient as any).radarDetection : true,
+        heartRateHistory: {
+            oneMin: [], fiveMin: [], fifteenMin: [], thirtyMin: [], oneHour: [], sixHours: [], twentyFourHours: []
         },
-        breathingRateHistory: (patient as any).breathingRateHistory || {
-            oneMin: [{ value: breathingRateValue }],
-            fiveMin: [{ value: breathingRateValue }],
-            fifteenMin: [{ value: breathingRateValue }],
-            thirtyMin: [{ value: breathingRateValue }],
-            oneHour: [{ value: breathingRateValue }],
-            sixHours: [{ value: breathingRateValue }],
-            twentyFourHours: [{ value: breathingRateValue }]
+        breathingRateHistory: {
+            oneMin: [], fiveMin: [], fifteenMin: [], thirtyMin: [], oneHour: [], sixHours: [], twentyFourHours: []
         },
+
         personalInfo: {
             age: patient.age,
             gender: patient.gender === 'FEMALE' ? '여' : '남',
@@ -110,6 +99,8 @@ const mapPatientToDisplay = (patient: Patient): MappedPatient => {
         },
         registrationDate: foundRegistrationDate, // No fallback
         patientCode: patient.patientCode || 'N/A'
+
+
     };
 };
 

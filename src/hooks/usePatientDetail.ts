@@ -13,40 +13,8 @@ const formatTime = (date: Date, lang: string) => {
     });
 };
 
-// Mock data generator for charts (kept internal as it's UI specific)
-const generateMonitoringData = (range: TimeRange, lang: string, _patientId?: string): MonitoringPoint[] => {
-    const points: MonitoringPoint[] = [];
-    const now = new Date();
-    let intervalMs = 0;
-    let count = 0;
+// Monitoring data should come from the backend. Mock generator removed for production.
 
-    switch (range) {
-        case '5분': intervalMs = 30 * 1000; count = 11; break;
-        case '15분': intervalMs = 60 * 1000; count = 16; break;
-        case '30분': intervalMs = 2 * 60 * 1000; count = 16; break;
-        case '1시간': intervalMs = 5 * 60 * 1000; count = 13; break;
-        case '6시간': intervalMs = 30 * 60 * 1000; count = 13; break;
-        case '24시간': intervalMs = 2 * 60 * 60 * 1000; count = 13; break;
-    }
-
-    let lastHr = 72;
-    let lastRr = 16;
-
-    for (let i = count - 1; i >= 0; i--) {
-        const time = new Date(now.getTime() - i * intervalMs);
-        lastHr = Math.max(60, Math.min(100, lastHr + (Math.random() - 0.5) * 4));
-        lastRr = Math.max(12, Math.min(22, lastRr + (Math.random() - 0.5) * 1));
-
-        points.push({
-            time: formatTime(time, lang),
-            timestamp: time.getTime(),
-            hr: Math.round(lastHr),
-            rr: parseFloat(lastRr.toFixed(1))
-        });
-    }
-
-    return points;
-};
 
 export function usePatientDetail(patientId: string) {
     const { t, language } = useLanguage();
@@ -80,18 +48,13 @@ export function usePatientDetail(patientId: string) {
     };
 
     const hrData = useMemo(() => {
-        if (data?.hrHistory && data.hrHistory.length > 0) {
-            return data.hrHistory;
-        }
-        return generateMonitoringData(hrRange, language, patientId);
-    }, [data?.hrHistory, hrRange, language, patientId]);
+        return data?.hrHistory || [];
+    }, [data?.hrHistory]);
 
     const rrData = useMemo(() => {
-        if (data?.rrHistory && data.rrHistory.length > 0) {
-            return data.rrHistory;
-        }
-        return generateMonitoringData(rrRange, language, patientId);
-    }, [data?.rrHistory, rrRange, language, patientId]);
+        return data?.rrHistory || [];
+    }, [data?.rrHistory]);
+
 
     const hrBaseline = useMemo(() => {
         if (!hrData || hrData.length === 0) return null;
