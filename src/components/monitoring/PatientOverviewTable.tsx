@@ -267,14 +267,14 @@ export function PatientOverviewTable({
       <div className="px-4 lg:px-6 py-4 border-b border-gray-200">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center justify-between w-full">
-            <div>
-              <h2 className="text-gray-900 font-bold">{t('table.overview')}</h2>
-              <div className="flex items-center gap-2">
-                <p className="text-xs lg:text-sm text-gray-500">{t('table.realTime')}</p>
+            <div className="flex flex-col gap-1.5">
+              <h2 className="text-gray-900 font-bold leading-tight">{t('table.overview')}</h2>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+                <p className="text-xs lg:text-sm text-gray-500 font-medium">{t('table.realTime')}</p>
                 {syncTime && (
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-50 rounded-full border border-gray-100">
+                  <div className="flex items-center self-start gap-1.5 px-2 py-0.5 bg-gray-50 rounded-full border border-gray-100">
                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-[9px] lg:text-[10px] text-gray-400 font-bold uppercase tracking-tight">
+                    <span className="text-[9px] lg:text-[10px] text-gray-400 font-black uppercase tracking-tight">
                       {t('dashboard.lastUpdated')}: {formatTimeAgo(syncTime)}
                     </span>
                   </div>
@@ -390,38 +390,36 @@ export function PatientOverviewTable({
                   } ${isStale ? 'opacity-85' : ''}`}
               >
                 {/* Header */}
-                <div className="px-4 py-3 bg-gray-50 border-b flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="relative shrink-0">
-                        <StatusIcon className={`w-5 h-5 sm:w-6 sm:h-6 ${patientStatus.color.replace('bg-', 'text-')}`} />
-                        {isStale && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white" />}
+                <div className="px-3.5 py-3 bg-slate-50 border-b border-slate-100 flex items-start justify-between gap-2.5">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start gap-2.5 min-w-0">
+                      <div className="relative shrink-0 mt-0.5">
+                        <StatusIcon className={`w-5 h-5 ${patientStatus.color.replace('text-', 'text-opacity-80 text-')}`} />
+                        {isStale && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-slate-50" />}
                       </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <h4 className="font-bold text-gray-900 truncate text-[13px] sm:text-[15px]">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
+                          <h4 className="font-bold text-slate-900 text-[14px] leading-tight">
                             {getLocalizedText({ ko: patient.nameKorean, en: patient.nameEnglish }, patient.nameKorean)}
                           </h4>
                           {isStale && (
-                            <span
-                              className="text-[8px] bg-red-100 text-red-600 px-1 rounded font-black uppercase cursor-help"
-                              title={t('dashboard.usingCachedData')}
-                            >
-                              Stale
-                            </span>
+                            <span className="text-[8px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-sm font-black uppercase tracking-tighter">STALE</span>
                           )}
                         </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] text-gray-500 font-medium">{patient.patientCode}</span>
-                          <span className="text-[9px] text-gray-400 font-medium">• {timeAgo}</span>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                          <span className="text-[10px] text-slate-500 font-bold tracking-tight uppercase">{patient.patientCode}</span>
+                          <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+                            <Clock className="w-2.5 h-2.5" />
+                            {timeAgo}
+                          </span>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full ${patientStatus.bg}`}>
+                  <div className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${patientStatus.bg} border border-transparent`}>
                     <StatusIcon className={`w-3 h-3 ${patientStatus.color}`} />
-                    <span className={`text-[11px] font-semibold ${patientStatus.color}`}>{patientStatus.text}</span>
+                    <span className={`text-[10px] font-bold tracking-tight ${patientStatus.color}`}>{patientStatus.text}</span>
                   </div>
                 </div>
 
@@ -478,32 +476,31 @@ export function PatientOverviewTable({
                   </div>
 
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400 shrink-0">
-                      <Moon className="w-4 h-4 text-indigo-500" />
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 shrink-0">
+                      <Moon className="w-3.5 h-3.5 text-indigo-500" />
                       <span>{t('table.sleepState')}</span>
                     </div>
-                    <span className="text-sm max-[374px]:text-xs text-gray-700 truncate max-w-[65%] max-[374px]:max-w-none max-[374px]:whitespace-normal text-right">
+                    <span className="text-[13px] font-semibold text-slate-700 text-right">
                       {getSleepStateText(patient.sleepState)}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400 shrink-0">
-                      <DeviceIcon className={`w-4 h-4 ${deviceStatus.iconColor}`} />
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 shrink-0">
+                      <DeviceIcon className={`w-3.5 h-3.5 ${deviceStatus.iconColor}`} />
                       <span>{t('table.deviceStatus')}</span>
                     </div>
-                    <span className={`text-[12px] max-[374px]:text-[11px] font-semibold ${deviceStatus.color} truncate max-w-[65%] max-[374px]:max-w-none max-[374px]:whitespace-normal text-right`}>
+                    <span className={`text-[12px] font-bold ${deviceStatus.color} text-right`}>
                       {deviceStatus.text}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between gap-3 max-[374px]:gap-1">
-                    <div className="flex items-center gap-2 text-[11px] max-[374px]:text-[9px] font-bold text-gray-400 shrink-0">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <span className="max-[374px]:hidden">{t('table.registrationDate')}</span>
-                      <span className="hidden max-[374px]:hidden">{t('notifications.table.date')}</span>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 shrink-0">
+                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{t('table.registrationDate')}</span>
                     </div>
-                    <span className="text-[12px] max-[374px]:text-[11px] text-gray-600 font-medium whitespace-nowrap">{formatDate(patient.personalInfo.admissionDate)}</span>
+                    <span className="text-[12px] text-slate-600 font-bold whitespace-nowrap text-right">{formatDate(patient.personalInfo.admissionDate)}</span>
                   </div>
                 </div>
 

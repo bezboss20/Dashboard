@@ -112,272 +112,183 @@ export function PatientFilterBar({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
-      <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
-        {/* Left Section: Search + Status Dropdown + Calendar */}
-        <div className="flex flex-col sm:flex-row xl:w-auto items-stretch sm:items-center gap-3 w-full">
+    <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-slate-200/60 p-3 sm:p-4 mb-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
+        {/* All Filters Row Container */}
+        <div className="flex flex-col sm:flex-row lg:flex-1 lg:items-center gap-2 sm:gap-3 w-full">
           {/* Search Bar */}
-          <div className="relative min-w-0 xl:max-w-xs flex-1 xl:flex-none">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div className="relative min-w-0 lg:max-w-[280px] xl:max-w-xs flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder={t('filter.searchPlaceholder')}
-              className="w-full pl-8 pr-1 py-2.5 bg-gray-50 text-gray-900 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full pl-8 pr-3 py-2 bg-slate-50/50 text-slate-900 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-400"
             />
           </div>
 
-          {/* Status Dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full sm:w-auto flex items-center justify-between gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-all min-w-[140px] whitespace-nowrap"
-            >
-              <span>{getStatusLabel(statusFilter)}</span>
-              <ChevronDown
-                className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''
-                  }`}
-              />
-            </button>
-
-            {isDropdownOpen && (
-              <div className="absolute z-50 mt-2 w-full min-w-[180px] bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden animate-in fade-in slide-in-from-top-2">
-                {statusOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      onStatusChange(option.value);
-                      setIsDropdownOpen(false);
-                    }}
-                    className={`w-full px-4 py-3 text-left text-sm hover:bg-gray-50 transition-colors flex items-center justify-between ${statusFilter === option.value
-                      ? 'bg-blue-50 text-blue-600 font-medium'
-                      : 'text-gray-700'
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-2.5 w-full sm:w-auto lg:items-center lg:flex-1 lg:justify-between">
+            <div className="grid grid-cols-2 sm:flex gap-1.5 sm:gap-2.5 flex-1 sm:flex-none">
+              {/* Status Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="w-full sm:w-auto flex items-center justify-between gap-1 px-2 sm:px-3 text-[11px] sm:text-sm py-2.5 bg-white border border-slate-200 rounded-lg font-medium text-slate-700 hover:bg-slate-50 transition-all sm:min-w-[110px] shadow-sm"
+                >
+                  <span className="truncate">{getStatusLabel(statusFilter)}</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 text-slate-400 transition-transform shrink-0 ${isDropdownOpen ? 'rotate-180' : ''
                       }`}
-                  >
-                    <span>{option.label}</span>
-                    {statusFilter === option.value && <div className="w-2 h-2 rounded-full bg-blue-600" />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+                  />
+                </button>
 
-          {/* Calendar Dropdown */}
-          <div className="relative" ref={calendarRef}>
-            <button
-              onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-              className="w-full sm:w-auto flex items-center justify-between gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-all min-w-[140px]"
-            >
-              <div className="flex items-center gap-2 whitespace-nowrap">
-                <Calendar className="w-4 h-4 text-gray-400" />
-                <span>{selectedDate || t('registration.registrationDate')}</span>
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-gray-400 transition-transform ${isCalendarOpen ? 'rotate-180' : ''
-                  }`}
-              />
-            </button>
-
-            {isCalendarOpen && (
-              <div className="absolute z-50 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl w-[280px] max-[374px]:w-[250px] sm:w-[300px] animate-in fade-in slide-in-from-top-2 overflow-hidden right-0 max-[374px]:left-0 max-[374px]:mx-auto sm:left-0">
-                {/* Header - Month/Year Navigation */}
-                <div className="px-3 py-2 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                  <button
-                    onClick={handlePrevMonth}
-                    className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"
-                  >
-                    <ChevronDown className="w-4 h-4 rotate-90 text-gray-600" />
-                  </button>
-                  <span className="text-sm font-bold text-gray-900">
-                    {monthName} {currentYear}
-                  </span>
-                  <button
-                    onClick={handleNextMonth}
-                    className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"
-                  >
-                    <ChevronDown className="w-4 h-4 -rotate-90 text-gray-600" />
-                  </button>
-                </div>
-
-                {/* Day Headers */}
-                <div className="grid grid-cols-7 gap-0 px-2 pt-2">
-                  {weekDays.map((day, i) => (
-                    <div
-                      key={i}
-                      className={`text-center text-[10px] sm:text-xs font-bold py-1 ${i === 0 ? 'text-red-400' : i === 6 ? 'text-blue-400' : 'text-gray-400'}`}
-                    >
-                      {day}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Days Grid */}
-                <div className="grid grid-cols-7 gap-0 p-2">
-                  {days.map((day, i) => {
-                    const dateStr = day ? `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}` : null;
-                    const isSelected = selectedDate === dateStr;
-                    const isToday = day &&
-                      new Date().getDate() === day &&
-                      new Date().getMonth() === currentMonth &&
-                      new Date().getFullYear() === currentYear;
-                    const isSunday = i % 7 === 0;
-                    const isSaturday = i % 7 === 6;
-
-                    return (
+                {isDropdownOpen && (
+                  <div className="absolute z-60 mt-2 w-[180px] sm:w-[200px] left-0 sm:left-0 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 origin-top-left">
+                    {statusOptions.map((option) => (
                       <button
-                        key={i}
-                        onClick={() => day && handleDateClick(day)}
-                        disabled={!day}
-                        className={`text-center text-xs sm:text-sm py-1.5 sm:py-2 rounded-lg transition-all ${!day ? 'invisible' :
-                          isSelected ? 'bg-blue-600 text-white font-bold' :
-                            isToday ? 'bg-blue-100 text-blue-600 font-bold' :
-                              isSunday ? 'text-red-500 hover:bg-red-50' :
-                                isSaturday ? 'text-blue-500 hover:bg-blue-50' :
-                                  'text-gray-700 hover:bg-gray-100'
+                        key={option.value}
+                        onClick={() => {
+                          onStatusChange(option.value);
+                          setIsDropdownOpen(false);
+                        }}
+                        className={`w-full px-4 py-3 text-left text-sm hover:bg-slate-50 transition-colors flex items-center justify-between ${statusFilter === option.value
+                          ? 'bg-blue-50 text-blue-600 font-semibold'
+                          : 'text-slate-700'
                           }`}
                       >
-                        {day}
+                        <span className="truncate">{option.label}</span>
+                        {statusFilter === option.value && <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />}
                       </button>
-                    );
-                  })}
-                </div>
-
-                {/* Footer with Today and Clear */}
-                <div className="border-t border-gray-100 px-2 py-2 flex justify-between gap-2">
-                  <button
-                    onClick={() => {
-                      const today = new Date();
-                      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-                      setViewDate(today);
-                      onDateChange(dateStr);
-                      setIsCalendarOpen(false);
-                    }}
-                    className="flex-1 px-2 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-center"
-                  >
-                    {t('common.today')}
-                  </button>
-                  <button
-                    onClick={() => {
-                      onDateChange(null);
-                      setIsCalendarOpen(false);
-                    }}
-                    className="flex-1 px-2 py-1.5 text-xs font-medium text-red-500 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-center"
-                  >
-                    {t('common.reset')}
-                  </button>
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
+
+              {/* Calendar Dropdown */}
+              <div className="relative" ref={calendarRef}>
+                <button
+                  onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+                  className="w-full sm:w-auto flex items-center justify-between gap-1 px-2 sm:px-3 text-[11px] sm:text-sm py-2.5 bg-white border border-slate-200 rounded-lg font-medium text-slate-700 hover:bg-slate-50 transition-all sm:min-w-[110px] shadow-sm"
+                >
+                  <div className="flex items-center gap-1 min-w-0">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span className="truncate">{selectedDate || t('registration.registrationDate')}</span>
+                  </div>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 text-slate-400 transition-transform shrink-0 ${isCalendarOpen ? 'rotate-180' : ''
+                      }`}
+                  />
+                </button>
+
+                {isCalendarOpen && (
+                  <div className="absolute z-60 mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl w-[280px] max-[350px]:w-[240px] animate-in fade-in slide-in-from-top-2 overflow-hidden right-0 sm:left-0 origin-top-right">
+                    <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                      <button onClick={handlePrevMonth} className="p-1.5 hover:bg-slate-200 rounded-lg transition-colors">
+                        <ChevronDown className="w-4 h-4 rotate-90 text-slate-600" />
+                      </button>
+                      <span className="text-sm font-bold text-slate-900">{monthName} {currentYear}</span>
+                      <button onClick={handleNextMonth} className="p-1.5 hover:bg-slate-200 rounded-lg transition-colors">
+                        <ChevronDown className="w-4 h-4 -rotate-90 text-slate-600" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-7 gap-0 px-2 pt-2">
+                      {weekDays.map((day, i) => (
+                        <div key={i} className={`text-center text-[10px] sm:text-xs font-bold py-1 ${i === 0 ? 'text-red-400' : i === 6 ? 'text-blue-400' : 'text-slate-400'}`}>
+                          {day}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-0 p-2">
+                      {days.map((day, i) => {
+                        const dateStr = day ? `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}` : null;
+                        const isSelected = selectedDate === dateStr;
+                        const isToday = day && new Date().getDate() === day && new Date().getMonth() === currentMonth && new Date().getFullYear() === currentYear;
+                        return (
+                          <button
+                            key={i} onClick={() => day && handleDateClick(day)} disabled={!day}
+                            className={`text-center text-xs sm:text-sm py-1.5 sm:py-2 rounded-lg transition-all ${!day ? 'invisible' : isSelected ? 'bg-blue-600 text-white font-bold' : isToday ? 'bg-blue-50 text-blue-600 font-bold' : 'text-slate-700 hover:bg-slate-100'}`}
+                          >
+                            {day}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="border-t border-slate-100 px-2 py-2 flex justify-between gap-2">
+                      <button onClick={() => { const today = new Date(); onDateChange(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`); setIsCalendarOpen(false); }} className="flex-1 px-2 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-center">{t('common.today')}</button>
+                      <button onClick={() => { onDateChange(null); setIsCalendarOpen(false); }} className="flex-1 px-2 py-1.5 text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-center">{t('common.reset')}</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Status Summary Buttons Group - Aligned in same row for lg+ */}
+            <div className="grid grid-cols-3 gap-1.5 sm:flex sm:items-center sm:gap-2 lg:gap-3 w-full sm:w-auto">
+              {/* Active */}
+              <button
+                onClick={() => onStatusChange(statusFilter === 'ACTIVE' ? 'ALL' : 'ACTIVE')}
+                className={`group min-w-0 flex-1 sm:flex-none sm:min-w-[70px] bg-green-50 border transition-all rounded-lg text-left ${statusFilter === 'ACTIVE'
+                  ? 'border-green-500 ring-2 ring-green-200 bg-green-100 shadow-sm'
+                  : 'border-green-200 hover:border-green-400 hover:bg-green-100'
+                  }`}
+              >
+                <div className="flex flex-col items-center justify-center text-center px-0.5 py-1.5 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
+                  <UserCheck className={`w-3.5 h-3.5 transition-colors shrink-0 ${statusFilter === 'ACTIVE' ? 'text-green-700' : 'text-green-600'}`} />
+                  <div className="min-w-0 flex flex-col items-center sm:items-start text-center sm:text-left lg:block">
+                    <div className={`text-[8.5px] sm:text-[9px] font-bold tracking-tight leading-none uppercase transition-colors mb-0.5 ${statusFilter === 'ACTIVE' ? 'text-green-700' : 'text-green-600'}`}>
+                      {t('filter.active')}
+                    </div>
+                    <div className={`text-[11px] sm:text-[12px] font-bold leading-none transition-colors ${statusFilter === 'ACTIVE' ? 'text-green-800' : 'text-green-700'}`}>
+                      {patientCounts.active}
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              {/* Discharged */}
+              <button
+                onClick={() => onStatusChange(statusFilter === 'DISCHARGED' ? 'ALL' : 'DISCHARGED')}
+                className={`group min-w-0 flex-1 sm:flex-none sm:min-w-[70px] bg-blue-50 border transition-all rounded-lg text-left ${statusFilter === 'DISCHARGED'
+                  ? 'border-blue-500 ring-2 ring-blue-200 bg-blue-100 shadow-sm'
+                  : 'border-blue-200 hover:border-blue-400 hover:bg-blue-100'
+                  }`}
+              >
+                <div className="flex flex-col items-center justify-center text-center px-0.5 py-1.5 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
+                  <UserMinus className={`w-3.5 h-3.5 transition-colors shrink-0 ${statusFilter === 'DISCHARGED' ? 'text-blue-700' : 'text-blue-600'}`} />
+                  <div className="min-w-0 flex flex-col items-center sm:items-start text-center sm:text-left lg:block">
+                    <div className={`text-[8.5px] sm:text-[9px] font-bold tracking-tight leading-none uppercase transition-colors mb-0.5 ${statusFilter === 'DISCHARGED' ? 'text-blue-700' : 'text-blue-600'}`}>
+                      {t('filter.discharged')}
+                    </div>
+                    <div className={`text-[11px] sm:text-[12px] font-bold leading-none transition-colors ${statusFilter === 'DISCHARGED' ? 'text-blue-800' : 'text-blue-700'}`}>
+                      {patientCounts.discharged}
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              {/* Transferred */}
+              <button
+                onClick={() => onStatusChange(statusFilter === 'TRANSFERRED' ? 'ALL' : 'TRANSFERRED')}
+                className={`group min-w-0 flex-1 sm:flex-none sm:min-w-[70px] bg-orange-50 border transition-all rounded-lg text-left ${statusFilter === 'TRANSFERRED'
+                  ? 'border-orange-500 ring-2 ring-orange-200 bg-orange-100 shadow-sm'
+                  : 'border-orange-200 hover:border-orange-400 hover:bg-orange-100'
+                  }`}
+              >
+                <div className="flex flex-col items-center justify-center text-center px-0.5 py-1.5 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
+                  <UserX className={`w-3.5 h-3.5 transition-colors shrink-0 ${statusFilter === 'TRANSFERRED' ? 'text-orange-700' : 'text-orange-600'}`} />
+                  <div className="min-w-0 flex flex-col items-center sm:items-start text-center sm:text-left lg:block">
+                    <div className={`text-[8.5px] sm:text-[9px] font-bold tracking-tight leading-none uppercase transition-colors mb-0.5 ${statusFilter === 'TRANSFERRED' ? 'text-orange-700' : 'text-orange-600'}`}>
+                      {t('filter.transferred')}
+                    </div>
+                    <div className={`text-[11px] sm:text-[12px] font-bold leading-none transition-colors ${statusFilter === 'TRANSFERRED' ? 'text-orange-800' : 'text-orange-700'}`}>
+                      {patientCounts.transferred}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
           </div>
-        </div>
-
-        {/* Right Section: Status Summary Cards */}
-        <div className="grid grid-cols-5 gap-2 sm:flex xl:w-auto sm:items-center sm:gap-3 w-full justify-start lg:justify-center xl:justify-start">
-          {/* Total */}
-          <button
-            onClick={() => onStatusChange('ALL')}
-            className={`group min-w-0 w-full sm:w-auto sm:min-w-[70px] bg-gray-50 border transition-all rounded-lg text-left ${statusFilter === 'ALL'
-              ? 'border-gray-500 ring-2 ring-gray-200 bg-gray-100 shadow-sm'
-              : 'border-gray-200 hover:border-gray-400 hover:bg-gray-100 hover:shadow-xs'
-              }`}
-          >
-            <div className="flex flex-col items-center justify-center text-center px-0.5 py-1 max-[374px]:py-0 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
-              <Search className={`w-3 h-3 max-[374px]:w-2.5 max-[374px]:h-2.5 sm:w-4 sm:h-4 transition-colors ${statusFilter === 'ALL' ? 'text-gray-700' : 'text-gray-600'}`} />
-              <div className="min-w-0">
-                <div className={`text-[8px] max-[374px]:text-[7px] max-[374px]:leading-none max-[374px]:tracking-tight sm:text-[9px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'ALL' ? 'text-gray-700' : 'text-gray-600'}`}>
-                  {t('filter.allStatus')}
-                </div>
-                <div className={`text-[12px] max-[374px]:text-[10px] sm:text-[13px] font-black leading-tight transition-colors ${statusFilter === 'ALL' ? 'text-gray-800' : 'text-gray-700'}`}>
-                  {patientCounts.total}
-                </div>
-              </div>
-            </div>
-          </button>
-
-          {/* Active */}
-          <button
-            onClick={() => onStatusChange(statusFilter === 'ACTIVE' ? 'ALL' : 'ACTIVE')}
-            className={`group min-w-0 w-full sm:w-auto sm:min-w-[70px] bg-green-50 border transition-all rounded-lg text-left ${statusFilter === 'ACTIVE'
-              ? 'border-green-500 ring-2 ring-green-200 bg-green-100 shadow-sm'
-              : 'border-green-200 hover:border-green-400 hover:bg-green-100 hover:shadow-xs'
-              }`}
-          >
-            <div className="flex flex-col items-center justify-center text-center px-0.5 py-1 max-[374px]:py-0 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
-              <UserCheck className={`w-3 h-3 max-[374px]:w-2.5 max-[374px]:h-2.5 sm:w-4 sm:h-4 transition-colors ${statusFilter === 'ACTIVE' ? 'text-green-700' : 'text-green-600'}`} />
-              <div className="min-w-0">
-                <div className={`text-[8px] max-[374px]:text-[7px] max-[374px]:leading-none max-[374px]:tracking-tight sm:text-[9px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'ACTIVE' ? 'text-green-700' : 'text-green-600'}`}>
-                  {t('filter.active')}
-                </div>
-                <div className={`text-[12px] max-[374px]:text-[10px] sm:text-[13px] font-black leading-tight transition-colors ${statusFilter === 'ACTIVE' ? 'text-green-800' : 'text-green-700'}`}>
-                  {patientCounts.active}
-                </div>
-              </div>
-            </div>
-          </button>
-
-          {/* Critical */}
-          <button
-            onClick={() => onStatusChange(statusFilter === 'CRITICAL' ? 'ALL' : 'CRITICAL')}
-            className={`group min-w-0 w-full sm:w-auto sm:min-w-[70px] bg-red-50 border transition-all rounded-lg text-left ${statusFilter === 'CRITICAL'
-              ? 'border-red-500 ring-2 ring-red-200 bg-red-100 shadow-sm'
-              : 'border-red-200 hover:border-red-400 hover:bg-red-100 hover:shadow-xs'
-              }`}
-          >
-            <div className="flex flex-col items-center justify-center text-center px-0.5 py-1 max-[374px]:py-0 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
-              <AlertTriangle className={`w-3 h-3 max-[374px]:w-2.5 max-[374px]:h-2.5 sm:w-4 sm:h-4 animate-pulse transition-colors ${statusFilter === 'CRITICAL' ? 'text-red-700' : 'text-red-600'}`} />
-              <div className="min-w-0">
-                <div className={`text-[8px] max-[374px]:text-[7px] max-[374px]:leading-none max-[374px]:tracking-tight sm:text-[9px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'CRITICAL' ? 'text-red-700' : 'text-red-600'}`}>
-                  {t('status.critical')}
-                </div>
-                <div className={`text-[12px] max-[374px]:text-[10px] sm:text-[13px] font-black leading-tight transition-colors ${statusFilter === 'CRITICAL' ? 'text-red-800' : 'text-red-700'}`}>
-                  {patientCounts.critical}
-                </div>
-              </div>
-            </div>
-          </button>
-
-          {/* Discharged */}
-          <button
-            onClick={() => onStatusChange(statusFilter === 'DISCHARGED' ? 'ALL' : 'DISCHARGED')}
-            className={`group min-w-0 w-full sm:w-auto sm:min-w-[70px] bg-blue-50 border transition-all rounded-lg text-left ${statusFilter === 'DISCHARGED'
-              ? 'border-blue-500 ring-2 ring-blue-200 bg-blue-100 shadow-sm'
-              : 'border-blue-200 hover:border-blue-400 hover:bg-blue-100 hover:shadow-xs'
-              }`}
-          >
-            <div className="flex flex-col items-center justify-center text-center px-0.5 py-1 max-[374px]:py-0 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
-              <UserMinus className={`w-3 h-3 max-[374px]:w-2.5 max-[374px]:h-2.5 sm:w-4 sm:h-4 transition-colors ${statusFilter === 'DISCHARGED' ? 'text-blue-700' : 'text-blue-600'}`} />
-              <div className="min-w-0">
-                <div className={`text-[8px] max-[374px]:text-[7px] max-[374px]:leading-none max-[374px]:tracking-tight sm:text-[9px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'DISCHARGED' ? 'text-blue-700' : 'text-blue-600'}`}>
-                  {t('filter.discharged')}
-                </div>
-                <div className={`text-[12px] max-[374px]:text-[10px] sm:text-[13px] font-black leading-tight transition-colors ${statusFilter === 'DISCHARGED' ? 'text-blue-800' : 'text-blue-700'}`}>
-                  {patientCounts.discharged}
-                </div>
-              </div>
-            </div>
-          </button>
-
-          {/* Transferred */}
-          <button
-            onClick={() => onStatusChange(statusFilter === 'TRANSFERRED' ? 'ALL' : 'TRANSFERRED')}
-            className={`group min-w-0 w-full sm:w-auto sm:min-w-[70px] bg-orange-50 border transition-all rounded-lg text-left ${statusFilter === 'TRANSFERRED'
-              ? 'border-orange-500 ring-2 ring-orange-200 bg-orange-100 shadow-sm'
-              : 'border-orange-200 hover:border-orange-400 hover:bg-orange-100 hover:shadow-xs'
-              }`}
-          >
-            <div className="flex flex-col items-center justify-center text-center px-0.5 py-1 max-[374px]:py-0 sm:flex-row sm:text-left sm:justify-start sm:gap-2 sm:px-3 sm:py-2">
-              <UserX className={`w-3 h-3 max-[374px]:w-2.5 max-[374px]:h-2.5 sm:w-4 sm:h-4 transition-colors ${statusFilter === 'TRANSFERRED' ? 'text-orange-700' : 'text-orange-600'}`} />
-              <div className="min-w-0">
-                <div className={`text-[8px] max-[374px]:text-[7px] max-[374px]:leading-none max-[374px]:tracking-tight sm:text-[9px] font-bold tracking-wider leading-tight truncate max-[374px]:whitespace-normal max-[374px]:overflow-visible uppercase transition-colors ${statusFilter === 'TRANSFERRED' ? 'text-orange-700' : 'text-orange-600'}`}>
-                  {t('filter.transferred')}
-                </div>
-                <div className={`text-[12px] max-[374px]:text-[10px] sm:text-[13px] font-black leading-tight transition-colors ${statusFilter === 'TRANSFERRED' ? 'text-orange-800' : 'text-orange-700'}`}>
-                  {patientCounts.transferred}
-                </div>
-              </div>
-            </div>
-          </button>
         </div>
       </div>
     </div>
